@@ -1,0 +1,292 @@
+[
+  {
+    "id": "ursus-thibetanus-ussuricus",
+    "scientific_name": "Ursus thibetanus ussuricus",
+    "common_name_en": "Asiatic Black Bear (Korean)",
+    "common_name_ko": "반달가슴곰",
+    "category": "VU",
+    "class_name": "포유류",
+    "family": "곰과",
+    "region": "한국 (지리산), 러시아 극동",
+    "population_trend": "증가",
+    "mature_individuals": 86,
+    "summary_ko": "한국에서 1980년대 거의 자취를 감췄다가 2004년부터 시작된 지리산 복원 프로젝트로 80여 마리까지 늘어난 종. 서식지 분단과 개체 간 충돌이 여전한 위협.",
+    "wikipedia_title": "Asian_black_bear",
+    "year_published": 2024,
+    "threats": [
+      { "name": "서식지 파편화 (도로·등산로)", "severity": "high" },
+      { "name": "올무·밀렵", "severity": "medium" },
+      { "name": "한정된 유전 다양성", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "지리산 복원 프로젝트 (국립공원공단)" },
+      { "name": "GPS 위치추적 모니터링" },
+      { "name": "올무 일제 수거" }
+    ],
+    "habitats": [
+      { "name": "고산 활엽수림" },
+      { "name": "참나무·신갈나무 숲 (도토리)" }
+    ]
+  },
+  {
+    "id": "naemorhedus-caudatus",
+    "scientific_name": "Naemorhedus caudatus",
+    "common_name_en": "Long-tailed Goral",
+    "common_name_ko": "산양",
+    "category": "VU",
+    "class_name": "포유류",
+    "family": "솟과",
+    "region": "한국 (설악산·오대산·울진), 러시아·중국",
+    "population_trend": "감소",
+    "mature_individuals": 800,
+    "summary_ko": "절벽과 바위 지형에서만 서식하는 반달가슴곰과 함께 한국의 대표 멸종위기종. 1970년대 폭설로 큰 타격을 입은 뒤 보호구역 안에서만 안정세.",
+    "wikipedia_title": "Long-tailed_goral",
+    "year_published": 2020,
+    "threats": [
+      { "name": "기후변화로 인한 폭설", "severity": "high" },
+      { "name": "도로·터널 건설로 서식지 단절", "severity": "high" },
+      { "name": "유전 다양성 감소", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "산양 복원증식센터 운영" },
+      { "name": "구조·치료·재방사" },
+      { "name": "백두대간 생태축 복원" }
+    ],
+    "habitats": [
+      { "name": "고산 절벽 지형" },
+      { "name": "활엽수림과 침엽수림 경계" }
+    ]
+  },
+  {
+    "id": "lutra-lutra",
+    "scientific_name": "Lutra lutra",
+    "common_name_en": "Eurasian Otter",
+    "common_name_ko": "수달",
+    "category": "VU",
+    "class_name": "포유류",
+    "family": "족제비과",
+    "region": "한국 전역 하천, 유라시아 대륙",
+    "population_trend": "증가",
+    "mature_individuals": 4000,
+    "summary_ko": "1960~80년대 수질 오염과 모피 사냥으로 거의 사라졌다가 4대강 정비 이후 다시 발견되고 있는 종. 도시 하천에서도 발견되어 회복의 상징이 됨.",
+    "wikipedia_title": "Eurasian_otter",
+    "year_published": 2024,
+    "threats": [
+      { "name": "하천 직강화·콘크리트화", "severity": "high" },
+      { "name": "수질오염", "severity": "medium" },
+      { "name": "도로 로드킬", "severity": "high" }
+    ],
+    "conservation_actions": [
+      { "name": "수달 보호구역 지정" },
+      { "name": "생태통로 설치" },
+      { "name": "하천 자연성 회복 사업" }
+    ],
+    "habitats": [
+      { "name": "하천·강·호수" },
+      { "name": "해안 (이도 인근)" }
+    ]
+  },
+  {
+    "id": "nipponia-nippon",
+    "scientific_name": "Nipponia nippon",
+    "common_name_en": "Crested Ibis",
+    "common_name_ko": "따오기",
+    "category": "EN",
+    "class_name": "조류",
+    "family": "저어샛과",
+    "region": "한국 창녕 우포늪 (복원), 중국·일본",
+    "population_trend": "증가",
+    "mature_individuals": 600,
+    "summary_ko": "1979년 한국에서 마지막으로 관찰된 뒤 절멸한 줄 알았던 종. 2008년 중국에서 4마리를 들여와 우포늪에서 복원, 현재 100여 마리가 야생 방사됨.",
+    "wikipedia_title": "Crested_ibis",
+    "year_published": 2024,
+    "threats": [
+      { "name": "농약·비료 오염", "severity": "high" },
+      { "name": "논·습지 면적 감소", "severity": "high" },
+      { "name": "조류 인플루엔자", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "우포 따오기 복원센터 (창녕군)" },
+      { "name": "친환경 농업 협약 (따오기 친구 농가)" },
+      { "name": "겨울 먹이터 조성" }
+    ],
+    "habitats": [
+      { "name": "논·논두렁" },
+      { "name": "습지·하천변" }
+    ]
+  },
+  {
+    "id": "ciconia-boyciana",
+    "scientific_name": "Ciconia boyciana",
+    "common_name_en": "Oriental Stork",
+    "common_name_ko": "황새",
+    "category": "EN",
+    "class_name": "조류",
+    "family": "황새과",
+    "region": "한국 (예산 황새공원 복원), 동아시아",
+    "population_trend": "감소",
+    "mature_individuals": 1500,
+    "summary_ko": "1970년대 한국에서 야생 절멸. 2015년 예산 황새공원에서 복원·방사 시작. 마을 사람들이 서식지를 가꿔주며 함께 살아가는 모범적 사례.",
+    "wikipedia_title": "Oriental_stork",
+    "year_published": 2018,
+    "threats": [
+      { "name": "농약 사용으로 먹이 감소", "severity": "high" },
+      { "name": "서식 습지 매립", "severity": "high" },
+      { "name": "전선 충돌", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "예산 황새공원 (한국교원대)" },
+      { "name": "황새 친환경 농업 인증" },
+      { "name": "인공 둥지탑 설치" }
+    ],
+    "habitats": [
+      { "name": "논·습지" },
+      { "name": "농경지 인근 큰 나무" }
+    ]
+  },
+  {
+    "id": "rana-coreana",
+    "scientific_name": "Rana coreana",
+    "common_name_en": "Korean Brown Frog",
+    "common_name_ko": "한국산개구리",
+    "category": "VU",
+    "class_name": "양서류",
+    "family": "개구리과",
+    "region": "한국 고유종",
+    "population_trend": "감소",
+    "mature_individuals": null,
+    "summary_ko": "한국 고유의 작은 개구리. 산란을 위해 농수로와 산기슭 웅덩이를 이용하지만, 2~3월 산란기 농수로 시멘트화로 알이 마르는 일이 잦음.",
+    "wikipedia_title": "Rana_coreana",
+    "year_published": 2024,
+    "threats": [
+      { "name": "농수로 시멘트화", "severity": "high" },
+      { "name": "농약·제초제", "severity": "high" },
+      { "name": "기후변화로 산란기 변화", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "산란지 모니터링 (시민과학)" },
+      { "name": "흙 농수로 보전 협약" }
+    ],
+    "habitats": [
+      { "name": "농수로·논" },
+      { "name": "산기슭 임시 웅덩이" }
+    ]
+  },
+  {
+    "id": "anguilla-japonica",
+    "scientific_name": "Anguilla japonica",
+    "common_name_en": "Japanese Eel",
+    "common_name_ko": "뱀장어",
+    "category": "EN",
+    "class_name": "어류",
+    "family": "뱀장어과",
+    "region": "한국·일본·중국·대만 하천, 마리아나 해구 산란",
+    "population_trend": "감소",
+    "mature_individuals": null,
+    "summary_ko": "마리아나 해구에서 알을 낳고 한국·일본 하천으로 거슬러 올라오는 회유어. 댐과 보로 회유로가 막히고 치어 남획으로 30년간 90% 이상 감소.",
+    "wikipedia_title": "Japanese_eel",
+    "year_published": 2014,
+    "threats": [
+      { "name": "댐·보로 회유 차단", "severity": "high" },
+      { "name": "치어(실뱀장어) 남획", "severity": "high" },
+      { "name": "수질 오염", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "어도(漁道) 설치" },
+      { "name": "치어 포획 쿼터제" },
+      { "name": "민·관 양식 기술 연구" }
+    ],
+    "habitats": [
+      { "name": "하천 중·하류" },
+      { "name": "해양 (산란·치어기)" }
+    ]
+  },
+  {
+    "id": "panthera-tigris-altaica",
+    "scientific_name": "Panthera tigris altaica",
+    "common_name_en": "Siberian Tiger (Korean Tiger)",
+    "common_name_ko": "한국호랑이",
+    "category": "EN",
+    "class_name": "포유류",
+    "family": "고양잇과",
+    "region": "러시아 극동 (한반도에서는 1924년 절멸)",
+    "population_trend": "안정",
+    "mature_individuals": 562,
+    "summary_ko": "한반도 백두산 호랑이로 불린 아종. 1924년 경북 영덕에서 마지막 사냥된 뒤 한국에서는 사라짐. 러시아 시호테알린에서 보전 노력으로 현재 500여 마리 회복.",
+    "wikipedia_title": "Siberian_tiger",
+    "year_published": 2022,
+    "threats": [
+      { "name": "서식지 파편화", "severity": "high" },
+      { "name": "밀렵 (호랑이뼈·가죽 거래)", "severity": "high" },
+      { "name": "주요 먹이종 감소", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "러시아 시호테알린 보호구역" },
+      { "name": "한국·러시아 호랑이 복원 협력" },
+      { "name": "DMZ 연결 생태축 논의" }
+    ],
+    "habitats": [
+      { "name": "타이가 (한대 침엽수림)" },
+      { "name": "온대 활엽수림" }
+    ]
+  },
+  {
+    "id": "canis-lupus-coreanus",
+    "scientific_name": "Canis lupus coreanus",
+    "common_name_en": "Korean Wolf",
+    "common_name_ko": "한국늑대",
+    "category": "EX",
+    "class_name": "포유류",
+    "family": "갯과",
+    "region": "한반도 (절멸)",
+    "population_trend": "절멸",
+    "mature_individuals": 0,
+    "summary_ko": "한반도에 살던 회색늑대 아종. 1915~1942년 일제의 해수구제(害獸驅除)로 600마리 이상 사살됨. 1980년대 마지막 야생 개체 확인 후 한국에서 절멸.",
+    "wikipedia_title": "Korean_wolf",
+    "year_published": 1996,
+    "extinction_year": 1996,
+    "extinction_cause": "일제강점기 조직적 사냥과 서식지 파괴",
+    "threats": [
+      { "name": "조직적 해수구제 정책 (1915-1942)" },
+      { "name": "서식지 파괴" },
+      { "name": "유전적 격리" }
+    ],
+    "conservation_actions": [
+      { "name": "박제·표본 보존" },
+      { "name": "DNA 분석 연구" }
+    ],
+    "habitats": [
+      { "name": "산림 지대" },
+      { "name": "초원·계곡" }
+    ]
+  },
+  {
+    "id": "lipotes-vexillifer-koreana",
+    "scientific_name": "Cervus nippon hortulorum",
+    "common_name_en": "Manchurian Sika Deer",
+    "common_name_ko": "꽃사슴 (한반도 아종)",
+    "category": "EX",
+    "class_name": "포유류",
+    "family": "사슴과",
+    "region": "한반도 (절멸)",
+    "population_trend": "절멸",
+    "mature_individuals": 0,
+    "summary_ko": "한반도에 살던 꽃사슴 토착 아종. 일제강점기 사냥과 약재(녹용) 수요로 1940년대 한반도에서 야생 절멸. 현재 동물원·농장의 꽃사슴은 일본·대만에서 들여온 다른 아종.",
+    "wikipedia_title": "Sika_deer",
+    "year_published": 1940,
+    "extinction_year": 1940,
+    "extinction_cause": "약재용 사냥과 서식지 파괴",
+    "threats": [
+      { "name": "녹용 약재 수요로 인한 사냥" },
+      { "name": "농경지 확대로 서식지 감소" }
+    ],
+    "conservation_actions": [
+      { "name": "DMZ 일대 잔존 가능성 모니터링" },
+      { "name": "표본·기록 보존" }
+    ],
+    "habitats": [
+      { "name": "활엽수림" },
+      { "name": "초지" }
+    ]
+  }
+]

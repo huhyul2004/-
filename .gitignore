@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sqlite — species.db 는 배포 번들에 포함 (읽기용)
+# 임시 파일만 무시
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/export/

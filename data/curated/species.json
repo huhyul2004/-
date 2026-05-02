@@ -1,0 +1,318 @@
+[
+  {
+    "id": "panthera-tigris",
+    "scientific_name": "Panthera tigris",
+    "common_name_en": "Tiger",
+    "common_name_ko": "호랑이",
+    "category": "EN",
+    "class_name": "포유류",
+    "family": "고양잇과",
+    "region": "아시아 (인도, 시베리아, 동남아시아)",
+    "population_trend": "감소",
+    "mature_individuals": 3140,
+    "summary_ko": "지구상에서 가장 큰 고양잇과 동물. 서식지 파괴와 밀렵으로 100여 년 전 10만 마리에서 현재 약 3,000~4,500마리로 급감했다.",
+    "wikipedia_title": "Tiger",
+    "year_published": 2022,
+    "threats": [
+      { "name": "서식지 파괴", "severity": "high" },
+      { "name": "밀렵 (가죽·뼈 거래)", "severity": "high" },
+      { "name": "먹이 부족", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "보호구역 지정 (Project Tiger 등)" },
+      { "name": "밀렵 단속 강화" },
+      { "name": "서식지 회복 및 연결성 확보" }
+    ],
+    "habitats": [
+      { "name": "열대·아열대 활엽수림" },
+      { "name": "타이가 (시베리아 호랑이)" },
+      { "name": "맹그로브 습지 (벵골 호랑이)" }
+    ]
+  },
+  {
+    "id": "ailuropoda-melanoleuca",
+    "scientific_name": "Ailuropoda melanoleuca",
+    "common_name_en": "Giant Panda",
+    "common_name_ko": "자이언트판다",
+    "category": "VU",
+    "class_name": "포유류",
+    "family": "곰과",
+    "region": "중국 중부 (쓰촨성, 산시성, 간쑤성)",
+    "population_trend": "증가",
+    "mature_individuals": 1864,
+    "summary_ko": "중국 산악 지역의 대나무 숲에 서식하는 고유종. 1980년대까지 EN(위기)이었으나 보호구역 확대로 2016년 VU(취약)로 회복된 보전 성공 사례.",
+    "wikipedia_title": "Giant_panda",
+    "year_published": 2016,
+    "threats": [
+      { "name": "서식지 파편화", "severity": "medium" },
+      { "name": "기후변화로 인한 대나무 분포 변화", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "67개 판다 보호구역 운영" },
+      { "name": "포획 번식 프로그램 (성공)" },
+      { "name": "서식지 회랑(corridor) 연결" }
+    ],
+    "habitats": [
+      { "name": "온대 대나무 숲" },
+      { "name": "고산 침엽수림" }
+    ]
+  },
+  {
+    "id": "ursus-maritimus",
+    "scientific_name": "Ursus maritimus",
+    "common_name_en": "Polar Bear",
+    "common_name_ko": "북극곰",
+    "category": "VU",
+    "class_name": "포유류",
+    "family": "곰과",
+    "region": "북극권 (러시아, 캐나다, 알래스카, 그린란드, 노르웨이)",
+    "population_trend": "감소",
+    "mature_individuals": 26000,
+    "summary_ko": "북극 해빙 위에서 바다표범을 사냥하는 최상위 포식자. 기후변화로 해빙이 매년 줄어들면서 사냥 시간이 줄고 영양실조와 번식 실패가 증가하고 있다.",
+    "wikipedia_title": "Polar_bear",
+    "year_published": 2015,
+    "threats": [
+      { "name": "기후변화로 인한 해빙 감소", "severity": "high" },
+      { "name": "유류 오염", "severity": "medium" },
+      { "name": "장거리 환경오염물질 축적", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "북극곰 협정 (5개국)" },
+      { "name": "사냥 쿼터제 운영" },
+      { "name": "온실가스 감축 (가장 근본적)" }
+    ],
+    "habitats": [
+      { "name": "북극 해빙" },
+      { "name": "해안 툰드라" }
+    ]
+  },
+  {
+    "id": "rhinoceros-sondaicus",
+    "scientific_name": "Rhinoceros sondaicus",
+    "common_name_en": "Javan Rhinoceros",
+    "common_name_ko": "자바코뿔소",
+    "category": "CR",
+    "class_name": "포유류",
+    "family": "코뿔소과",
+    "region": "인도네시아 자바섬 (우중쿨론 국립공원)",
+    "population_trend": "안정 (매우 적은 수)",
+    "mature_individuals": 76,
+    "summary_ko": "지구상에서 가장 희귀한 대형 포유류 중 하나. 단 한 곳의 서식지에 76마리만 남아있어 화산 폭발이나 질병 한 번이면 절멸 위험.",
+    "wikipedia_title": "Javan_rhinoceros",
+    "year_published": 2020,
+    "threats": [
+      { "name": "단일 개체군 (절멸 위험)", "severity": "high" },
+      { "name": "밀렵 (뿔)", "severity": "high" },
+      { "name": "서식지 손실", "severity": "high" },
+      { "name": "외래식물 침입 (Arenga obtusifolia)", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "우중쿨론 국립공원 24시간 감시" },
+      { "name": "제2의 서식지 후보지 평가" },
+      { "name": "뿔 거래 단속 (CITES Appendix I)" }
+    ],
+    "habitats": [
+      { "name": "저지대 열대 우림" },
+      { "name": "맹그로브 습지" }
+    ]
+  },
+  {
+    "id": "gorilla-beringei-graueri",
+    "scientific_name": "Gorilla beringei graueri",
+    "common_name_en": "Eastern Lowland Gorilla",
+    "common_name_ko": "동부저지대고릴라 (그라우어고릴라)",
+    "category": "CR",
+    "class_name": "포유류",
+    "family": "사람과",
+    "region": "콩고민주공화국 동부",
+    "population_trend": "감소",
+    "mature_individuals": 3800,
+    "summary_ko": "20년 만에 개체수가 77% 감소. 콩고 동부의 정치 불안정과 광물(코탄) 채굴이 직접적 원인.",
+    "wikipedia_title": "Eastern_lowland_gorilla",
+    "year_published": 2018,
+    "threats": [
+      { "name": "내전과 정치 불안정", "severity": "high" },
+      { "name": "코탄 등 광물 불법 채굴", "severity": "high" },
+      { "name": "고기 사냥 (bushmeat)", "severity": "high" },
+      { "name": "에볼라 등 질병", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "카후지비에가 국립공원 보호" },
+      { "name": "지역사회 기반 보전" },
+      { "name": "분쟁 광물 추적 시스템" }
+    ],
+    "habitats": [
+      { "name": "저지대 열대우림" },
+      { "name": "산악 죽림" }
+    ]
+  },
+  {
+    "id": "phocoena-sinus",
+    "scientific_name": "Phocoena sinus",
+    "common_name_en": "Vaquita",
+    "common_name_ko": "바키타돌고래",
+    "category": "CR",
+    "class_name": "포유류",
+    "family": "쇠돌고래과",
+    "region": "멕시코 캘리포니아만 북부",
+    "population_trend": "급감",
+    "mature_individuals": 10,
+    "summary_ko": "지구상에서 가장 희귀한 해양 포유류. 단 10마리 미만 추정. 토토아바 어업의 자망에 혼획되어 절멸 직전.",
+    "wikipedia_title": "Vaquita",
+    "year_published": 2017,
+    "threats": [
+      { "name": "토토아바 자망 혼획", "severity": "high" },
+      { "name": "단일 개체군 (유전적 다양성 부족)", "severity": "high" }
+    ],
+    "conservation_actions": [
+      { "name": "캘리포니아만 자망 금지구역 설정 (효과 제한적)" },
+      { "name": "토토아바 부레 거래 단속" },
+      { "name": "어업인 대상 대안 어구 보급" }
+    ],
+    "habitats": [
+      { "name": "얕은 연안 (수심 50m 미만)" }
+    ]
+  },
+  {
+    "id": "rhincodon-typus",
+    "scientific_name": "Rhincodon typus",
+    "common_name_en": "Whale Shark",
+    "common_name_ko": "고래상어",
+    "category": "EN",
+    "class_name": "어류 (연골어류)",
+    "family": "고래상어과",
+    "region": "전 세계 열대·아열대 해양",
+    "population_trend": "감소",
+    "mature_individuals": null,
+    "summary_ko": "현존하는 가장 큰 어류 (최대 18m). 플랑크톤을 걸러 먹는 온순한 거대 상어. 어업 혼획과 선박 충돌로 50% 이상 감소했다.",
+    "wikipedia_title": "Whale_shark",
+    "year_published": 2016,
+    "threats": [
+      { "name": "참치 어업 혼획", "severity": "high" },
+      { "name": "선박 충돌", "severity": "medium" },
+      { "name": "지느러미·고기 거래", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "CITES Appendix II 등재" },
+      { "name": "주요 회유 경로 보호구역 지정" },
+      { "name": "관찰 관광을 통한 보전 인센티브" }
+    ],
+    "habitats": [
+      { "name": "열대·아열대 외양" },
+      { "name": "연안 산호초 인근" }
+    ]
+  },
+  {
+    "id": "haliaeetus-leucocephalus-koreanus",
+    "scientific_name": "Grus japonensis",
+    "common_name_en": "Red-crowned Crane",
+    "common_name_ko": "두루미 (단정학)",
+    "category": "VU",
+    "class_name": "조류",
+    "family": "두루미과",
+    "region": "동아시아 (한국, 일본, 중국, 러시아)",
+    "population_trend": "안정~소폭 감소",
+    "mature_individuals": 1830,
+    "summary_ko": "한국에서 매년 겨울 철원·연천 일대로 날아오는 천연기념물. 동아시아 전체에서 약 3,000마리만 남아있다.",
+    "wikipedia_title": "Red-crowned_crane",
+    "year_published": 2021,
+    "threats": [
+      { "name": "습지 매립과 농경지 변화", "severity": "high" },
+      { "name": "송전선 충돌", "severity": "medium" },
+      { "name": "기후변화로 인한 월동지 변화", "severity": "medium" }
+    ],
+    "conservation_actions": [
+      { "name": "DMZ 내 자연 서식지 보전" },
+      { "name": "철원 평야 인공 먹이공급" },
+      { "name": "한·일·중·러 4개국 보전협약" }
+    ],
+    "habitats": [
+      { "name": "민물 습지" },
+      { "name": "농경지 (월동기)" }
+    ]
+  },
+  {
+    "id": "raphus-cucullatus",
+    "scientific_name": "Raphus cucullatus",
+    "common_name_en": "Dodo",
+    "common_name_ko": "도도새",
+    "category": "EX",
+    "class_name": "조류",
+    "family": "비둘기과",
+    "region": "모리셔스섬 (인도양)",
+    "population_trend": "절멸",
+    "mature_individuals": 0,
+    "extinction_year": 1681,
+    "extinction_cause": "유럽인 정착 후 80년 만에 절멸. 인간의 직접 사냥보다도 함께 들여온 돼지·쥐·원숭이가 둥지의 알을 먹어치운 것이 결정적이었다.",
+    "summary_ko": "비행 능력을 잃은 거대 비둘기. 천적 없는 섬에서 진화해 인간과 외래종 도착에 무방비였다. '도도처럼 죽다(dead as a dodo)'라는 관용구의 어원.",
+    "wikipedia_title": "Dodo",
+    "threats": [],
+    "conservation_actions": [],
+    "habitats": [
+      { "name": "모리셔스 저지대 숲 (소실)" }
+    ]
+  },
+  {
+    "id": "thylacinus-cynocephalus",
+    "scientific_name": "Thylacinus cynocephalus",
+    "common_name_en": "Thylacine (Tasmanian Tiger)",
+    "common_name_ko": "주머니늑대 (태즈메이니아호랑이)",
+    "category": "EX",
+    "class_name": "포유류",
+    "family": "주머니늑대과",
+    "region": "오스트레일리아 태즈메이니아",
+    "population_trend": "절멸",
+    "mature_individuals": 0,
+    "extinction_year": 1936,
+    "extinction_cause": "태즈메이니아 정부가 양 농가 보호 명목으로 1888~1909년 현상금을 걸어 2,184마리 사살. 마지막 개체 '벤자민'이 호바트 동물원에서 1936년 사망. 보호종 지정은 절멸 59일 전이었다.",
+    "summary_ko": "유대류 최대 육식동물. 늑대처럼 생겼지만 캥거루처럼 새끼를 주머니에서 키웠다. 인간의 조직적 박멸로 사라진 대표적 사례.",
+    "wikipedia_title": "Thylacine",
+    "threats": [],
+    "conservation_actions": [],
+    "habitats": [
+      { "name": "태즈메이니아 우림과 초원 (개체 소실)" }
+    ]
+  },
+  {
+    "id": "ectopistes-migratorius",
+    "scientific_name": "Ectopistes migratorius",
+    "common_name_en": "Passenger Pigeon",
+    "common_name_ko": "여행비둘기",
+    "category": "EX",
+    "class_name": "조류",
+    "family": "비둘기과",
+    "region": "북아메리카 동부",
+    "population_trend": "절멸",
+    "mature_individuals": 0,
+    "extinction_year": 1914,
+    "extinction_cause": "한때 50억 마리로 지구상 가장 흔한 새였으나 19세기 후반 식용·사료용 대량 사냥과 산림 파괴로 30년 만에 야생에서 사라졌다. 마지막 개체 '마사'가 1914년 신시내티 동물원에서 사망.",
+    "summary_ko": "하늘을 가리며 며칠씩 이어진다고 묘사된 무리 새. 군집 번식 의존성이 높아 개체수가 임계치 아래로 떨어지자 회복 불가능했다 (Allee 효과의 교과서 사례).",
+    "wikipedia_title": "Passenger_pigeon",
+    "threats": [],
+    "conservation_actions": [],
+    "habitats": [
+      { "name": "북미 동부 활엽수림 (참나무·너도밤나무)" }
+    ]
+  },
+  {
+    "id": "lipotes-vexillifer",
+    "scientific_name": "Lipotes vexillifer",
+    "common_name_en": "Baiji (Yangtze River Dolphin)",
+    "common_name_ko": "양쯔강돌고래 (바이지)",
+    "category": "EX",
+    "class_name": "포유류",
+    "family": "양쯔강돌고래과",
+    "region": "중국 양쯔강",
+    "population_trend": "기능적 절멸",
+    "mature_individuals": 0,
+    "extinction_year": 2007,
+    "extinction_cause": "산업화 시대 양쯔강의 댐 건설, 선박 통행, 어업 혼획, 수질 오염이 동시에 작용. 2006년 대규모 조사에서 한 마리도 발견하지 못해 '기능적 절멸' 선언.",
+    "summary_ko": "약 2천만 년간 양쯔강에 살아온 고유종. 21세기 들어 인간 활동에 의해 절멸한 첫 대형 척추동물.",
+    "wikipedia_title": "Baiji",
+    "threats": [],
+    "conservation_actions": [],
+    "habitats": [
+      { "name": "양쯔강 본류 (서식지 소실)" }
+    ]
+  }
+]
