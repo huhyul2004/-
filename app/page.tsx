@@ -13,7 +13,7 @@ const CATEGORY_TILES = [
   { value: "VU", label: "취약", korean: "Vulnerable", color: "bg-[#F9E814]", accent: "bg-[#F9E814]" },
 ] as const;
 
-const VALID_SORTS: SortKey[] = ["risk", "name", "recent", "class"];
+const VALID_SORTS: SortKey[] = ["urgency", "risk", "name", "recent", "class"];
 
 export default function HomePage({
   searchParams,
@@ -22,7 +22,7 @@ export default function HomePage({
 }) {
   const sort = (VALID_SORTS as string[]).includes(searchParams?.sort ?? "")
     ? (searchParams!.sort as SortKey)
-    : "risk";
+    : "urgency";
   const species = listAtRiskSpecies({
     category: searchParams?.category,
     className: searchParams?.class,
@@ -39,7 +39,7 @@ export default function HomePage({
     const params = new URLSearchParams();
     const newCat = opts.cat === null ? undefined : opts.cat ?? activeCat;
     const newCls = opts.cls === null ? undefined : opts.cls ?? activeClass;
-    const newSort = opts.sort === null ? undefined : opts.sort ?? (sort !== "risk" ? sort : undefined);
+    const newSort = opts.sort === null ? undefined : opts.sort ?? (sort !== "urgency" ? sort : undefined);
     if (newCat) params.set("category", newCat);
     if (newCls) params.set("class", newCls);
     if (newSort) params.set("sort", newSort);
@@ -153,7 +153,8 @@ export default function HomePage({
           <SortSelector
             value={sort}
             hrefs={{
-              risk: buildHref({ sort: null }),
+              urgency: buildHref({ sort: null }),
+              risk: buildHref({ sort: "risk" }),
               name: buildHref({ sort: "name" }),
               recent: buildHref({ sort: "recent" }),
               class: buildHref({ sort: "class" }),

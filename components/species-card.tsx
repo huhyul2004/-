@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { RecoveryBadge } from "./recovery-badge";
+import { UrgencyBadge } from "./urgency-badge";
 import type { SpeciesRow } from "@/lib/db";
+import type { SpeciesWithTipping } from "@/lib/queries";
 
-export function SpeciesCard({ species }: { species: SpeciesRow }) {
+export function SpeciesCard({ species }: { species: SpeciesRow | SpeciesWithTipping }) {
   const isExtinct = species.category === "EX" || species.category === "EW";
   const href = isExtinct ? `/extinct/${species.id}` : `/species/${species.id}`;
+  const hasTipping = "intervention_tier" in species && species.intervention_tier;
   return (
     <Link
       href={href}
@@ -28,6 +31,11 @@ export function SpeciesCard({ species }: { species: SpeciesRow }) {
           <CategoryBadge category={species.category} />
           <RecoveryBadge species={species} />
         </div>
+        {hasTipping && (
+          <div className="absolute right-3 top-3">
+            <UrgencyBadge species={species as SpeciesWithTipping} compact />
+          </div>
+        )}
       </div>
       <div className="space-y-1.5 p-4">
         <h3 className="font-bold text-zinc-900">

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getSpeciesById, getThreats } from "@/lib/queries";
+import { getSpeciesById, getThreats, getTippingPoint } from "@/lib/queries";
 import { CategoryBadge } from "@/components/category-badge";
 import { AIRetrospective } from "@/components/ai-retrospective";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
+import { TippingTimeline } from "@/components/tipping-timeline";
+import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,7 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
     return notFound();
   }
   const threats = getThreats(species.id) as { threat_name: string }[];
+  const tipping = getTippingPoint(species.id);
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
 
@@ -99,6 +102,16 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {tipping && (
+          <section className="mb-8">
+            <h2 className="mb-3 flex items-baseline gap-2">
+              <span className="text-xs font-black tracking-wider text-zinc-500">TIMELINE</span>
+              <span className="text-lg font-black text-zinc-100">절멸 연표</span>
+            </h2>
+            <TippingTimeline result={tipping.payload as TippingPointResult} dark />
           </section>
         )}
 

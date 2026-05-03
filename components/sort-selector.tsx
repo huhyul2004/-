@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
-const OPTIONS: { key: "risk" | "name" | "recent" | "class"; label: string }[] = [
-  { key: "risk", label: "위험도 순" },
+const OPTIONS: { key: "urgency" | "risk" | "name" | "recent" | "class"; label: string }[] = [
+  { key: "urgency", label: "개입 시급도 (기본)" },
+  { key: "risk", label: "IUCN 등급 순" },
   { key: "name", label: "이름 순" },
   { key: "recent", label: "최근 등록" },
   { key: "class", label: "분류군 순" },
@@ -14,7 +15,7 @@ export function SortSelector({
   value,
   hrefs,
 }: {
-  value: "risk" | "name" | "recent" | "class";
+  value: "urgency" | "risk" | "name" | "recent" | "class";
   hrefs: Record<string, string>;
 }) {
   const [open, setOpen] = useState(false);

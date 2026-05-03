@@ -4,8 +4,9 @@ import { SpeciesCard } from "./species-card";
 import { SpeciesListRow } from "./species-list-row";
 import { ViewToggle, useViewMode } from "./view-toggle";
 import type { SpeciesRow } from "@/lib/db";
+import type { SpeciesWithTipping } from "@/lib/queries";
 
-export function SpeciesGrid({ species, defaultView = "card" }: { species: SpeciesRow[]; defaultView?: "card" | "list" }) {
+export function SpeciesGrid({ species, defaultView = "card" }: { species: (SpeciesRow | SpeciesWithTipping)[]; defaultView?: "card" | "list" }) {
   const [mode, setMode] = useViewMode();
   const view = mode ?? defaultView;
   return (

@@ -109,6 +109,19 @@ function initSchema(db: Database.Database) {
       thumbnail_url TEXT,
       fetched_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    -- 임계점 엔진 결과 캐시 (lib/tipping-point.ts)
+    CREATE TABLE IF NOT EXISTS tipping_points (
+      species_id TEXT PRIMARY KEY,
+      consensus_score REAL NOT NULL,
+      intervention_tier TEXT NOT NULL,
+      deadline_days INTEGER NOT NULL,         -- 개입 마감까지 남은 일수 (정렬 키)
+      extinction_days INTEGER,                -- 무대응시 멸종까지 일수 (NULL = 안전)
+      payload_json TEXT NOT NULL,             -- 전체 결과 직렬화
+      computed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_tipping_deadline ON tipping_points(deadline_days);
   `);
 }
 

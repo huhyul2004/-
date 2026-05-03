@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getSpeciesById, getThreats, getActions, getHabitats } from "@/lib/queries";
+import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "@/lib/queries";
 import { CategoryBadge } from "@/components/category-badge";
 import { AIRecommend } from "@/components/ai-recommend";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
+import { TippingTimeline } from "@/components/tipping-timeline";
+import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
   const threats = getThreats(species.id) as { threat_name: string; severity: string | null }[];
   const actions = getActions(species.id) as { action_name: string }[];
   const habitats = getHabitats(species.id) as { habitat_name: string }[];
+  const tipping = getTippingPoint(species.id);
   const info = CATEGORY_INFO[species.category];
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
@@ -151,6 +154,16 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
           )}
         </div>
       </div>
+
+      {tipping && (
+        <section className="mb-8">
+          <h2 className="mb-3 flex items-baseline gap-2">
+            <span className="text-xs font-black tracking-wider text-[#D81E05]">TIPPING POINT</span>
+            <span className="text-lg font-black text-zinc-900">임계점 분석 · 개입 연표</span>
+          </h2>
+          <TippingTimeline result={tipping.payload as TippingPointResult} />
+        </section>
+      )}
 
       <section className="mb-8">
         <h2 className="mb-3 flex items-baseline gap-2">

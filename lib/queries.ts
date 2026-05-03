@@ -14,39 +14,87 @@ export function getCachedOneLiner(speciesId: string): string | null {
   }
 }
 
-export type SortKey = "risk" | "name" | "recent" | "class";
+export type SortKey = "urgency" | "risk" | "name" | "recent" | "class";
+
+// SpeciesRow 에 tipping_point 정보 join 한 확장 타입
+export interface SpeciesWithTipping extends SpeciesRow {
+  consensus_score: number | null;
+  intervention_tier: string | null;
+  deadline_days: number | null;
+  extinction_days: number | null;
+}
 
 export function listAtRiskSpecies(filters?: {
   category?: string;
   className?: string;
   sort?: SortKey;
-}): SpeciesRow[] {
+}): SpeciesWithTipping[] {
   const db = getDb();
-  const conditions: string[] = [`category IN (${CURRENT_CATEGORIES.map(() => "?").join(",")})`];
+  const conditions: string[] = [`s.category IN (${CURRENT_CATEGORIES.map(() => "?").join(",")})`];
   const params: unknown[] = [...CURRENT_CATEGORIES];
 
   if (filters?.category && (CURRENT_CATEGORIES as readonly string[]).includes(filters.category)) {
     conditions.length = 0;
-    conditions.push("category = ?");
+    conditions.push("s.category = ?");
     params.length = 0;
     params.push(filters.category);
   }
   if (filters?.className) {
-    conditions.push("class_name = ?");
+    conditions.push("s.class_name = ?");
     params.push(filters.className);
   }
 
   const sortClauses: Record<SortKey, string> = {
-    risk: `CASE category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
-           common_name_ko COLLATE NOCASE`,
-    name: "common_name_ko COLLATE NOCASE, scientific_name COLLATE NOCASE",
-    recent: "datetime(updated_at) DESC, common_name_ko COLLATE NOCASE",
-    class: "class_name COLLATE NOCASE, common_name_ko COLLATE NOCASE",
+    // 시급도 — 개입 마감 가까운 순. 점수 동률은 consensus_score 높은 순
+    urgency: `COALESCE(t.deadline_days, 999999) ASC, COALESCE(t.consensus_score, 0) DESC, s.common_name_ko COLLATE NOCASE`,
+    risk: `CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
+           s.common_name_ko COLLATE NOCASE`,
+    name: "s.common_name_ko COLLATE NOCASE, s.scientific_name COLLATE NOCASE",
+    recent: "datetime(s.updated_at) DESC, s.common_name_ko COLLATE NOCASE",
+    class: "s.class_name COLLATE NOCASE, s.common_name_ko COLLATE NOCASE",
   };
-  const orderBy = sortClauses[filters?.sort ?? "risk"];
+  const orderBy = sortClauses[filters?.sort ?? "urgency"];
 
-  const sql = `SELECT * FROM species WHERE ${conditions.join(" AND ")} ORDER BY ${orderBy}`;
-  return db.prepare(sql).all(...params) as SpeciesRow[];
+  const sql = `
+    SELECT s.*,
+           t.consensus_score, t.intervention_tier, t.deadline_days, t.extinction_days
+    FROM species s
+    LEFT JOIN tipping_points t ON t.species_id = s.id
+    WHERE ${conditions.join(" AND ")}
+    ORDER BY ${orderBy}`;
+  return db.prepare(sql).all(...params) as SpeciesWithTipping[];
+}
+
+export function getTippingPoint(speciesId: string): {
+  consensus_score: number;
+  intervention_tier: string;
+  deadline_days: number;
+  extinction_days: number | null;
+  payload: unknown;
+} | null {
+  const db = getDb();
+  const row = db
+    .prepare(
+      `SELECT consensus_score, intervention_tier, deadline_days, extinction_days, payload_json
+       FROM tipping_points WHERE species_id = ?`
+    )
+    .get(speciesId) as
+    | {
+        consensus_score: number;
+        intervention_tier: string;
+        deadline_days: number;
+        extinction_days: number | null;
+        payload_json: string;
+      }
+    | undefined;
+  if (!row) return null;
+  return {
+    consensus_score: row.consensus_score,
+    intervention_tier: row.intervention_tier,
+    deadline_days: row.deadline_days,
+    extinction_days: row.extinction_days,
+    payload: JSON.parse(row.payload_json),
+  };
 }
 
 export function listSpeciesByIds(ids: string[]): SpeciesRow[] {
