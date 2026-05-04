@@ -2,8 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(216, 30, 5, 0.06), transparent),
+      #fafafa;
+    background-attachment: fixed;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  /* 한국어 + 영문 모두 부드럽게 */
+  body {
+    font-feature-settings: "ss01", "ss02", "tnum";
+    letter-spacing: -0.01em;
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.025em;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Editorial drop cap */
+  .first-letter-large::first-letter {
+    font-size: 1.6em;
+    font-weight: 900;
+    line-height: 1;
+    margin-right: 0.05em;
+  }
+
+  /* Subtle grain texture overlay */
+  .grain {
+    position: relative;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+
+  /* Glass card effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+  }
+  .glass-dark {
+    background: rgba(24, 24, 27, 0.7);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+  }
+
+  /* Shimmer for skeleton/empty */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, #f4f4f5 0%, #e4e4e7 50%, #f4f4f5 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Soft glow for danger items */
+  .glow-cr { box-shadow: 0 0 0 1px rgba(216, 30, 5, 0.15), 0 8px 24px -8px rgba(216, 30, 5, 0.25); }
+  .glow-en { box-shadow: 0 0 0 1px rgba(252, 127, 63, 0.15), 0 8px 24px -8px rgba(252, 127, 63, 0.25); }
+
+  /* Smooth fade-up entry */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up {
+    animation: fadeUp 0.5s ease-out backwards;
+  }
+
+  /* Vertical timeline line */
+  .timeline-line {
+    background: linear-gradient(to bottom,
+      #60C659 0%,
+      #CCE226 25%,
+      #F9E814 50%,
+      #FC7F3F 75%,
+      #D81E05 100%);
   }
 }

@@ -48,55 +48,91 @@ export default function HomePage({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-      <section className="mb-6 sm:mb-8">
-        <p className="text-[10px] font-bold tracking-widest text-[#D81E05] sm:text-xs">CURRENT · 현재</p>
-        <h1 className="mt-2 text-2xl font-black leading-tight tracking-tight text-zinc-900 sm:text-4xl">
-          지금 이 순간, 사라지고 있는 종들
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-14">
+      <section className="mb-10 sm:mb-12">
+        <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#D81E05] sm:text-[11px]">
+          <span className="inline-block h-px w-8 bg-[#D81E05]" />
+          CURRENT · 현재
+        </div>
+        <h1 className="mt-4 text-balance text-3xl font-black leading-[1.1] tracking-tight text-zinc-900 sm:text-5xl md:text-6xl">
+          지금 이 순간,<br />
+          <span className="bg-gradient-to-r from-[#D81E05] via-[#FC7F3F] to-[#F9E814] bg-clip-text text-transparent">
+            사라지고 있는 종들
+          </span>
         </h1>
-        <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-zinc-600 sm:text-sm">
-          IUCN Red List 의 위급(CR), 위기(EN), 취약(VU) 등급에 등재된 종들입니다. 카드를 눌러 위협
-          요인과 보전 계획, AI가 제안하는 개입 전략을 확인해 보세요.
+        <p className="mt-5 max-w-2xl text-pretty text-[14px] leading-relaxed text-zinc-600 sm:text-[15px]">
+          IUCN Red List 의 <span className="font-bold text-[#D81E05]">위급(CR)</span>,
+          <span className="font-bold text-[#FC7F3F]"> 위기(EN)</span>,
+          <span className="font-bold text-[#a18f0c]"> 취약(VU)</span> 등급에 등재된 종들입니다.
+          카드를 눌러 위협 요인과 보전 계획, AI가 제안하는 개입 전략과 임계점 연표를 확인해 보세요.
         </p>
+        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-zinc-500">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#D81E05]" />
+            <span className="font-bold text-zinc-900">{totalAtRisk}</span>종 추적
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-zinc-900" />
+            EWS-PVA-IUCN Hybrid 엔진
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#60C659]" />
+            매일 업데이트
+          </span>
+        </div>
       </section>
 
       <section className="mb-6">
         <SearchBar />
       </section>
 
-      <section className="mb-6">
-        <h2 className="mb-3 text-sm font-bold text-zinc-700">멸종위기 등급으로 보기</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {CATEGORY_TILES.map((tile) => {
+      <section className="mb-8">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="text-[11px] font-black tracking-[0.2em] text-zinc-500">CATEGORIES · 등급</h2>
+          <span className="text-[10px] tracking-wider text-zinc-400">IUCN Red List v3.1</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+          {CATEGORY_TILES.map((tile, i) => {
             const active = (tile.value ?? null) === (activeCat ?? null);
             const count = tile.value ? (catCounts[tile.value] ?? 0) : totalAtRisk;
             const isYellow = tile.value === "VU";
             const textColor = active ? (isYellow ? "text-zinc-900" : "text-white") : "text-zinc-900";
-            const subColor = active ? (isYellow ? "text-zinc-700" : "text-white/80") : "text-zinc-400";
+            const subColor = active ? (isYellow ? "text-zinc-700" : "text-white/85") : "text-zinc-400";
             return (
               <Link
                 key={tile.value ?? "all"}
                 href={buildHref({ cat: tile.value ?? null })}
+                style={{ animationDelay: `${i * 60}ms` }}
                 className={
-                  "group relative overflow-hidden rounded-2xl border p-4 transition-all " +
+                  "fade-up group relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-5 " +
                   (active
-                    ? `${tile.color} border-transparent shadow-md`
-                    : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:shadow-md")
+                    ? `${tile.color} border-transparent shadow-xl shadow-zinc-900/10`
+                    : "border-zinc-200/80 bg-white/80 backdrop-blur-sm hover:-translate-y-1 hover:border-zinc-300 hover:shadow-xl hover:shadow-zinc-900/10")
                 }
               >
                 {!active && (
-                  <span className={`absolute left-0 top-0 h-full w-1 ${tile.accent}`} aria-hidden />
+                  <span className={`absolute left-0 top-0 h-full w-[3px] ${tile.accent}`} aria-hidden />
+                )}
+                {/* Animated gradient background on active */}
+                {active && (
+                  <span
+                    className="absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-25 blur-3xl"
+                    style={{ background: "radial-gradient(circle, white, transparent)" }}
+                    aria-hidden
+                  />
                 )}
                 <div className={`flex items-baseline gap-2 ${textColor}`}>
                   {tile.value && (
-                    <span className="text-xs font-black tracking-wider opacity-80">{tile.value}</span>
+                    <span className="font-mono text-[10px] font-black tracking-[0.15em] opacity-80">
+                      {tile.value}
+                    </span>
                   )}
-                  <span className="text-base font-bold">{tile.label}</span>
+                  <span className="text-base font-black sm:text-lg">{tile.label}</span>
                 </div>
-                <p className={`mt-1 text-[11px] ${subColor}`}>{tile.korean}</p>
-                <p className={`mt-3 text-2xl font-black ${textColor}`}>
-                  {count}
-                  <span className="ml-1 text-xs font-medium opacity-70">종</span>
+                <p className={`mt-1 text-[10px] tracking-wide ${subColor}`}>{tile.korean}</p>
+                <p className={`mt-4 text-3xl font-black tabular-nums tracking-tight ${textColor} sm:text-4xl`}>
+                  {count.toLocaleString()}
+                  <span className="ml-1 text-[10px] font-bold tracking-wider opacity-70">SPECIES</span>
                 </p>
               </Link>
             );
@@ -105,20 +141,20 @@ export default function HomePage({
       </section>
 
       {classes.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 text-sm font-bold text-zinc-700">생물 분류로 보기</h2>
+        <section className="mb-8">
+          <h2 className="mb-3 text-[11px] font-black tracking-[0.2em] text-zinc-500">TAXONOMY · 분류군</h2>
           <div className="flex flex-wrap gap-2">
             <Link
               href={buildHref({ cls: null })}
               className={
-                "rounded-xl border px-4 py-2.5 text-sm font-medium transition " +
+                "min-h-[40px] rounded-full border px-4 py-2 text-[13px] font-bold transition-all " +
                 (!activeClass
-                  ? "border-zinc-900 bg-zinc-900 text-white shadow-sm"
-                  : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50")
+                  ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/15"
+                  : "border-zinc-200/80 bg-white/70 text-zinc-700 backdrop-blur-sm hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-white hover:shadow-md")
               }
             >
               전체
-              <span className="ml-1.5 text-xs opacity-70">{totalAtRisk}</span>
+              <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{totalAtRisk}</span>
             </Link>
             {classes.map((c) => {
               const active = activeClass === c;
@@ -128,14 +164,14 @@ export default function HomePage({
                   key={c}
                   href={buildHref({ cls: c })}
                   className={
-                    "rounded-xl border px-4 py-2.5 text-sm font-medium transition " +
+                    "min-h-[40px] rounded-full border px-4 py-2 text-[13px] font-bold transition-all " +
                     (active
-                      ? "border-zinc-900 bg-zinc-900 text-white shadow-sm"
-                      : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50")
+                      ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/15"
+                      : "border-zinc-200/80 bg-white/70 text-zinc-700 backdrop-blur-sm hover:-translate-y-0.5 hover:border-zinc-300 hover:bg-white hover:shadow-md")
                   }
                 >
                   {c}
-                  <span className="ml-1.5 text-xs opacity-70">{count}</span>
+                  <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{count}</span>
                 </Link>
               );
             })}
