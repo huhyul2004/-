@@ -216,3 +216,49 @@ export function countUnclassified(extinct = false): number {
   const r = db.prepare(sql).all(...cats) as { n: number }[];
   return r[0]?.n ?? 0;
 }
+
+// 데이터 품질 검증용 통계
+export function getQualityStats() {
+  const db = getDb();
+  const total = (db.prepare("SELECT COUNT(*) as n FROM species").get() as { n: number }).n;
+  const noKoName = (db.prepare("SELECT COUNT(*) as n FROM species WHERE common_name_ko IS NULL OR common_name_ko = ''").get() as { n: number }).n;
+  const noClass = (db.prepare("SELECT COUNT(*) as n FROM species WHERE class_name IS NULL").get() as { n: number }).n;
+  const noPhoto = (db.prepare("SELECT COUNT(*) as n FROM species WHERE photo_url IS NULL").get() as { n: number }).n;
+  const noSummary = (db.prepare("SELECT COUNT(*) as n FROM species WHERE summary_ko IS NULL OR summary_ko = ''").get() as { n: number }).n;
+  const noTipping = (db.prepare("SELECT COUNT(*) as n FROM species s LEFT JOIN tipping_points t ON t.species_id = s.id WHERE t.species_id IS NULL").get() as { n: number }).n;
+  const koMatchesSci = (db.prepare("SELECT COUNT(*) as n FROM species WHERE common_name_ko = scientific_name").get() as { n: number }).n;
+  const koMatchesEn = (db.prepare("SELECT COUNT(*) as n FROM species WHERE common_name_ko IS NOT NULL AND LOWER(common_name_ko) = LOWER(common_name_en)").get() as { n: number }).n;
+  const summaryEnglish = (db.prepare(`
+    SELECT COUNT(*) as n FROM species
+    WHERE summary_ko IS NOT NULL
+      AND CAST(LENGTH(summary_ko) AS REAL) - CAST(LENGTH(REPLACE(summary_ko, ' ', '')) AS REAL) > 5
+      AND summary_ko GLOB '*[A-Za-z]*[A-Za-z]*[A-Za-z]*'
+      AND NOT (summary_ko GLOB '*[가-힣]*')
+  `).get() as { n: number }).n;
+  const total2025 = (db.prepare("SELECT COUNT(*) as n FROM species WHERE category IN ('CR','EN','VU')").get() as { n: number }).n;
+  return {
+    total,
+    threatenedTotal: total2025,
+    noKoName,
+    noClass,
+    noPhoto,
+    noSummary,
+    noTipping,
+    koMatchesSci,
+    koMatchesEn,
+    summaryEnglish,
+  };
+}
+
+// 의심 항목 샘플 — 검증용
+export function listQualityIssues(kind: "no_ko" | "ko_eq_sci" | "ko_eq_en" | "no_class" | "no_photo", limit = 50) {
+  const db = getDb();
+  const sql: Record<typeof kind, string> = {
+    no_ko: "SELECT id, scientific_name, common_name_en, category FROM species WHERE common_name_ko IS NULL OR common_name_ko = '' ORDER BY id LIMIT ?",
+    ko_eq_sci: "SELECT id, scientific_name, common_name_en, common_name_ko, category FROM species WHERE common_name_ko = scientific_name LIMIT ?",
+    ko_eq_en: "SELECT id, scientific_name, common_name_en, common_name_ko, category FROM species WHERE common_name_ko IS NOT NULL AND LOWER(common_name_ko) = LOWER(common_name_en) LIMIT ?",
+    no_class: "SELECT id, scientific_name, common_name_en, common_name_ko, category FROM species WHERE class_name IS NULL ORDER BY category, id LIMIT ?",
+    no_photo: "SELECT id, scientific_name, common_name_en, common_name_ko, category FROM species WHERE photo_url IS NULL AND category IN ('CR','EN') ORDER BY category, id LIMIT ?",
+  };
+  return db.prepare(sql[kind]).all(limit);
+}
