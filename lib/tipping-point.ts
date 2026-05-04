@@ -437,6 +437,40 @@ export function evaluateTippingPoint(
   const overall_conf = w.ews * ews.confidence + w.pva * 0.7 + w.iucn * iucn.confidence;
   if (overall_conf < 0.5) consensus = consensus * 0.9 + 10;
 
+  // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
+  // PVA 가 안정 추세에선 작은 개체수도 멸종 위험 낮게 평가하는 한계 보정
+  // IUCN Criterion D + Frankham 50/500 + 단일 멸종사건 취약성 반영
+  // 실제 mature_individuals 가 있을 때만 적용 (추정값으론 강제 안함)
+  if (species.mature_individuals != null && species.mature_individuals > 0) {
+    const N = species.mature_individuals;
+    const isCR = species.category === "CR";
+    const trend = (species.population_trend ?? "").toLowerCase();
+    const declining = /감소|급감|decreas/.test(trend);
+
+    let floor = 0;
+    if (N < 50)      floor = 90;   // T4 골든타임
+    else if (N < 100) floor = 78;  // T3 후반
+    else if (N < 250) floor = 70;  // T3 중반 (자바코뿔소 76 → 78)
+    else if (N < 500) floor = 60;  // T3 진입
+    else if (N < 1000 && isCR) floor = 55;  // CR 인데 1000 미만
+    else if (N < 2500 && isCR) floor = 50;
+    else if (N < 5000 && isCR && declining) floor = 50;
+
+    consensus = Math.max(consensus, floor);
+  }
+
+  // 추세 보정 — 급감/감소 추세는 가산점
+  if (species.population_trend) {
+    const trend = species.population_trend.toLowerCase();
+    if (trend.includes("급감")) consensus = Math.min(100, consensus + 8);
+    else if (trend.includes("감소") || trend.includes("decreas")) {
+      // CR/EN 만 가산 (VU/NT 는 이미 등급에 반영)
+      if (species.category === "CR" || species.category === "EN") {
+        consensus = Math.min(100, consensus + 4);
+      }
+    }
+  }
+
   const tier = tierForScore(consensus);
 
   // ===== 날짜 계산 =====
