@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSpeciesById, getThreats, getActions, getHabitats } from "@/lib/queries";
-import { getAnthropic, MODEL } from "@/lib/anthropic";
+import { getAnthropic, MODEL, friendlyError, AnthropicConfigError } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -58,6 +58,7 @@ ${ctx}`;
     return NextResponse.json({ reply: text.trim() });
   } catch (e) {
     console.error("[chat]", e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    const status = e instanceof AnthropicConfigError ? 503 : 500;
+    return NextResponse.json({ error: friendlyError(e) }, { status });
   }
 }

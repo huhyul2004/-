@@ -36,13 +36,24 @@ export function AIChat({ speciesId, dark = false }: { speciesId: string; dark?: 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ speciesId, messages: next }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
-      setMessages((cur) => [...cur, { role: "assistant", content: json.reply }]);
+      let json: { error?: string; reply?: string };
+      try {
+        json = await res.json();
+      } catch {
+        throw new Error("AI 응답을 받지 못했어요. 잠시 후 다시 시도해주세요.");
+      }
+      if (!res.ok) {
+        throw new Error(json.error ?? "AI 서비스에 일시적 문제가 있어요.");
+      }
+      const reply = (json.reply ?? "").trim();
+      if (!reply) {
+        throw new Error("AI가 빈 답변을 보냈어요. 다시 시도해주세요.");
+      }
+      setMessages((cur) => [...cur, { role: "assistant", content: reply }]);
     } catch (e) {
       setMessages((cur) => [
         ...cur,
-        { role: "assistant", content: `⚠ 오류: ${(e as Error).message}` },
+        { role: "assistant", content: `⚠ ${(e as Error).message}` },
       ]);
     } finally {
       setLoading(false);
@@ -50,8 +61,8 @@ export function AIChat({ speciesId, dark = false }: { speciesId: string; dark?: 
   }
 
   const cardCls = dark
-    ? "rounded-2xl border border-zinc-800 bg-zinc-900"
-    : "rounded-2xl border border-zinc-200 bg-white";
+    ? "rounded-3xl border border-zinc-800 bg-zinc-900/80 backdrop-blur"
+    : "rounded-3xl border border-zinc-200/80 bg-white/80 backdrop-blur";
   const titleCls = dark ? "text-zinc-100" : "text-zinc-900";
   const subCls = dark ? "text-zinc-400" : "text-zinc-600";
   const userBubble = dark ? "bg-zinc-100 text-zinc-900" : "bg-zinc-900 text-white";

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSpeciesById } from "@/lib/queries";
-import { getAnthropic, MODEL, extractJson } from "@/lib/anthropic";
+import { getAnthropic, MODEL, extractJson, friendlyError, AnthropicConfigError } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -75,13 +75,18 @@ IUCN 등급: ${ctx.category} (${ctx.category === "EX" ? "절멸" : "야생절멸
     const text = resp.content.filter((b) => b.type === "text").map((b: any) => b.text).join("");
     const parsed = extractJson<RetroPayload>(text);
 
-    db.prepare(
-      "INSERT OR REPLACE INTO ai_retrospectives (species_id, payload_json) VALUES (?, ?)"
-    ).run(speciesId, JSON.stringify(parsed));
+    try {
+      db.prepare(
+        "INSERT OR REPLACE INTO ai_retrospectives (species_id, payload_json) VALUES (?, ?)"
+      ).run(speciesId, JSON.stringify(parsed));
+    } catch {
+      // ignore — read-only env
+    }
 
     return NextResponse.json(parsed);
   } catch (e) {
     console.error("[retrospective]", e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    const status = e instanceof AnthropicConfigError ? 503 : 500;
+    return NextResponse.json({ error: friendlyError(e) }, { status });
   }
 }

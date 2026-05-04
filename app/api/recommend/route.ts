@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSpeciesById, getThreats, getActions, getHabitats } from "@/lib/queries";
-import { getAnthropic, MODEL, extractJson } from "@/lib/anthropic";
+import { getAnthropic, MODEL, extractJson, friendlyError, AnthropicConfigError } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -84,13 +84,19 @@ IUCN 등급: ${ctx.category}
     const text = resp.content.filter((b) => b.type === "text").map((b: any) => b.text).join("");
     const parsed = extractJson<RecommendPayload>(text);
 
-    db.prepare(
-      "INSERT OR REPLACE INTO ai_recommendations (species_id, payload_json) VALUES (?, ?)"
-    ).run(speciesId, JSON.stringify(parsed));
+    // 캐시 저장은 best-effort — 읽기 전용 환경에선 조용히 패스
+    try {
+      db.prepare(
+        "INSERT OR REPLACE INTO ai_recommendations (species_id, payload_json) VALUES (?, ?)"
+      ).run(speciesId, JSON.stringify(parsed));
+    } catch {
+      // ignore — Vercel 등 read-only 환경
+    }
 
     return NextResponse.json(parsed);
   } catch (e) {
     console.error("[recommend]", e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    const status = e instanceof AnthropicConfigError ? 503 : 500;
+    return NextResponse.json({ error: friendlyError(e) }, { status });
   }
 }
