@@ -41,9 +41,9 @@ export function TippingTimeline({
   const dividerCls = dark ? "border-zinc-800" : "border-zinc-200";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* 종합 점수 + Tier */}
-      <div className={cardCls + " p-5"}>
+      <div className={cardCls + " p-4 sm:p-5"}>
         <div className="flex items-baseline justify-between">
           <p className="text-[10px] font-black tracking-wider text-zinc-500">CONSENSUS · 종합 평가</p>
           <span
@@ -76,7 +76,7 @@ export function TippingTimeline({
       </div>
 
       {/* 연표 — 4개 핵심 날짜 */}
-      <div className={cardCls + " p-5"}>
+      <div className={cardCls + " p-4 sm:p-5"}>
         <p className="mb-3 text-[10px] font-black tracking-wider text-zinc-500">TIMELINE · 임계점 연표</p>
 
         <ol className="space-y-3">
@@ -126,7 +126,7 @@ export function TippingTimeline({
       </div>
 
       {/* PVA 상세 */}
-      <div className={cardCls + " p-5"}>
+      <div className={cardCls + " p-4 sm:p-5"}>
         <p className="mb-3 text-[10px] font-black tracking-wider text-zinc-500">PVA · 멸종확률 시뮬레이션</p>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div>

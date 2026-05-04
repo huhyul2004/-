@@ -122,12 +122,13 @@ export function AIChat({ speciesId, dark = false }: { speciesId: string; dark?: 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="질문을 입력하세요..."
-          className={`flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:border-[#FC7F3F] ${inputCls}`}
+          enterKeyHint="send"
+          className={`min-h-[44px] flex-1 rounded-xl border px-3 py-2 text-base outline-none focus:border-[#FC7F3F] sm:text-sm ${inputCls}`}
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="rounded-xl bg-[#FC7F3F] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e56e28] disabled:opacity-50"
+          className="min-h-[44px] rounded-xl bg-[#FC7F3F] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e56e28] disabled:opacity-50"
         >
           전송
         </button>

@@ -98,7 +98,8 @@ export function SearchBar() {
           onKeyDown={onKey}
           onFocus={() => q && setOpen(true)}
           placeholder="종 이름, 학명, 영문명으로 검색..."
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400"
+          enterKeyHint="search"
+          className="flex-1 bg-transparent text-base outline-none placeholder:text-zinc-400 sm:text-sm"
         />
         {loading && <span className="text-xs text-zinc-400">검색 중...</span>}
       </div>

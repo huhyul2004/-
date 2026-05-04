@@ -11,10 +11,13 @@ function main() {
   const db = getDb();
   const rows = db
     .prepare(
-      `SELECT id, scientific_name, common_name_en, common_name_ko, category,
-              class_name, region, population_trend, mature_individuals,
-              summary_ko, photo_url, wikipedia_title, extinction_year, extinction_cause
-       FROM species ORDER BY category, common_name_ko`
+      `SELECT s.id, s.scientific_name, s.common_name_en, s.common_name_ko, s.category,
+              s.class_name, s.region, s.population_trend, s.mature_individuals,
+              s.summary_ko, s.photo_url, s.wikipedia_title, s.extinction_year, s.extinction_cause,
+              t.consensus_score, t.intervention_tier, t.deadline_days, t.extinction_days
+       FROM species s
+       LEFT JOIN tipping_points t ON t.species_id = s.id
+       ORDER BY s.category, s.common_name_ko`
     )
     .all() as Record<string, unknown>[];
 
@@ -46,10 +49,23 @@ function main() {
     cat: r.category,
     cls: r.class_name,
     summary: r.summary_ko,
+    tier: r.intervention_tier,
+    score: r.consensus_score,
+    deadline_days: r.deadline_days,
+    extinction_days: r.extinction_days,
   }));
   const slimPath = path.join(OUT, "slim.json");
   fs.writeFileSync(slimPath, JSON.stringify(slim, null, 2), "utf-8");
   console.log(`✓ slim 버전 → ${slimPath}`);
+
+  // 시급도 TOP 100 — 검증용 핵심 샘플
+  const urgent = rows
+    .filter((r) => r.deadline_days != null && r.intervention_tier !== "EX")
+    .sort((a, b) => Number(a.deadline_days) - Number(b.deadline_days))
+    .slice(0, 100);
+  const urgentPath = path.join(OUT, "urgent-top100.json");
+  fs.writeFileSync(urgentPath, JSON.stringify(urgent, null, 2), "utf-8");
+  console.log(`✓ 시급도 TOP100 → ${urgentPath}`);
 
   // 검증 시 가장 위험한: 한글이 30% 미만인 행만
   const englishLooking = rows.filter((r) => {

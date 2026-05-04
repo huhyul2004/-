@@ -33,16 +33,16 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-900"
+        className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-900"
       >
         ← 멸종위기 종 목록
       </Link>
 
-      <header className="mb-6 grid gap-6 sm:grid-cols-[280px_1fr]">
-        <div className="aspect-square w-full overflow-hidden rounded-2xl bg-zinc-100">
+      <header className="mb-6 grid gap-4 sm:gap-6 sm:grid-cols-[280px_1fr]">
+        <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-zinc-100 sm:aspect-square">
           {species.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -61,7 +61,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             <CategoryBadge category={species.category} />
             <FavoriteButton id={species.id} name={displayName} />
           </div>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-zinc-900">{displayName}</h1>
+          <h1 className="mt-3 text-2xl font-black leading-tight tracking-tight text-zinc-900 sm:text-3xl">{displayName}</h1>
           <p className="mt-1 text-sm italic text-zinc-500">{species.scientific_name}</p>
           {info && (
             <div className="mt-3 rounded-xl bg-zinc-50 p-3">

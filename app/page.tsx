@@ -48,13 +48,13 @@ export default function HomePage({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <section className="mb-8">
-        <p className="text-xs font-bold tracking-widest text-[#D81E05]">CURRENT · 현재</p>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+      <section className="mb-6 sm:mb-8">
+        <p className="text-[10px] font-bold tracking-widest text-[#D81E05] sm:text-xs">CURRENT · 현재</p>
+        <h1 className="mt-2 text-2xl font-black leading-tight tracking-tight text-zinc-900 sm:text-4xl">
           지금 이 순간, 사라지고 있는 종들
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600">
+        <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-zinc-600 sm:text-sm">
           IUCN Red List 의 위급(CR), 위기(EN), 취약(VU) 등급에 등재된 종들입니다. 카드를 눌러 위협
           요인과 보전 계획, AI가 제안하는 개입 전략을 확인해 보세요.
         </p>
