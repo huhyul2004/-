@@ -1,4 +1,4 @@
-import { listAtRiskSpecies, listClasses, countByCategory, countByClass, type SortKey } from "@/lib/queries";
+import { listAtRiskSpecies, listClasses, countByCategory, countByClass, PAGE_SIZE, type SortKey } from "@/lib/queries";
 import { SpeciesGrid } from "@/components/species-grid";
 import { SearchBar } from "@/components/search-bar";
 import { SortSelector } from "@/components/sort-selector";
@@ -18,16 +18,19 @@ const VALID_SORTS: SortKey[] = ["urgency", "risk", "name", "recent", "class"];
 export default function HomePage({
   searchParams,
 }: {
-  searchParams?: { category?: string; class?: string; sort?: string };
+  searchParams?: { category?: string; class?: string; sort?: string; page?: string };
 }) {
   const sort = (VALID_SORTS as string[]).includes(searchParams?.sort ?? "")
     ? (searchParams!.sort as SortKey)
     : "urgency";
-  const species = listAtRiskSpecies({
+  const currentPage = Math.max(1, parseInt(searchParams?.page ?? "1") || 1);
+  const { rows: species, total } = listAtRiskSpecies({
     category: searchParams?.category,
     className: searchParams?.class,
     sort,
+    page: currentPage,
   });
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const classes = listClasses();
   const catCounts = countByCategory();
   const classCounts = countByClass(false);
@@ -35,14 +38,17 @@ export default function HomePage({
   const activeCat = searchParams?.category;
   const activeClass = searchParams?.class;
 
-  function buildHref(opts: { cat?: string | null; cls?: string | null; sort?: string | null }) {
+  function buildHref(opts: { cat?: string | null; cls?: string | null; sort?: string | null; page?: number | null }) {
     const params = new URLSearchParams();
     const newCat = opts.cat === null ? undefined : opts.cat ?? activeCat;
     const newCls = opts.cls === null ? undefined : opts.cls ?? activeClass;
     const newSort = opts.sort === null ? undefined : opts.sort ?? (sort !== "urgency" ? sort : undefined);
+    // 필터/정렬 변경시 page 자동 리셋. opts.page 명시한 경우만 유지
+    const newPage = opts.page;
     if (newCat) params.set("category", newCat);
     if (newCls) params.set("class", newCls);
     if (newSort) params.set("sort", newSort);
+    if (newPage && newPage > 1) params.set("page", String(newPage));
     const q = params.toString();
     return q ? `/?${q}` : "/";
   }
@@ -181,7 +187,8 @@ export default function HomePage({
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-zinc-700">
-          <span className="font-black text-zinc-900">{species.length}</span>종이 표시되고 있어요
+          <span className="font-black text-zinc-900">{total.toLocaleString()}</span>종 중{" "}
+          <span className="font-bold">{((currentPage - 1) * PAGE_SIZE + 1).toLocaleString()}–{Math.min(currentPage * PAGE_SIZE, total).toLocaleString()}</span>
           {activeCat && <span className="ml-2 text-xs text-zinc-500">· 등급 {activeCat}</span>}
           {activeClass && <span className="ml-2 text-xs text-zinc-500">· {activeClass}</span>}
         </p>
@@ -212,10 +219,78 @@ export default function HomePage({
         <SpeciesGrid species={species} />
       )}
 
+      {totalPages > 1 && (
+        <Pagination currentPage={currentPage} totalPages={totalPages} buildHref={(p) => buildHref({ page: p })} />
+      )}
+
       <p className="mt-10 text-[11px] text-zinc-400">
-        데이터 출처: IUCN Red List · Wikidata · Wikipedia — 표시 데이터는 큐레이션 본 + 자동 수집된
-        공개 정보의 결합입니다.
+        데이터 출처: IUCN Red List v2024-1 · Wikidata · Wikipedia — 총 {total.toLocaleString()}종 추적 중.
       </p>
     </div>
+  );
+}
+
+function Pagination({
+  currentPage,
+  totalPages,
+  buildHref,
+}: {
+  currentPage: number;
+  totalPages: number;
+  buildHref: (p: number | null) => string;
+}) {
+  // 7개 슬롯: ←  1 ... a b CURRENT c d ... last  →
+  const pages: (number | "...")[] = [];
+  const window = 1;
+  const add = (n: number | "...") => {
+    if (pages[pages.length - 1] !== n) pages.push(n);
+  };
+  add(1);
+  if (currentPage - window > 2) add("...");
+  for (let p = Math.max(2, currentPage - window); p <= Math.min(totalPages - 1, currentPage + window); p++) {
+    add(p);
+  }
+  if (currentPage + window < totalPages - 1) add("...");
+  if (totalPages > 1) add(totalPages);
+
+  return (
+    <nav className="mt-8 flex flex-wrap items-center justify-center gap-1.5" aria-label="페이지네이션">
+      {currentPage > 1 && (
+        <Link
+          href={buildHref(currentPage - 1)}
+          className="inline-flex h-10 min-w-[40px] items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-bold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
+        >
+          ←
+        </Link>
+      )}
+      {pages.map((p, i) =>
+        p === "..." ? (
+          <span key={`dots-${i}`} className="px-1 text-zinc-400">
+            …
+          </span>
+        ) : (
+          <Link
+            key={p}
+            href={p === 1 ? buildHref(null) : buildHref(p)}
+            className={
+              "inline-flex h-10 min-w-[40px] items-center justify-center rounded-xl border px-3 text-sm font-bold tabular-nums transition " +
+              (p === currentPage
+                ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/15"
+                : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50")
+            }
+          >
+            {p}
+          </Link>
+        )
+      )}
+      {currentPage < totalPages && (
+        <Link
+          href={buildHref(currentPage + 1)}
+          className="inline-flex h-10 min-w-[40px] items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-bold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
+        >
+          →
+        </Link>
+      )}
+    </nav>
   );
 }

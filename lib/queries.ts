@@ -24,11 +24,15 @@ export interface SpeciesWithTipping extends SpeciesRow {
   extinction_days: number | null;
 }
 
+export const PAGE_SIZE = 60;
+
 export function listAtRiskSpecies(filters?: {
   category?: string;
   className?: string;
   sort?: SortKey;
-}): SpeciesWithTipping[] {
+  page?: number;
+  pageSize?: number;
+}): { rows: SpeciesWithTipping[]; total: number } {
   const db = getDb();
   const conditions: string[] = [`s.category IN (${CURRENT_CATEGORIES.map(() => "?").join(",")})`];
   const params: unknown[] = [...CURRENT_CATEGORIES];
@@ -45,7 +49,6 @@ export function listAtRiskSpecies(filters?: {
   }
 
   const sortClauses: Record<SortKey, string> = {
-    // 시급도 — 개입 마감 가까운 순. 점수 동률은 consensus_score 높은 순
     urgency: `COALESCE(t.deadline_days, 999999) ASC, COALESCE(t.consensus_score, 0) DESC, s.common_name_ko COLLATE NOCASE`,
     risk: `CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
            s.common_name_ko COLLATE NOCASE`,
@@ -54,6 +57,13 @@ export function listAtRiskSpecies(filters?: {
     class: "s.class_name COLLATE NOCASE, s.common_name_ko COLLATE NOCASE",
   };
   const orderBy = sortClauses[filters?.sort ?? "urgency"];
+  const pageSize = filters?.pageSize ?? PAGE_SIZE;
+  const page = Math.max(1, filters?.page ?? 1);
+  const offset = (page - 1) * pageSize;
+
+  // Total count (without LIMIT)
+  const countSql = `SELECT COUNT(*) as n FROM species s WHERE ${conditions.join(" AND ")}`;
+  const total = (db.prepare(countSql).get(...params) as { n: number }).n;
 
   const sql = `
     SELECT s.*,
@@ -61,8 +71,10 @@ export function listAtRiskSpecies(filters?: {
     FROM species s
     LEFT JOIN tipping_points t ON t.species_id = s.id
     WHERE ${conditions.join(" AND ")}
-    ORDER BY ${orderBy}`;
-  return db.prepare(sql).all(...params) as SpeciesWithTipping[];
+    ORDER BY ${orderBy}
+    LIMIT ? OFFSET ?`;
+  const rows = db.prepare(sql).all(...params, pageSize, offset) as SpeciesWithTipping[];
+  return { rows, total };
 }
 
 export function getTippingPoint(speciesId: string): {
