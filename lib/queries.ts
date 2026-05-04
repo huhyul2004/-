@@ -43,7 +43,9 @@ export function listAtRiskSpecies(filters?: {
     params.length = 0;
     params.push(filters.category);
   }
-  if (filters?.className) {
+  if (filters?.className === "__none__") {
+    conditions.push("s.class_name IS NULL");
+  } else if (filters?.className) {
     conditions.push("s.class_name = ?");
     params.push(filters.className);
   }
@@ -203,4 +205,14 @@ export function countByClass(extinct = false): Record<string, number> {
   const out: Record<string, number> = {};
   for (const r of rows) out[r.class_name] = r.n;
   return out;
+}
+
+// 분류군 미상 (class_name IS NULL) 카운트 — 위협 종 기준
+export function countUnclassified(extinct = false): number {
+  const db = getDb();
+  const cats = extinct ? EXTINCT_CATEGORIES : CURRENT_CATEGORIES;
+  const sql = `SELECT COUNT(*) as n FROM species
+    WHERE class_name IS NULL AND category IN (${cats.map(() => "?").join(",")})`;
+  const r = db.prepare(sql).all(...cats) as { n: number }[];
+  return r[0]?.n ?? 0;
 }

@@ -1,4 +1,4 @@
-import { listAtRiskSpecies, listClasses, countByCategory, countByClass, PAGE_SIZE, type SortKey } from "@/lib/queries";
+import { listAtRiskSpecies, listClasses, countByCategory, countByClass, countUnclassified, PAGE_SIZE, type SortKey } from "@/lib/queries";
 import { SpeciesGrid } from "@/components/species-grid";
 import { SearchBar } from "@/components/search-bar";
 import { SortSelector } from "@/components/sort-selector";
@@ -34,6 +34,7 @@ export default function HomePage({
   const classes = listClasses();
   const catCounts = countByCategory();
   const classCounts = countByClass(false);
+  const unclassifiedCount = countUnclassified(false);
   const totalAtRisk = (catCounts.CR ?? 0) + (catCounts.EN ?? 0) + (catCounts.VU ?? 0);
   const activeCat = searchParams?.category;
   const activeClass = searchParams?.class;
@@ -177,11 +178,30 @@ export default function HomePage({
                   }
                 >
                   {c}
-                  <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{count}</span>
+                  <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{count.toLocaleString()}</span>
                 </Link>
               );
             })}
+            {unclassifiedCount > 0 && (
+              <Link
+                href={buildHref({ cls: "__none__" })}
+                title="Wikidata 에 분류군 정보가 없는 종"
+                className={
+                  "min-h-[40px] rounded-full border border-dashed px-4 py-2 text-[13px] font-bold transition-all " +
+                  (activeClass === "__none__"
+                    ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/15"
+                    : "border-zinc-300 bg-zinc-50/70 text-zinc-500 backdrop-blur-sm hover:-translate-y-0.5 hover:border-zinc-400 hover:bg-white")
+                }
+              >
+                분류 미상
+                <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{unclassifiedCount.toLocaleString()}</span>
+              </Link>
+            )}
           </div>
+          <p className="mt-2 text-[10px] text-zinc-400">
+            ※ 현재 표시 중인 분류군 합계: {Object.values(classCounts).reduce((a, b) => a + b, 0).toLocaleString()}종 ·
+            분류 미상: {unclassifiedCount.toLocaleString()}종 · 합계 {totalAtRisk.toLocaleString()}종 (Wikidata 분류군 정보 부재로 일부 종이 미상으로 표시됩니다)
+          </p>
         </section>
       )}
 
@@ -190,7 +210,11 @@ export default function HomePage({
           <span className="font-black text-zinc-900">{total.toLocaleString()}</span>종 중{" "}
           <span className="font-bold">{((currentPage - 1) * PAGE_SIZE + 1).toLocaleString()}–{Math.min(currentPage * PAGE_SIZE, total).toLocaleString()}</span>
           {activeCat && <span className="ml-2 text-xs text-zinc-500">· 등급 {activeCat}</span>}
-          {activeClass && <span className="ml-2 text-xs text-zinc-500">· {activeClass}</span>}
+          {activeClass && (
+            <span className="ml-2 text-xs text-zinc-500">
+              · {activeClass === "__none__" ? "분류 미상" : activeClass}
+            </span>
+          )}
         </p>
         <div className="flex items-center gap-3">
           <SortSelector
