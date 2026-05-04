@@ -14,7 +14,7 @@ if (fs.existsSync(envFile)) {
 import { getDb, SpeciesRow } from "../lib/db";
 import { evaluateTippingPoint } from "../lib/tipping-point";
 
-const TODAY = new Date("2026-05-03");
+const TODAY = new Date("2026-05-04");
 
 function daysBetween(from: Date, to: Date): number {
   const ms = to.getTime() - from.getTime();

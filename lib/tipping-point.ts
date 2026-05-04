@@ -82,31 +82,52 @@ function trendToLambda(trend: string | null, r_max: number) {
 //
 // 시뮬레이션은 numpy 대신 단순 루프 (n_sim=2000 으로 줄여 성능 확보)
 
-function poissonSample(lambda: number): number {
+// xorshift32 PRNG — 결정적, 종별 다른 시드로 재현 가능
+function makeRng(seed: number) {
+  let s = seed | 0;
+  if (s === 0) s = 1;
+  return () => {
+    s ^= s << 13;
+    s ^= s >>> 17;
+    s ^= s << 5;
+    // Convert to [0, 1)
+    return ((s >>> 0) / 4294967296);
+  };
+}
+
+function poissonSample(lambda: number, rand: () => number): number {
   if (lambda <= 0) return 0;
   if (lambda > 30) {
-    // Normal approximation for large lambda
-    const u1 = Math.random();
-    const u2 = Math.random();
+    const u1 = Math.max(1e-10, rand());
+    const u2 = rand();
     const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
     return Math.max(0, Math.round(lambda + Math.sqrt(lambda) * z));
   }
-  // Knuth algorithm
   const L = Math.exp(-lambda);
   let k = 0;
   let p = 1;
   do {
     k++;
-    p *= Math.random();
+    p *= rand();
   } while (p > L);
   return k - 1;
 }
 
-function lognormalSample(meanLog: number, sdLog: number): number {
-  const u1 = Math.max(1e-10, Math.random());
-  const u2 = Math.random();
+function lognormalSample(meanLog: number, sdLog: number, rand: () => number): number {
+  const u1 = Math.max(1e-10, rand());
+  const u2 = rand();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
   return Math.exp(meanLog + sdLog * z);
+}
+
+// 종 ID 문자열 → 32-bit 시드 (FNV-1a 해시)
+function hashSeed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }
 
 interface PvaParams {
@@ -119,6 +140,7 @@ interface PvaParams {
   n_sim: number;
   N_qext: number;
   N_allee: number;
+  seed: number;
 }
 
 interface PvaResult {
@@ -136,16 +158,18 @@ interface PvaResult {
 }
 
 function runPva(p: PvaParams): PvaResult {
-  const { N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee } = p;
+  const { N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed } = p;
   const meanLog = Math.log(lambda_mean);
+  const rand = makeRng(seed);
 
   const finalNs: number[] = [];
-  const extTimes: number[] = [];
+  const extTimes: number[] = []; // 분수년으로 저장
   // trajectory[year][sim]
   const traj: number[][] = Array.from({ length: T + 1 }, () => new Array(n_sim).fill(0));
 
   for (let s = 0; s < n_sim; s++) {
     let N = N0;
+    let prevN = N;
     traj[0][s] = N;
     let extinctAt: number | null = null;
     for (let t = 1; t <= T; t++) {
@@ -153,20 +177,24 @@ function runPva(p: PvaParams): PvaResult {
         traj[t][s] = 0;
         continue;
       }
-      const lambdaEnv = lognormalSample(meanLog, lambda_sd);
+      prevN = N;
+      const lambdaEnv = lognormalSample(meanLog, lambda_sd, rand);
       const dens = Math.exp(r * (1 - N / K));
       const expected = N * lambdaEnv * dens;
-      // demographic stochasticity
-      N = poissonSample(expected);
-      // Allee
+      N = poissonSample(expected, rand);
       if (N < N_allee && N > 0) {
         N = Math.round(N * (N / N_allee));
       }
       N = Math.max(0, Math.round(N));
       traj[t][s] = N;
       if (N < N_qext && extinctAt === null) {
-        extinctAt = t;
-        // continue tracking (don't break — for trajectory)
+        // 선형 보간으로 분수년 추출 — prevN ≥ N_qext > N 라 가정
+        if (prevN > N) {
+          const frac = (prevN - N_qext) / (prevN - N);
+          extinctAt = (t - 1) + Math.max(0, Math.min(1, frac));
+        } else {
+          extinctAt = t;
+        }
       }
     }
     finalNs.push(N);
@@ -183,7 +211,12 @@ function runPva(p: PvaParams): PvaResult {
   let median_T: number | null = null;
   if (extTimes.length > 0) {
     const sorted = [...extTimes].sort((a, b) => a - b);
-    median_T = sorted[Math.floor(sorted.length / 2)];
+    const mid = sorted.length / 2;
+    if (Number.isInteger(mid)) {
+      median_T = (sorted[mid - 1] + sorted[mid]) / 2;
+    } else {
+      median_T = sorted[Math.floor(mid)];
+    }
   }
 
   const survFinal = finalNs.filter((n) => n >= N_qext);
@@ -200,10 +233,20 @@ function runPva(p: PvaParams): PvaResult {
     trajP90.push(sorted[Math.floor(0.9 * n_sim)]);
   }
 
-  // Year when p10 trajectory hits N_qext — pessimistic 멸종 연도
+  // Year when p10 trajectory hits N_qext — pessimistic 멸종 연도 (선형 보간)
   let T_to_qext_p10: number | null = null;
   for (let t = 1; t <= T; t++) {
-    if (trajP10[t] < N_qext) { T_to_qext_p10 = t; break; }
+    if (trajP10[t] < N_qext) {
+      const prev = trajP10[t - 1];
+      const cur = trajP10[t];
+      if (prev > cur && prev >= N_qext) {
+        const frac = (prev - N_qext) / (prev - cur);
+        T_to_qext_p10 = (t - 1) + Math.max(0, Math.min(1, frac));
+      } else {
+        T_to_qext_p10 = t;
+      }
+      break;
+    }
   }
 
   // PVA score
@@ -334,14 +377,13 @@ export interface TippingPointResult {
   rationale: string;
 }
 
-const TODAY = new Date("2026-05-03"); // CLAUDE.md currentDate
+const TODAY = new Date("2026-05-04"); // CLAUDE.md currentDate
 
+// 분수 년 → 일 단위 정밀 변환 (윤년 평균 365.25일)
 function addYears(date: Date, years: number): Date {
   const d = new Date(date);
-  const wholeYears = Math.floor(years);
-  const fractionDays = Math.round((years - wholeYears) * 365);
-  d.setFullYear(d.getFullYear() + wholeYears);
-  d.setDate(d.getDate() + fractionDays);
+  const days = Math.round(years * 365.25);
+  d.setDate(d.getDate() + days);
   return d;
 }
 
@@ -374,7 +416,9 @@ export function evaluateTippingPoint(
   const N_qext = 2;
   const N_allee = Math.max(20, Math.round(N0 * 0.05));
 
-  const pva = runPva({ N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee });
+  // 종 ID 로 시드를 만들어 결정적이지만 종마다 다른 결과
+  const seed = opts.seed ?? hashSeed(species.id);
+  const pva = runPva({ N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed });
   const iucn = evaluateIucn(N0, species.category, life.ne_nc);
   const ews = evaluateEws(species.population_trend, r);
 
@@ -398,15 +442,20 @@ export function evaluateTippingPoint(
   // ===== 날짜 계산 =====
   const trajMean = pva.trajectory_mean;
 
-  // 각 시뮬레이션 평균 궤적이 다음 tier 임계 N 에 도달하는 연도
-  // 점수는 decreasing N 함수 — 단순화: tier 진입 연도 = 평균 N 이 특정 비율로 떨어지는 시점
-  // T2 = N(t)/N0 ≤ 0.7
-  // T3 = N(t)/N0 ≤ 0.4
-  // T4 = N(t)/N0 ≤ 0.15
+  // 각 시뮬레이션 평균 궤적이 다음 tier 임계 N 에 도달하는 연도 (선형 보간)
+  // T2 = N(t)/N0 ≤ 0.7, T3 = ≤ 0.4, T4 = ≤ 0.15
   const yearsUntil = (ratio: number): number | null => {
     const target = N0 * ratio;
     for (let t = 1; t < trajMean.length; t++) {
-      if (trajMean[t] <= target) return t;
+      if (trajMean[t] <= target) {
+        const prev = trajMean[t - 1];
+        const cur = trajMean[t];
+        if (prev > cur && prev > target) {
+          const frac = (prev - target) / (prev - cur);
+          return (t - 1) + Math.max(0, Math.min(1, frac));
+        }
+        return t;
+      }
     }
     return null;
   };
