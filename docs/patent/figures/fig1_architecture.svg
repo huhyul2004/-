@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="Pretendard, sans-serif">
+  <style>
+    .box { fill: #fff; stroke: #18181b; stroke-width: 2; }
+    .layer { fill: #f4f4f5; stroke: #71717a; stroke-width: 1.5; }
+    .core { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+    .arrow { stroke: #18181b; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    text { font-size: 13px; fill: #18181b; }
+    .title { font-size: 16px; font-weight: 900; }
+    .small { font-size: 11px; fill: #52525b; }
+    .file { font-family: monospace; font-size: 11px; fill: #6366f1; }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#18181b" />
+    </marker>
+  </defs>
+
+  <text x="460" y="30" text-anchor="middle" class="title">Fig 1. LastWatch EWS-PVA-IUCN Hybrid Engine — System Architecture</text>
+
+  <!-- Inputs -->
+  <rect x="40" y="80" width="180" height="100" class="box" rx="8"/>
+  <text x="130" y="105" text-anchor="middle" font-weight="700">Data Inputs</text>
+  <text x="130" y="125" text-anchor="middle" class="small">IUCN Red List</text>
+  <text x="130" y="142" text-anchor="middle" class="small">Wikidata SPARQL</text>
+  <text x="130" y="159" text-anchor="middle" class="small">Time-series (optional)</text>
+  <text x="130" y="174" text-anchor="middle" class="file">scripts/sync-*.ts</text>
+
+  <!-- 3-Layer Engine -->
+  <rect x="280" y="50" width="200" height="60" class="layer" rx="6"/>
+  <text x="380" y="75" text-anchor="middle" font-weight="700">Layer 1 · EWS</text>
+  <text x="380" y="92" text-anchor="middle" class="small">Critical Slowing Down</text>
+  <text x="380" y="105" text-anchor="middle" class="file">engine/* (Drake 2010)</text>
+
+  <rect x="280" y="130" width="200" height="60" class="layer" rx="6"/>
+  <text x="380" y="155" text-anchor="middle" font-weight="700">Layer 2 · PVA</text>
+  <text x="380" y="172" text-anchor="middle" class="small">Stochastic Ricker × 1500</text>
+  <text x="380" y="185" text-anchor="middle" class="file">lib/tipping-point.ts</text>
+
+  <rect x="280" y="210" width="200" height="60" class="layer" rx="6"/>
+  <text x="380" y="235" text-anchor="middle" font-weight="700">Layer 3 · IUCN + Genetic</text>
+  <text x="380" y="252" text-anchor="middle" class="small">50/500 Rule (Frankham)</text>
+  <text x="380" y="265" text-anchor="middle" class="file">lib/tipping-point.ts</text>
+
+  <!-- Consensus -->
+  <rect x="540" y="130" width="180" height="80" class="core" rx="8"/>
+  <text x="630" y="155" text-anchor="middle" font-weight="700">Consensus Layer</text>
+  <text x="630" y="173" text-anchor="middle" class="small">Generate-then-Verify</text>
+  <text x="630" y="188" text-anchor="middle" class="small">2-of-3 alert filter</text>
+  <text x="630" y="202" text-anchor="middle" class="file">engine/consensus.ts</text>
+
+  <!-- Outputs -->
+  <rect x="780" y="60" width="120" height="60" class="box" rx="6"/>
+  <text x="840" y="85" text-anchor="middle" font-weight="700">Tier (T0-T4)</text>
+  <text x="840" y="102" text-anchor="middle" class="file">tipping-point.ts</text>
+
+  <rect x="780" y="140" width="120" height="60" class="box" rx="6"/>
+  <text x="840" y="165" text-anchor="middle" font-weight="700">Timeline</text>
+  <text x="840" y="180" text-anchor="middle" class="small">4-tuple dates</text>
+  <text x="840" y="194" text-anchor="middle" class="file">engine/timeline.ts</text>
+
+  <rect x="780" y="220" width="120" height="60" class="box" rx="6"/>
+  <text x="840" y="245" text-anchor="middle" font-weight="700">Recommendation</text>
+  <text x="840" y="260" text-anchor="middle" class="small">Tier × Threat × Region</text>
+  <text x="840" y="274" text-anchor="middle" class="file">engine/recommendation.ts</text>
+
+  <!-- Arrows -->
+  <path d="M220 130 L280 80" class="arrow"/>
+  <path d="M220 130 L280 160" class="arrow"/>
+  <path d="M220 130 L280 240" class="arrow"/>
+  <path d="M480 80 L540 150" class="arrow"/>
+  <path d="M480 160 L540 170" class="arrow"/>
+  <path d="M480 240 L540 190" class="arrow"/>
+  <path d="M720 170 L780 90" class="arrow"/>
+  <path d="M720 170 L780 170" class="arrow"/>
+  <path d="M720 170 L780 250" class="arrow"/>
+
+  <!-- Fallback path -->
+  <rect x="40" y="320" width="200" height="80" class="box" stroke-dasharray="4 4" rx="6"/>
+  <text x="140" y="345" text-anchor="middle" font-weight="700">Fallback Estimator</text>
+  <text x="140" y="362" text-anchor="middle" class="small">Taxon defaults + IUCN priors</text>
+  <text x="140" y="378" text-anchor="middle" class="small">confidence_cap = 0.4</text>
+  <text x="140" y="392" text-anchor="middle" class="file">engine/fallback.ts</text>
+  <path d="M240 360 Q 280 360 280 230" class="arrow" stroke-dasharray="4 4"/>
+  <text x="290" y="320" class="small">when N₀ unknown</text>
+
+  <!-- UI Layer -->
+  <rect x="540" y="320" width="360" height="80" class="box" rx="6"/>
+  <text x="720" y="345" text-anchor="middle" font-weight="700">User Interface (Next.js)</text>
+  <text x="720" y="365" text-anchor="middle" class="small">Detail page · Timeline SVG · Recommendation list</text>
+  <text x="720" y="382" text-anchor="middle" class="file">app/species/[id]/page.tsx · components/tipping-timeline.tsx</text>
+  <path d="M840 280 L740 320" class="arrow"/>
+
+  <!-- Footnote -->
+  <text x="40" y="540" class="small">References:</text>
+  <text x="40" y="558" class="small">[1] Drake &amp; Griffen (2010) Nature 467:456 · [2] Frankham et al. (2014) Biol Conservation 170:56</text>
+  <text x="40" y="572" class="small">[3] Beissinger &amp; McCullough (2002) Population Viability Analysis · [4] Lacy (1993) Wildlife Research 20:45</text>
+  <text x="40" y="586" class="small">[5] IUCN Red List Categories &amp; Criteria v3.1 (2012)</text>
+</svg>

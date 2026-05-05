@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" font-family="Pretendard, sans-serif">
+  <style>
+    text { font-size: 13px; fill: #18181b; }
+    .title { font-size: 16px; font-weight: 900; }
+    .small { font-size: 11px; fill: #52525b; }
+    .label { font-size: 12px; font-weight: 700; }
+    .date { font-family: monospace; font-size: 12px; }
+  </style>
+
+  <text x="460" y="30" text-anchor="middle" class="title">Fig 2. Tipping Point Timeline — Vaquita Porpoise (Phocoena sinus)</text>
+  <text x="460" y="50" text-anchor="middle" class="small">N₀=10, IUCN=CR, consensus_score=98 · T4 (Imminent)</text>
+
+  <!-- Main timeline bar -->
+  <line x1="80" y1="180" x2="860" y2="180" stroke="#18181b" stroke-width="2"/>
+
+  <!-- Gradient region -->
+  <defs>
+    <linearGradient id="urgency" x1="0%" x2="100%">
+      <stop offset="0%" stop-color="#60C659" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#FC7F3F" stop-opacity="0.3"/>
+      <stop offset="80%" stop-color="#D81E05" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <rect x="80" y="170" width="780" height="20" fill="url(#urgency)"/>
+
+  <!-- Markers -->
+  <!-- 1. Open -->
+  <circle cx="100" cy="180" r="10" fill="#60C659"/>
+  <line x1="100" y1="180" x2="100" y2="100" stroke="#60C659" stroke-width="1.5"/>
+  <text x="100" y="92" text-anchor="middle" class="label" fill="#3a8836">개입 가능</text>
+  <text x="100" y="80" text-anchor="middle" class="date">2026-05-04</text>
+  <text x="100" y="115" text-anchor="middle" class="small">today (T+0)</text>
+
+  <!-- 2. Close -->
+  <circle cx="100" cy="180" r="10" fill="#FC7F3F" stroke="#fff" stroke-width="2"/>
+  <text x="180" y="220" text-anchor="middle" class="label" fill="#c46928">개입 마감</text>
+  <text x="180" y="240" text-anchor="middle" class="date">2026-05-04</text>
+  <text x="180" y="256" text-anchor="middle" class="small">already in T3 zone</text>
+
+  <!-- 3. Golden -->
+  <circle cx="200" cy="180" r="10" fill="#D81E05" stroke="#fff" stroke-width="2"/>
+  <text x="290" y="120" text-anchor="middle" class="label" fill="#a01103">골든타임</text>
+  <text x="290" y="105" text-anchor="middle" class="date">~2027-01-15</text>
+  <text x="290" y="135" text-anchor="middle" class="small">T+0.7y (T4 entry)</text>
+
+  <!-- 4. Extinction -->
+  <circle cx="450" cy="180" r="10" fill="#000"/>
+  <line x1="450" y1="180" x2="450" y2="240" stroke="#000" stroke-width="1.5"/>
+  <text x="450" y="260" text-anchor="middle" class="label">멸종 추정 (p10)</text>
+  <text x="450" y="278" text-anchor="middle" class="date">2031-08-30</text>
+  <text x="450" y="294" text-anchor="middle" class="small">PVA p10 quasi-extinction</text>
+
+  <!-- Year axis -->
+  <text x="80" y="305" class="small">2026</text>
+  <text x="290" y="305" class="small">2028</text>
+  <text x="500" y="305" class="small">2031</text>
+  <text x="710" y="305" class="small">2056</text>
+  <text x="860" y="305" text-anchor="end" class="small">2126 (T+100y)</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 700" font-family="Pretendard, sans-serif">
+  <style>
+    .box { fill: #fff; stroke: #18181b; stroke-width: 1.8; }
+    .decision { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+    .output { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
+    .alert { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; }
+    .arrow { stroke: #18181b; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    text { font-size: 13px; fill: #18181b; text-anchor: middle; }
+    .title { font-size: 16px; font-weight: 900; }
+    .small { font-size: 11px; fill: #52525b; }
+    .formula { font-family: monospace; font-size: 12px; fill: #1e40af; }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#18181b" />
+    </marker>
+  </defs>
+
+  <text x="460" y="30" class="title">Fig 3. Generate-then-Verify Consensus Algorithm</text>
+
+  <!-- Inputs -->
+  <rect x="60"  y="70" width="180" height="60" class="box" rx="6"/>
+  <text x="150" y="95" font-weight="700">EWS Score</text>
+  <text x="150" y="115" class="small">0~100 (CSD signal)</text>
+
+  <rect x="370" y="70" width="180" height="60" class="box" rx="6"/>
+  <text x="460" y="95" font-weight="700">PVA Score</text>
+  <text x="460" y="115" class="small">0~100 (P_ext-based)</text>
+
+  <rect x="680" y="70" width="180" height="60" class="box" rx="6"/>
+  <text x="770" y="95" font-weight="700">IUCN/Genetic Score</text>
+  <text x="770" y="115" class="small">0~100 (Criterion + Ne)</text>
+
+  <!-- Weighted -->
+  <rect x="280" y="180" width="360" height="60" class="box" rx="6"/>
+  <text x="460" y="205" font-weight="700">Weighted Average</text>
+  <text x="460" y="225" class="formula">raw = 0.20·EWS + 0.50·PVA + 0.30·IUCN</text>
+
+  <path d="M150 130 L 380 180" class="arrow"/>
+  <path d="M460 130 L 460 180" class="arrow"/>
+  <path d="M770 130 L 540 180" class="arrow"/>
+
+  <!-- Decision: high alerts -->
+  <polygon points="460,290 660,360 460,430 260,360" class="decision"/>
+  <text x="460" y="350" font-weight="700">High-Alert Count</text>
+  <text x="460" y="370" class="small">EWS&gt;70 + PVA&gt;50 + IUCN&gt;60</text>
+
+  <path d="M460 240 L 460 290" class="arrow"/>
+
+  <!-- Branches -->
+  <rect x="40"  y="470" width="220" height="80" class="alert" rx="6"/>
+  <text x="150" y="495" font-weight="700">0 alerts</text>
+  <text x="150" y="515" class="formula">adjusted = raw · 0.6</text>
+  <text x="150" y="533" class="small">confidence = 0.5</text>
+
+  <rect x="350" y="470" width="220" height="80" class="alert" rx="6"/>
+  <text x="460" y="495" font-weight="700">1 alert</text>
+  <text x="460" y="515" class="formula">adjusted = raw · 0.85</text>
+  <text x="460" y="533" class="small">confidence = 0.7</text>
+
+  <rect x="660" y="470" width="220" height="80" class="output" rx="6"/>
+  <text x="770" y="495" font-weight="700">2+ alerts</text>
+  <text x="770" y="515" class="formula">adjusted = raw</text>
+  <text x="770" y="533" class="small">confidence = 0.95 (consensus)</text>
+
+  <path d="M280 380 L 150 470" class="arrow"/>
+  <path d="M460 430 L 460 470" class="arrow"/>
+  <path d="M640 380 L 770 470" class="arrow"/>
+
+  <!-- Final output -->
+  <rect x="280" y="600" width="360" height="60" class="output" rx="6"/>
+  <text x="460" y="625" font-weight="700">Consensus Output</text>
+  <text x="460" y="645" class="small">{ score, confidence, primary_signal }</text>
+
+  <path d="M150 550 L 350 600" class="arrow"/>
+  <path d="M460 550 L 460 600" class="arrow"/>
+  <path d="M770 550 L 570 600" class="arrow"/>
+</svg>
