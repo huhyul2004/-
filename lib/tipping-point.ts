@@ -120,6 +120,14 @@ function lognormalSample(meanLog: number, sdLog: number, rand: () => number): nu
   return Math.exp(meanLog + sdLog * z);
 }
 
+// 정규 분포 샘플 (Box-Muller). 스펙: lam = np.random.normal(lambda_mean, lambda_sd)
+function normalSample(mean: number, sd: number, rand: () => number): number {
+  const u1 = Math.max(1e-10, rand());
+  const u2 = rand();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  return mean + sd * z;
+}
+
 // 종 ID 문자열 → 32-bit 시드 (FNV-1a 해시)
 function hashSeed(s: string): number {
   let h = 2166136261;
@@ -158,13 +166,17 @@ interface PvaResult {
 }
 
 function runPva(p: PvaParams): PvaResult {
+  // 스펙 v3 (2026-05-06):
+  //   lam = np.random.normal(lambda_mean, lambda_sd)
+  //   N = np.random.poisson(N * lam)
+  //   N = N * np.exp(r * (1 - N/K))
+  //   if N < N_allee: N *= (N / N_allee)
+  //   if N < 2: extinction
   const { N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed } = p;
-  const meanLog = Math.log(lambda_mean);
   const rand = makeRng(seed);
 
   const finalNs: number[] = [];
-  const extTimes: number[] = []; // 분수년으로 저장
-  // trajectory[year][sim]
+  const extTimes: number[] = [];
   const traj: number[][] = Array.from({ length: T + 1 }, () => new Array(n_sim).fill(0));
 
   for (let s = 0; s < n_sim; s++) {
@@ -178,17 +190,21 @@ function runPva(p: PvaParams): PvaResult {
         continue;
       }
       prevN = N;
-      const lambdaEnv = lognormalSample(meanLog, lambda_sd, rand);
-      const dens = Math.exp(r * (1 - N / K));
-      const expected = N * lambdaEnv * dens;
-      N = poissonSample(expected, rand);
-      if (N < N_allee && N > 0) {
-        N = Math.round(N * (N / N_allee));
+      // 환경 확률성 — 정규 분포 (스펙 그대로)
+      const lam = normalSample(lambda_mean, lambda_sd, rand);
+      // λ < 0 보호 (Poisson μ ≥ 0)
+      const lamSafe = Math.max(0, lam);
+      // 인구 확률성 — Poisson(N · lam)
+      let Nf: number = poissonSample(N * lamSafe, rand);
+      // Ricker 밀도 의존 (Poisson 결과에 적용)
+      Nf = Nf * Math.exp(r * (1 - Nf / K));
+      // Allee 효과
+      if (Nf < N_allee && Nf > 0) {
+        Nf = Nf * (Nf / N_allee);
       }
-      N = Math.max(0, Math.round(N));
+      N = Math.max(0, Math.round(Nf));
       traj[t][s] = N;
       if (N < N_qext && extinctAt === null) {
-        // 선형 보간으로 분수년 추출 — prevN ≥ N_qext > N 라 가정
         if (prevN > N) {
           const frac = (prevN - N_qext) / (prevN - N);
           extinctAt = (t - 1) + Math.max(0, Math.min(1, frac));
@@ -319,12 +335,20 @@ interface EwsResult {
 }
 
 function evaluateEws(trend: string | null, r: number): EwsResult {
-  // 시계열 없음 → confidence 0.2~0.3
-  // r < 0 (감소) 만 신호로 변환
-  const negSignal = Math.max(0, -r);  // 0~0.06
-  const score = Math.min(100, (negSignal / 0.06) * 50); // 0~50 max
-  let interp = "시계열 없음 — 약한 신호";
-  if (score > 30) interp = "감소 추세 — 검토 필요";
+  // 스펙 v3: ews_score = sigmoid(0.5·τ_AR1 + 0.3·τ_Var + 0.2·τ_Skew) · 100
+  // 시계열 부재 → 모든 τ = 0 → sigmoid(0) = 0.5 → ews_score = 50
+  // 단, r 부호로 약한 추정 신호 부여 (감소 추세면 양의 τ 가정)
+  const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
+  // r 가 음수일수록 τ 가 양수 (CSD 신호) — r ≈ -0.06 → τ ≈ 1.0
+  const tauEstimate = Math.max(-1, Math.min(1, -r / 0.06));
+  // 시계열 없으니 AR1/Var/Skew 모두 동일 추정값 사용
+  const composite = 0.5 * tauEstimate + 0.3 * tauEstimate + 0.2 * tauEstimate;
+  const score = sigmoid(2 * composite) * 100; // 2 배 곱해 sigmoid 민감도↑
+  const interp = score > 70
+    ? "강한 critical slowing down 신호"
+    : score > 50
+      ? "약한 감소 추세 신호"
+      : "시계열 부재 — 중간값";
   return { composite_score: score, confidence: 0.25, interpretation: interp };
 }
 
@@ -425,8 +449,9 @@ export function evaluateTippingPoint(
   const iucn = evaluateIucn(N0, species.category, life.ne_nc);
   const ews = evaluateEws(species.population_trend, r);
 
-  // ===== Aggregator =====
-  const w = { ews: 0.20, pva: 0.50, iucn: 0.30 }; // EWS 신뢰도 낮음 → PVA/IUCN 가중↑
+  // ===== Aggregator (스펙 v3 가중치) =====
+  // score = 0.30·EWS + 0.45·PVA + 0.25·IUCN
+  const w = { ews: 0.30, pva: 0.45, iucn: 0.25 };
   const raw = w.ews * ews.composite_score + w.pva * pva.pva_score + w.iucn * iucn.iucn_score;
 
   // Consensus filter
@@ -508,13 +533,10 @@ export function evaluateTippingPoint(
     return null;
   };
 
-  // 현재 tier 보다 한 단계 위 진입 연도
-  const tierIdx = TIERS.findIndex((t) => t.tier === tier.tier);
-  let yearsToDeadline: number;
-  if (tierIdx >= 3) yearsToDeadline = 0; // 이미 T3 이상 — 즉시 마감
-  else if (tierIdx === 2) yearsToDeadline = yearsUntil(0.4) ?? 30; // T2 → T3
-  else if (tierIdx === 1) yearsToDeadline = yearsUntil(0.55) ?? 40;
-  else yearsToDeadline = yearsUntil(0.7) ?? 50;
+  // D-day = trajMean 가 N₀의 40% 도달 시점 (T3 임계, 개입 마감)
+  // 스펙 v3: T-level 무관하게 항상 40% 시점으로 계산 (0 cap 제거)
+  const yearsToDeadline40 = yearsUntil(0.4);
+  let yearsToDeadline = yearsToDeadline40 ?? 100;
   yearsToDeadline = Math.min(yearsToDeadline, 100);
 
   const yearsToExtinctionRaw = pva.T_to_qext_p10 ?? (pva.median_T_ext ?? null);
