@@ -6,6 +6,7 @@ import { AIRecommend } from "@/components/ai-recommend";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
+import { TippingHero } from "@/components/tipping-hero";
 import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
@@ -157,9 +158,15 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
 
       {tipping && (
         <section className="mb-8">
+          <TippingHero result={tipping.payload as TippingPointResult} />
+        </section>
+      )}
+
+      {tipping && (
+        <section className="mb-8">
           <h2 className="mb-3 flex items-baseline gap-2">
-            <span className="text-xs font-black tracking-wider text-[#D81E05]">TIPPING POINT</span>
-            <span className="text-lg font-black text-zinc-900">임계점 분석 · 개입 연표</span>
+            <span className="text-xs font-black tracking-wider text-[#D81E05]">DETAIL</span>
+            <span className="text-lg font-black text-zinc-900">상세 분석 · PVA 통계</span>
           </h2>
           <TippingTimeline result={tipping.payload as TippingPointResult} />
         </section>

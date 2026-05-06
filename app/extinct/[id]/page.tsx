@@ -6,6 +6,7 @@ import { AIRetrospective } from "@/components/ai-retrospective";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
+import { TippingHero } from "@/components/tipping-hero";
 import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
@@ -106,13 +107,18 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
         )}
 
         {tipping && (
-          <section className="mb-8">
-            <h2 className="mb-3 flex items-baseline gap-2">
-              <span className="text-xs font-black tracking-wider text-zinc-500">TIMELINE</span>
-              <span className="text-lg font-black text-zinc-100">절멸 연표</span>
-            </h2>
-            <TippingTimeline result={tipping.payload as TippingPointResult} dark />
-          </section>
+          <>
+            <section className="mb-8">
+              <TippingHero result={tipping.payload as TippingPointResult} dark />
+            </section>
+            <section className="mb-8">
+              <h2 className="mb-3 flex items-baseline gap-2">
+                <span className="text-xs font-black tracking-wider text-zinc-500">DETAIL</span>
+                <span className="text-lg font-black text-zinc-100">상세 분석</span>
+              </h2>
+              <TippingTimeline result={tipping.payload as TippingPointResult} dark />
+            </section>
+          </>
         )}
 
         <section className="mb-8">
