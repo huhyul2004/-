@@ -338,10 +338,13 @@ const TIERS = [
 ] as const;
 
 function tierForScore(score: number) {
-  for (const t of TIERS) {
-    if (score >= t.min && score < t.max) return t;
-  }
-  return TIERS[TIERS.length - 1];
+  // P0-4 fix: 부동소수점 안전 비교 — score=20.0 같은 boundary 값이 정확히 잡히도록
+  const s = Math.round(score * 100) / 100;
+  if (s < 20) return TIERS[0];      // T0
+  if (s < 40) return TIERS[1];      // T1
+  if (s < 60) return TIERS[2];      // T2
+  if (s < 80) return TIERS[3];      // T3
+  return TIERS[4];                   // T4
 }
 
 export interface TippingPointResult {
@@ -438,40 +441,51 @@ export function evaluateTippingPoint(
   if (overall_conf < 0.5) consensus = consensus * 0.9 + 10;
 
   // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
-  // PVA 가 안정 추세에선 작은 개체수도 멸종 위험 낮게 평가하는 한계 보정
+  // P0-2 fix: mature_individuals=NULL 이라도 카테고리 fallback (N0) 에 floor 적용
+  // 카테고리 fallback 추정치는 confidence_cap=0.4 로 별도 표기 (다음 단계에서)
   // IUCN Criterion D + Frankham 50/500 + 단일 멸종사건 취약성 반영
-  // 실제 mature_individuals 가 있을 때만 적용 (추정값으론 강제 안함)
-  if (species.mature_individuals != null && species.mature_individuals > 0) {
-    const N = species.mature_individuals;
+  {
+    const N = N0;
     const isCR = species.category === "CR";
+    const isEN = species.category === "EN";
+    const isVU = species.category === "VU";
     const trend = (species.population_trend ?? "").toLowerCase();
     const declining = /감소|급감|decreas/.test(trend);
 
     let floor = 0;
     if (N < 50)      floor = 90;   // T4 골든타임
     else if (N < 100) floor = 78;  // T3 후반
-    else if (N < 250) floor = 70;  // T3 중반 (자바코뿔소 76 → 78)
+    else if (N < 250) floor = 70;  // T3 중반 (자바코뿔소 76)
     else if (N < 500) floor = 60;  // T3 진입
-    else if (N < 1000 && isCR) floor = 55;  // CR 인데 1000 미만
-    else if (N < 2500 && isCR) floor = 50;
-    else if (N < 5000 && isCR && declining) floor = 50;
+    else if (N < 1000 && isCR) floor = 65;
+    else if (N < 2500 && isCR) floor = 60;  // CR Criterion D 임계 → T3 floor
+    else if (N < 5000 && isCR) floor = 55;
+    else if (isCR) floor = 50;               // 모든 CR 은 최소 T2 (B3 fix — 99.97% T2 묶임)
+    else if (N < 2500 && isEN) floor = 45;
+    else if (isEN) floor = 35;               // EN 최소 T1
+    else if (N < 10000 && isVU && declining) floor = 35;
 
     consensus = Math.max(consensus, floor);
   }
 
-  // 추세 보정 — 급감/감소 추세는 가산점
+  // 추세 보정 — 급감/감소/증가 모두 반영 (P1-2 fix)
   if (species.population_trend) {
     const trend = species.population_trend.toLowerCase();
     if (trend.includes("급감")) consensus = Math.min(100, consensus + 8);
-    else if (trend.includes("감소") || trend.includes("decreas")) {
-      // CR/EN 만 가산 (VU/NT 는 이미 등급에 반영)
+    else if (trend.includes("증가") || trend.includes("회복") || trend.includes("increas")) {
+      // 회복 중 종은 점수 하향 (반달가슴곰 같은 재도입 성공 사례 보호)
+      consensus = Math.max(0, consensus - 10);
+    } else if (trend.includes("감소") || trend.includes("decreas")) {
       if (species.category === "CR" || species.category === "EN") {
         consensus = Math.min(100, consensus + 4);
       }
     }
   }
 
-  const tier = tierForScore(consensus);
+  // P0-4 fix 보강: 저장될 score 와 동일한 정밀도로 tier 결정
+  // (score 1자리 반올림 후 tier 판정 → 사용자에게 표시되는 score 와 tier 일관성)
+  const displayScore = Math.round(consensus * 10) / 10;
+  const tier = tierForScore(displayScore);
 
   // ===== 날짜 계산 =====
   const trajMean = pva.trajectory_mean;
@@ -504,7 +518,17 @@ export function evaluateTippingPoint(
   yearsToDeadline = Math.min(yearsToDeadline, 100);
 
   const yearsToExtinction = pva.T_to_qext_p10 ?? (pva.median_T_ext ?? null);
-  const yearsToGolden = yearsUntil(0.15);
+  let yearsToGolden = yearsUntil(0.15);
+
+  // P0-3 fix: deadline ≤ golden ≤ extinction 시간 일관성 강제
+  // (trajMean 와 trajP10 이 독립 보간되어 생기는 모순 차단)
+  if (yearsToExtinction != null) {
+    yearsToDeadline = Math.min(yearsToDeadline, yearsToExtinction);
+    if (yearsToGolden != null) yearsToGolden = Math.min(yearsToGolden, yearsToExtinction);
+  }
+  if (yearsToGolden != null) {
+    yearsToDeadline = Math.min(yearsToDeadline, yearsToGolden);
+  }
 
   const interventionOpen = TODAY; // 개입 가능 시작은 오늘
   const interventionDeadline = addYears(TODAY, Math.max(0, yearsToDeadline));
