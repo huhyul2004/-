@@ -51,7 +51,16 @@ export function listAtRiskSpecies(filters?: {
   }
 
   const sortClauses: Record<SortKey, string> = {
-    urgency: `COALESCE(t.deadline_days, 999999) ASC, COALESCE(t.consensus_score, 0) DESC, s.common_name_ko COLLATE NOCASE`,
+    // C1 fix: tier 우선 정렬 (T4 → T0 순) → score → deadline tiebreaker
+    // 이전: deadline_days ASC 만으로 → 13~60위가 모두 T0 노출되는 사용자 가시 결함
+    urgency: `
+      CASE t.intervention_tier
+        WHEN 'T4' THEN 5 WHEN 'T3' THEN 4 WHEN 'T2' THEN 3
+        WHEN 'T1' THEN 2 WHEN 'T0' THEN 1 ELSE 0
+      END DESC,
+      COALESCE(t.consensus_score, 0) DESC,
+      COALESCE(t.deadline_days, 999999) ASC,
+      s.common_name_ko COLLATE NOCASE`,
     risk: `CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
            s.common_name_ko COLLATE NOCASE`,
     name: "s.common_name_ko COLLATE NOCASE, s.scientific_name COLLATE NOCASE",

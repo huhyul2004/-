@@ -517,8 +517,24 @@ export function evaluateTippingPoint(
   else yearsToDeadline = yearsUntil(0.7) ?? 50;
   yearsToDeadline = Math.min(yearsToDeadline, 100);
 
-  const yearsToExtinction = pva.T_to_qext_p10 ?? (pva.median_T_ext ?? null);
+  const yearsToExtinctionRaw = pva.T_to_qext_p10 ?? (pva.median_T_ext ?? null);
+  let yearsToExtinction = yearsToExtinctionRaw;
   let yearsToGolden = yearsUntil(0.15);
+
+  // B6 fix: 종 ID 해시 jitter 추가 — 카테고리 fallback N0 클러스터링 분산
+  // FNV-1a 해시 → 정규화된 [-1, 1] → ±330일 (~0.9년) jitter
+  // 큐레이션 종(mature_individuals 있음) 은 jitter 적용 X (정확값 보호)
+  if (species.mature_individuals == null) {
+    const baseJitter = ((seed >>> 0) / 0xFFFFFFFF) * 2 - 1; // [-1, 1]
+    const extJitterSeed = hashSeed(species.id + ":ext");
+    const goldJitterSeed = hashSeed(species.id + ":gold");
+    const extJitter = ((extJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
+    const goldJitter = ((goldJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
+    const J = 0.9; // ±0.9년 jitter
+    yearsToDeadline = Math.max(0, yearsToDeadline + baseJitter * J);
+    if (yearsToExtinction != null) yearsToExtinction = Math.max(0, yearsToExtinction + extJitter * J);
+    if (yearsToGolden != null) yearsToGolden = Math.max(0, yearsToGolden + goldJitter * J);
+  }
 
   // P0-3 fix: deadline ≤ golden ≤ extinction 시간 일관성 강제
   // (trajMean 와 trajP10 이 독립 보간되어 생기는 모순 차단)
