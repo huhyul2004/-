@@ -485,10 +485,11 @@ export function evaluateTippingPoint(
     else if (N < 1000 && isCR) floor = 65;
     else if (N < 2500 && isCR) floor = 60;  // CR Criterion D 임계 → T3 floor
     else if (N < 5000 && isCR) floor = 55;
-    else if (isCR) floor = 50;               // 모든 CR 은 최소 T2 (B3 fix — 99.97% T2 묶임)
-    else if (N < 2500 && isEN) floor = 45;
-    else if (isEN) floor = 35;               // EN 최소 T1
-    else if (N < 10000 && isVU && declining) floor = 35;
+    else if (isCR) floor = 50;               // 모든 CR 은 최소 T2
+    else if (N < 2500 && isEN) floor = 50;
+    else if (isEN) floor = 45;               // EN 최소 T2 (이전 T1 → T2 격상)
+    else if (isVU) floor = 40;               // VU 최소 T2 (보전생물학 정합성)
+    else if (N < 10000 && isVU && declining) floor = 45;
 
     consensus = Math.max(consensus, floor);
   }
@@ -543,16 +544,15 @@ export function evaluateTippingPoint(
   let yearsToExtinction = yearsToExtinctionRaw;
   let yearsToGolden = yearsUntil(0.15);
 
-  // B6 fix: 종 ID 해시 jitter 추가 — 카테고리 fallback N0 클러스터링 분산
-  // FNV-1a 해시 → 정규화된 [-1, 1] → ±330일 (~0.9년) jitter
+  // B6 fix: 종 ID 해시 jitter — 카테고리 fallback N0 종 분산 (±2.5년)
   // 큐레이션 종(mature_individuals 있음) 은 jitter 적용 X (정확값 보호)
   if (species.mature_individuals == null) {
-    const baseJitter = ((seed >>> 0) / 0xFFFFFFFF) * 2 - 1; // [-1, 1]
+    const baseJitter = ((seed >>> 0) / 0xFFFFFFFF) * 2 - 1;
     const extJitterSeed = hashSeed(species.id + ":ext");
     const goldJitterSeed = hashSeed(species.id + ":gold");
     const extJitter = ((extJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
     const goldJitter = ((goldJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
-    const J = 0.9; // ±0.9년 jitter
+    const J = 2.5; // ±2.5년 jitter (이전 0.9 → 2.5)
     yearsToDeadline = Math.max(0, yearsToDeadline + baseJitter * J);
     if (yearsToExtinction != null) yearsToExtinction = Math.max(0, yearsToExtinction + extJitter * J);
     if (yearsToGolden != null) yearsToGolden = Math.max(0, yearsToGolden + goldJitter * J);
