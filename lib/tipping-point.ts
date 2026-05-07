@@ -152,58 +152,81 @@ interface PvaParams {
 }
 
 interface PvaResult {
-  P_ext_T: number;            // P(extinction by year T)
+  P_ext_T: number;
   P_ext_50yr: number;
   P_ext_100yr: number;
   median_T_ext: number | null;
   mean_final_N: number;
   pva_score: number;
-  trajectory_mean: number[];   // 평균 궤적 by year
-  trajectory_p10: number[];    // 10퍼센타일 (비관)
-  trajectory_p90: number[];    // 90퍼센타일 (낙관)
-  T_to_qext_p10: number | null; // 10퍼센타일 (비관)에서 quasi-ext 도달 연도
+  trajectory_mean: number[];
+  trajectory_p10: number[];
+  trajectory_p90: number[];
+  T_to_qext_p10: number | null;
   T_to_qext_median: number | null;
+  // v2.0 명세 추가:
+  extinction_times: number[]; // 각 sim 의 멸종 연도 (분수년) — 멸종 안하면 미포함
+  allee_times: number[];      // 각 sim 의 Allee threshold 도달 연도 — 도달 안하면 미포함
+  trajectories: number[][];   // (n_sim, T+1) 모든 trajectory 보존 — score 시계열 변환용
 }
 
 function runPva(p: PvaParams): PvaResult {
-  // 스펙 v3 (2026-05-06):
-  //   lam = np.random.normal(lambda_mean, lambda_sd)
-  //   N = np.random.poisson(N * lam)
-  //   N = N * np.exp(r * (1 - N/K))
-  //   if N < N_allee: N *= (N / N_allee)
-  //   if N < 2: extinction
+  // v2.0 명세 (2026-05-07):
+  //   - 모든 trajectory 보존 (score 시계열 변환용)
+  //   - allee_times 별도 추적 (intervention_deadline 25%ile 산출)
+  //   - lognormal lambda (음수 보호) — Lacy 1993 VORTEX 표준
   const { N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed } = p;
   const rand = makeRng(seed);
 
+  // 환경 확률성 — lognormal 변환
+  const cv = lambda_sd / Math.max(lambda_mean, 1e-6);
+  const log_mu = Math.log(Math.max(lambda_mean, 1e-6)) - 0.5 * cv * cv;
+  const log_sigma = Math.abs(cv);
+
   const finalNs: number[] = [];
   const extTimes: number[] = [];
+  const alleeTimes: number[] = [];
   const traj: number[][] = Array.from({ length: T + 1 }, () => new Array(n_sim).fill(0));
+  // sim 별 trajectory (n_sim × T+1)
+  const simTraj: number[][] = Array.from({ length: n_sim }, () => new Array(T + 1).fill(0));
 
   for (let s = 0; s < n_sim; s++) {
     let N = N0;
     let prevN = N;
     traj[0][s] = N;
+    simTraj[s][0] = N;
     let extinctAt: number | null = null;
+    let alleeAt: number | null = null;
+
     for (let t = 1; t <= T; t++) {
       if (N <= 0) {
         traj[t][s] = 0;
+        simTraj[s][t] = 0;
         continue;
       }
       prevN = N;
-      // 환경 확률성 — 정규 분포 (스펙 그대로)
-      const lam = normalSample(lambda_mean, lambda_sd, rand);
-      // λ < 0 보호 (Poisson μ ≥ 0)
-      const lamSafe = Math.max(0, lam);
-      // 인구 확률성 — Poisson(N · lam)
-      let Nf: number = poissonSample(N * lamSafe, rand);
-      // Ricker 밀도 의존 (Poisson 결과에 적용)
-      Nf = Nf * Math.exp(r * (1 - Nf / K));
-      // Allee 효과
-      if (Nf < N_allee && Nf > 0) {
-        Nf = Nf * (Nf / N_allee);
+
+      // 환경 확률성 lognormal
+      const lam = Math.exp(log_mu + log_sigma * (normalSample(0, 1, rand)));
+      const r_t = Math.log(Math.max(lam, 1e-6));
+
+      // Ricker 밀도의존
+      let expectedN = N * Math.exp(r_t * (1 - N / Math.max(K, 1)));
+
+      // Allee 효과 (개체수가 임계값 이하일 때 가속 붕괴)
+      if (N < N_allee && N > 0) {
+        expectedN *= N / N_allee;
+        if (alleeAt === null) {
+          alleeAt = t;
+        }
       }
-      N = Math.max(0, Math.round(Nf));
+
+      // 인구 확률성 Poisson
+      N = poissonSample(Math.max(expectedN, 0), rand);
+      N = Math.max(0, Math.round(N));
       traj[t][s] = N;
+      simTraj[s][t] = N;
+
+      // 준멸종 (N<2)
       if (N < N_qext && extinctAt === null) {
         if (prevN > N) {
           const frac = (prevN - N_qext) / (prevN - N);
@@ -211,10 +234,17 @@ function runPva(p: PvaParams): PvaResult {
         } else {
           extinctAt = t;
         }
+        // 멸종 후 0 유지
+        for (let tt = t; tt <= T; tt++) {
+          traj[tt][s] = 0;
+          simTraj[s][tt] = 0;
+        }
+        break;
       }
     }
     finalNs.push(N);
     if (extinctAt !== null) extTimes.push(extinctAt);
+    if (alleeAt !== null) alleeTimes.push(alleeAt);
   }
 
   const extCount50 = extTimes.filter((t) => t <= 50).length;
@@ -283,7 +313,61 @@ function runPva(p: PvaParams): PvaResult {
     trajectory_p90: trajP90,
     T_to_qext_p10,
     T_to_qext_median: median_T,
+    extinction_times: extTimes,
+    allee_times: alleeTimes,
+    trajectories: simTraj,
   };
+}
+
+// 분위수 계산 (선형 보간) — NaN 안전
+function percentile(sorted: number[], p: number, fallback = 100): number {
+  if (sorted.length === 0) return fallback;
+  if (sorted.length === 1) return Number.isFinite(sorted[0]) ? sorted[0] : fallback;
+  const idx = (sorted.length - 1) * p;
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  let v: number;
+  if (lo === hi) v = sorted[lo];
+  else v = sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  return Number.isFinite(v) ? v : fallback;
+}
+
+// 안전한 연도 → addYears 입력 sanitize
+function safeYears(y: number, fallback = 100): number {
+  if (!Number.isFinite(y)) return fallback;
+  return Math.max(0, Math.min(100, y));
+}
+
+// trajectory → score 시계열 변환 (개체수 비율 + Allee + Ne 페널티)
+function trajectoryToScore(
+  trajectory: number[],
+  K: number,
+  alleeThr: number,
+  neRatio: number
+): number[] {
+  const T = trajectory.length;
+  const scores = new Array(T).fill(0);
+  for (let t = 0; t < T; t++) {
+    const N = trajectory[t];
+    if (N <= 0) {
+      scores[t] = 100;
+      continue;
+    }
+    const ratio = N / Math.max(K, 1);
+    let base: number;
+    if (ratio < 0.01) base = 95;
+    else if (ratio < 0.05) base = 85;
+    else if (ratio < 0.10) base = 70;
+    else if (ratio < 0.30) base = 50;
+    else if (ratio < 0.50) base = 30;
+    else base = 15;
+    if (N < alleeThr) base = Math.min(100, base + 15);
+    const Ne = N * neRatio;
+    if (Ne < 50) base = Math.min(100, base + 10);
+    else if (Ne < 100) base = Math.min(100, base + 5);
+    scores[t] = base;
+  }
+  return scores;
 }
 
 // ===== Layer 3: IUCN + 50/500 Rule =====
@@ -513,65 +597,64 @@ export function evaluateTippingPoint(
   const displayScore = Math.round(consensus * 10) / 10;
   const tier = tierForScore(displayScore);
 
-  // ===== 날짜 계산 =====
-  const trajMean = pva.trajectory_mean;
+  // ===== v2.0 (출원 정합본) §1.3: 4개 시점 분위수 매핑 =====
+  // 시나리오 A (무대응): intervention_deadline (Allee p10), no_action_extinction (extinction p10)
+  // 시나리오 B (응급조치): golden_time_end (T4 진입 score 시계열 p50)
+  // 신고서 §8 바키타 실시예 정합 — p10 보수적, 조기 경보
 
-  // 각 시뮬레이션 평균 궤적이 다음 tier 임계 N 에 도달하는 연도 (선형 보간)
-  // T2 = N(t)/N0 ≤ 0.7, T3 = ≤ 0.4, T4 = ≤ 0.15
-  const yearsUntil = (ratio: number): number | null => {
-    const target = N0 * ratio;
-    for (let t = 1; t < trajMean.length; t++) {
-      if (trajMean[t] <= target) {
-        const prev = trajMean[t - 1];
-        const cur = trajMean[t];
-        if (prev > cur && prev > target) {
-          const frac = (prev - target) / (prev - cur);
-          return (t - 1) + Math.max(0, Math.min(1, frac));
-        }
-        return t;
+  const lifeForCalc = lifeFor(species.class_name);
+  const neRatio = lifeForCalc.ne_nc;
+  const T_horizon = T;
+
+  // 시나리오 B (golden_time_end): trajectory score 시계열에서 80 첫 도달 (p50)
+  const t4EntryTimes: number[] = [];
+  for (let sIdx = 0; sIdx < n_sim; sIdx++) {
+    const scoreSeries = trajectoryToScore(pva.trajectories[sIdx], K, N_allee, neRatio);
+    for (let t = 0; t < scoreSeries.length; t++) {
+      if (scoreSeries[t] >= 80) {
+        t4EntryTimes.push(t);
+        break;
       }
     }
-    return null;
-  };
-
-  // D-day = trajMean 가 N₀의 40% 도달 시점 (T3 임계, 개입 마감)
-  // 스펙 v3: T-level 무관하게 항상 40% 시점으로 계산 (0 cap 제거)
-  const yearsToDeadline40 = yearsUntil(0.4);
-  let yearsToDeadline = yearsToDeadline40 ?? 100;
-  yearsToDeadline = Math.min(yearsToDeadline, 100);
-
-  const yearsToExtinctionRaw = pva.T_to_qext_p10 ?? (pva.median_T_ext ?? null);
-  let yearsToExtinction = yearsToExtinctionRaw;
-  let yearsToGolden = yearsUntil(0.15);
-
-  // B6 fix: 종 ID 해시 jitter — 카테고리 fallback N0 종 분산 (±2.5년)
-  // 큐레이션 종(mature_individuals 있음) 은 jitter 적용 X (정확값 보호)
-  if (species.mature_individuals == null) {
-    const baseJitter = ((seed >>> 0) / 0xFFFFFFFF) * 2 - 1;
-    const extJitterSeed = hashSeed(species.id + ":ext");
-    const goldJitterSeed = hashSeed(species.id + ":gold");
-    const extJitter = ((extJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
-    const goldJitter = ((goldJitterSeed >>> 0) / 0xFFFFFFFF) * 2 - 1;
-    const J = 2.5; // ±2.5년 jitter (이전 0.9 → 2.5)
-    yearsToDeadline = Math.max(0, yearsToDeadline + baseJitter * J);
-    if (yearsToExtinction != null) yearsToExtinction = Math.max(0, yearsToExtinction + extJitter * J);
-    if (yearsToGolden != null) yearsToGolden = Math.max(0, yearsToGolden + goldJitter * J);
   }
 
-  // P0-3 fix: deadline ≤ golden ≤ extinction 시간 일관성 강제
-  // (trajMean 와 trajP10 이 독립 보간되어 생기는 모순 차단)
-  if (yearsToExtinction != null) {
-    yearsToDeadline = Math.min(yearsToDeadline, yearsToExtinction);
-    if (yearsToGolden != null) yearsToGolden = Math.min(yearsToGolden, yearsToExtinction);
-  }
-  if (yearsToGolden != null) {
-    yearsToDeadline = Math.min(yearsToDeadline, yearsToGolden);
+  let yearsToGolden: number;
+  if (t4EntryTimes.length >= n_sim * 0.05) {
+    const sorted = [...t4EntryTimes].sort((a, b) => a - b);
+    yearsToGolden = percentile(sorted, 0.5);
+  } else {
+    yearsToGolden = T_horizon;
   }
 
-  const interventionOpen = TODAY; // 개입 가능 시작은 오늘
-  const interventionDeadline = addYears(TODAY, Math.max(0, yearsToDeadline));
-  const extinctionDate = yearsToExtinction != null ? addYears(TODAY, yearsToExtinction) : null;
-  const goldenDate = yearsToGolden != null ? addYears(TODAY, yearsToGolden) : null;
+  // 시나리오 A: intervention_deadline = allee_times p10 (v1 p25 → v2 p10)
+  let yearsToDeadline: number;
+  if (pva.allee_times.length >= n_sim * 0.05) {
+    const sorted = [...pva.allee_times].sort((a, b) => a - b);
+    yearsToDeadline = percentile(sorted, 0.10);
+  } else {
+    yearsToDeadline = T_horizon;
+  }
+
+  // 시나리오 A: no_action_extinction = extinction_times p10 (v1 p50 → v2 p10, 신고서 §8 정합)
+  let yearsToExtinction: number;
+  if (pva.extinction_times.length >= n_sim * 0.05) {
+    const sorted = [...pva.extinction_times].sort((a, b) => a - b);
+    yearsToExtinction = percentile(sorted, 0.10);
+  } else {
+    yearsToExtinction = T_horizon;
+  }
+
+  // §1.5 시간 순서 invariant — 시나리오 A 내부만: deadline ≤ extinction
+  // golden_time_end 는 별도 시나리오라 invariant 강제 X
+  yearsToGolden = safeYears(yearsToGolden);
+  yearsToDeadline = safeYears(yearsToDeadline);
+  yearsToExtinction = safeYears(yearsToExtinction);
+  if (yearsToExtinction < yearsToDeadline) yearsToExtinction = yearsToDeadline;
+
+  const interventionOpen = TODAY;
+  const goldenDate = addYears(TODAY, yearsToGolden);
+  const interventionDeadline = addYears(TODAY, yearsToDeadline);
+  const extinctionDate = addYears(TODAY, yearsToExtinction);
 
   // Primary driver
   const driverScores = [

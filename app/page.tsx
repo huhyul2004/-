@@ -2,6 +2,7 @@ import { listAtRiskSpecies, listClasses, countByCategory, countByClass, countUnc
 import { SpeciesGrid } from "@/components/species-grid";
 import { SearchBar } from "@/components/search-bar";
 import { SortSelector } from "@/components/sort-selector";
+import { PageJumper } from "@/components/page-jumper";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -244,7 +245,14 @@ export default function HomePage({
       )}
 
       {totalPages > 1 && (
-        <Pagination currentPage={currentPage} totalPages={totalPages} buildHref={(p) => buildHref({ page: p })} />
+        <>
+          <Pagination currentPage={currentPage} totalPages={totalPages} buildHref={(p) => buildHref({ page: p })} />
+          <PageJumper
+            currentPage={currentPage}
+            totalPages={totalPages}
+            baseQuery={buildHref({ page: null }).replace(/\?$/, "")}
+          />
+        </>
       )}
 
       <p className="mt-10 text-[11px] text-zinc-400">
