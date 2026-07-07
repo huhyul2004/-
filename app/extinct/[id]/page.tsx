@@ -7,6 +7,7 @@ import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
 import { TippingHero } from "@/components/tipping-hero";
+import { CommentSection } from "@/components/comment-section";
 import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
@@ -136,6 +137,8 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
           </h2>
           <AIChat speciesId={species.id} dark />
         </section>
+
+        <CommentSection speciesId={species.id} dark />
       </div>
     </div>
   );

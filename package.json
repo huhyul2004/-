@@ -9,12 +9,17 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed-db.ts",
     "sync:wikidata": "tsx scripts/sync-wikidata.ts",
-    "enrich:wikipedia": "tsx scripts/enrich-wikipedia.ts"
+    "enrich:wikipedia": "tsx scripts/enrich-wikipedia.ts",
+    "check-photos": "tsx scripts/check-photos.ts",
+    "fetch-wiki-photos": "tsx scripts/fetch-wikipedia-photos.ts",
+    "apply-photos": "tsx scripts/apply-photo-updates.ts",
+    "update-all-photos": "npm run check-photos && npm run fetch-wiki-photos && npm run apply-photos"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",
     "@base-ui/react": "^1.4.1",
     "@fontsource/pretendard": "^5.2.5",
+    "@supabase/supabase-js": "^2.110.0",
     "better-sqlite3": "^12.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
