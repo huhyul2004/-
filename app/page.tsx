@@ -1,8 +1,9 @@
-import { listAtRiskSpecies, listClasses, countByCategory, countByClass, countUnclassified, PAGE_SIZE, type SortKey } from "@/lib/queries";
+import { listAtRiskSpecies, listClasses, countByCategory, countByClass, countUnclassified, countScope, PAGE_SIZE, type SortKey } from "@/lib/queries";
 import { SpeciesGrid } from "@/components/species-grid";
 import { SearchBar } from "@/components/search-bar";
 import { SortSelector } from "@/components/sort-selector";
 import { PageJumper } from "@/components/page-jumper";
+import { AllSpeciesToggle } from "@/components/all-species-toggle";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -19,24 +20,28 @@ const VALID_SORTS: SortKey[] = ["urgency", "risk", "name", "recent", "class"];
 export default function HomePage({
   searchParams,
 }: {
-  searchParams?: { category?: string; class?: string; sort?: string; page?: string };
+  searchParams?: { category?: string; class?: string; sort?: string; page?: string; show_all?: string };
 }) {
   const sort = (VALID_SORTS as string[]).includes(searchParams?.sort ?? "")
     ? (searchParams!.sort as SortKey)
     : "urgency";
   const currentPage = Math.max(1, parseInt(searchParams?.page ?? "1") || 1);
+  const showAll = searchParams?.show_all === "true";
+  const curatedOnly = !showAll;
   const { rows: species, total } = listAtRiskSpecies({
     category: searchParams?.category,
     className: searchParams?.class,
     sort,
     page: currentPage,
+    curatedOnly,
   });
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const classes = listClasses();
-  const catCounts = countByCategory();
-  const classCounts = countByClass(false);
-  const unclassifiedCount = countUnclassified(false);
-  const totalAtRisk = (catCounts.CR ?? 0) + (catCounts.EN ?? 0) + (catCounts.VU ?? 0);
+  const classes = listClasses(curatedOnly);
+  const catCounts = countByCategory(curatedOnly);
+  const classCounts = countByClass(curatedOnly);
+  const unclassifiedCount = countUnclassified(curatedOnly);
+  const totalAtRisk = countScope(curatedOnly); // 현재 모드(큐레이션 ~4,230 / 전체 38,082)의 총 종 수
+  const totalAllSpecies = countScope(false); // 토글 라벨용 전체 수
   const activeCat = searchParams?.category;
   const activeClass = searchParams?.class;
 
@@ -51,9 +56,20 @@ export default function HomePage({
     if (newCls) params.set("class", newCls);
     if (newSort) params.set("sort", newSort);
     if (newPage && newPage > 1) params.set("page", String(newPage));
+    if (showAll) params.set("show_all", "true"); // 모드 유지
     const q = params.toString();
     return q ? `/?${q}` : "/";
   }
+
+  // 현재 필터 유지하며 전체 모드로 켜는 링크 (빈 결과 CTA용)
+  const showAllHref = (() => {
+    const params = new URLSearchParams();
+    if (activeCat) params.set("category", activeCat);
+    if (activeClass) params.set("class", activeClass);
+    if (sort !== "urgency") params.set("sort", sort);
+    params.set("show_all", "true");
+    return `/?${params.toString()}`;
+  })();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-14">
@@ -69,10 +85,18 @@ export default function HomePage({
           </span>
         </h1>
         <p className="mt-5 max-w-2xl text-pretty text-[14px] leading-relaxed text-zinc-600 sm:text-[15px]">
-          IUCN Red List 의 <span className="font-bold text-[#D81E05]">위급(CR)</span>,
-          <span className="font-bold text-[#FC7F3F]"> 위기(EN)</span>,
-          <span className="font-bold text-[#a18f0c]"> 취약(VU)</span> 등급에 등재된 종들입니다.
-          카드를 눌러 위협 요인과 보전 계획, AI가 제안하는 개입 전략과 임계점 연표를 확인해 보세요.
+          {curatedOnly ? (
+            <>
+              사진과 상세 정보를 갖춘 <span className="font-bold text-[#D81E05]">엄선된 {totalAtRisk.toLocaleString()}종</span>입니다.
+              카드를 눌러 위협 요인과 보전 계획, AI가 제안하는 개입 전략과 임계점 연표를 확인해 보세요.
+              <br className="hidden sm:block" />전체 목록을 보려면 아래 <span className="font-bold text-zinc-900">모든 종 보기</span>를 켜세요.
+            </>
+          ) : (
+            <>
+              IUCN Red List 에 등재된 <span className="font-bold text-[#D81E05]">전체 {totalAtRisk.toLocaleString()}종</span>입니다.
+              대부분 사진·상세 정보가 아직 없는 종이며, 기본 정보만 등록되어 있습니다.
+            </>
+          )}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-zinc-500">
           <span className="inline-flex items-center gap-1.5">
@@ -206,6 +230,17 @@ export default function HomePage({
         </section>
       )}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-50/60 px-4 py-3">
+        <p className="text-[12px] text-zinc-600">
+          {curatedOnly ? (
+            <>📸 <span className="font-bold text-zinc-900">엄선된 {totalAtRisk.toLocaleString()}종</span> — 사진·상세 정보 보유</>
+          ) : (
+            <>🌐 <span className="font-bold text-zinc-900">전체 {totalAtRisk.toLocaleString()}종</span> — 사진·상세 정보가 없는 종도 포함</>
+          )}
+        </p>
+        <AllSpeciesToggle totalAll={totalAllSpecies} />
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-zinc-700">
           <span className="font-black text-zinc-900">{total.toLocaleString()}</span>종 중{" "}
@@ -239,9 +274,17 @@ export default function HomePage({
       {species.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-200 bg-white py-16 text-center text-sm text-zinc-500">
           조건에 해당하는 종이 없습니다.
+          {curatedOnly && (
+            <p className="mt-3 text-xs">
+              전체 {totalAllSpecies.toLocaleString()}종에서는 결과가 있을 수 있어요.{" "}
+              <Link href={showAllHref} className="font-bold text-[#D81E05] underline">
+                모든 종 보기 켜기
+              </Link>
+            </p>
+          )}
         </div>
       ) : (
-        <SpeciesGrid species={species} />
+        <SpeciesGrid species={species} defaultView={curatedOnly ? "card" : "list"} />
       )}
 
       {totalPages > 1 && (

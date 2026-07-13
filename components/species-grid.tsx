@@ -7,8 +7,7 @@ import type { SpeciesRow } from "@/lib/db";
 import type { SpeciesWithTipping } from "@/lib/queries";
 
 export function SpeciesGrid({ species, defaultView = "card" }: { species: (SpeciesRow | SpeciesWithTipping)[]; defaultView?: "card" | "list" }) {
-  const [mode, setMode] = useViewMode();
-  const view = mode ?? defaultView;
+  const [view, setMode] = useViewMode(defaultView);
   return (
     <div>
       <div className="mb-3 flex justify-end">

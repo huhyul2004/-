@@ -26,21 +26,42 @@ export interface SpeciesWithTipping extends SpeciesRow {
 
 export const PAGE_SIZE = 60;
 
+const ALL_CATEGORIES = ["CR", "EN", "VU", "NT", "LC", "EX", "EW", "DD", "NE"] as const;
+
+// is_curated 컬럼 존재 여부 (마이그레이션 미배포 시에도 크래시 없이 폴백). 1회 캐시.
+let _hasCurated: boolean | null = null;
+export function hasCuratedColumn(): boolean {
+  if (_hasCurated !== null) return _hasCurated;
+  const db = getDb();
+  _hasCurated = (db.prepare("PRAGMA table_info(species)").all() as { name: string }[]).some((c) => c.name === "is_curated");
+  return _hasCurated;
+}
+
+// 목록 스코프:
+//   curatedOnly=true  → 큐레이션 종만 (is_curated=1, 등급 무관 ~4,230)
+//   curatedOnly=false → 전체 (등급 무관, 38,082)
+//   컬럼 부재(마이그레이션 전) → 기존 동작(CR/EN/VU)으로 안전 폴백
+function scopeClause(curatedOnly: boolean): { clause: string; params: unknown[] } {
+  if (curatedOnly && hasCuratedColumn()) return { clause: "s.is_curated = 1", params: [] };
+  if (!hasCuratedColumn()) return { clause: `s.category IN (${CURRENT_CATEGORIES.map(() => "?").join(",")})`, params: [...CURRENT_CATEGORIES] };
+  return { clause: "1=1", params: [] };
+}
+
 export function listAtRiskSpecies(filters?: {
   category?: string;
   className?: string;
   sort?: SortKey;
   page?: number;
   pageSize?: number;
+  curatedOnly?: boolean;
 }): { rows: SpeciesWithTipping[]; total: number } {
   const db = getDb();
-  const conditions: string[] = [`s.category IN (${CURRENT_CATEGORIES.map(() => "?").join(",")})`];
-  const params: unknown[] = [...CURRENT_CATEGORIES];
+  const scope = scopeClause(filters?.curatedOnly ?? true);
+  const conditions: string[] = [scope.clause];
+  const params: unknown[] = [...scope.params];
 
-  if (filters?.category && (CURRENT_CATEGORIES as readonly string[]).includes(filters.category)) {
-    conditions.length = 0;
+  if (filters?.category && (ALL_CATEGORIES as readonly string[]).includes(filters.category)) {
     conditions.push("s.category = ?");
-    params.length = 0;
     params.push(filters.category);
   }
   if (filters?.className === "__none__") {
@@ -187,44 +208,50 @@ export function getHabitats(speciesId: string) {
   return db.prepare("SELECT * FROM habitats WHERE species_id = ? ORDER BY id").all(speciesId);
 }
 
-export function listClasses(): string[] {
+export function listClasses(curatedOnly = false): string[] {
   const db = getDb();
+  const scope = scopeClause(curatedOnly);
   const rows = db
-    .prepare("SELECT DISTINCT class_name FROM species WHERE class_name IS NOT NULL ORDER BY class_name")
-    .all() as { class_name: string }[];
+    .prepare(`SELECT DISTINCT s.class_name FROM species s WHERE s.class_name IS NOT NULL AND ${scope.clause} ORDER BY s.class_name`)
+    .all(...scope.params) as { class_name: string }[];
   return rows.map((r) => r.class_name);
 }
 
-export function countByCategory(): Record<string, number> {
+// 현재 스코프(큐레이션/전체)의 총 종 수 — "전체" 타일용
+export function countScope(curatedOnly = false): number {
   const db = getDb();
+  const scope = scopeClause(curatedOnly);
+  return (db.prepare(`SELECT COUNT(*) as n FROM species s WHERE ${scope.clause}`).get(...scope.params) as { n: number }).n;
+}
+
+export function countByCategory(curatedOnly = false): Record<string, number> {
+  const db = getDb();
+  const scope = scopeClause(curatedOnly);
   const rows = db
-    .prepare("SELECT category, COUNT(*) as n FROM species GROUP BY category")
-    .all() as { category: string; n: number }[];
+    .prepare(`SELECT s.category, COUNT(*) as n FROM species s WHERE ${scope.clause} GROUP BY s.category`)
+    .all(...scope.params) as { category: string; n: number }[];
   const out: Record<string, number> = {};
   for (const r of rows) out[r.category] = r.n;
   return out;
 }
 
-export function countByClass(extinct = false): Record<string, number> {
+export function countByClass(curatedOnly = false): Record<string, number> {
   const db = getDb();
-  const cats = extinct ? EXTINCT_CATEGORIES : CURRENT_CATEGORIES;
-  const sql = `SELECT class_name, COUNT(*) as n FROM species
-    WHERE class_name IS NOT NULL AND category IN (${cats.map(() => "?").join(",")})
-    GROUP BY class_name`;
-  const rows = db.prepare(sql).all(...cats) as { class_name: string; n: number }[];
+  const scope = scopeClause(curatedOnly);
+  const rows = db
+    .prepare(`SELECT s.class_name, COUNT(*) as n FROM species s WHERE s.class_name IS NOT NULL AND ${scope.clause} GROUP BY s.class_name`)
+    .all(...scope.params) as { class_name: string; n: number }[];
   const out: Record<string, number> = {};
   for (const r of rows) out[r.class_name] = r.n;
   return out;
 }
 
-// 분류군 미상 (class_name IS NULL) 카운트 — 위협 종 기준
-export function countUnclassified(extinct = false): number {
+// 분류군 미상 (class_name IS NULL) 카운트 — 현재 스코프 기준
+export function countUnclassified(curatedOnly = false): number {
   const db = getDb();
-  const cats = extinct ? EXTINCT_CATEGORIES : CURRENT_CATEGORIES;
-  const sql = `SELECT COUNT(*) as n FROM species
-    WHERE class_name IS NULL AND category IN (${cats.map(() => "?").join(",")})`;
-  const r = db.prepare(sql).all(...cats) as { n: number }[];
-  return r[0]?.n ?? 0;
+  const scope = scopeClause(curatedOnly);
+  const r = db.prepare(`SELECT COUNT(*) as n FROM species s WHERE s.class_name IS NULL AND ${scope.clause}`).get(...scope.params) as { n: number };
+  return r?.n ?? 0;
 }
 
 // 데이터 품질 검증용 통계

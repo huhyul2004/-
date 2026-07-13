@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "@/lib/queries";
 import { CategoryBadge } from "@/components/category-badge";
+import { DataSourceBadge } from "@/components/data-source-badge";
 import { AIRecommend } from "@/components/ai-recommend";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -17,6 +18,12 @@ const CATEGORY_INFO: Record<string, { label: string; korean: string; description
   EN: { label: "위기", korean: "Endangered", description: "야생에서 절멸할 가능성이 높음" },
   VU: { label: "취약", korean: "Vulnerable", description: "절멸 위험이 큰 상태" },
 };
+
+function formatMass(g: number): string {
+  if (g >= 1_000_000) return `${(g / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 })}t`;
+  if (g >= 1000) return `${(g / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}kg`;
+  return `${Math.round(g).toLocaleString()}g`;
+}
 
 export default function SpeciesDetailPage({ params }: { params: { id: string } }) {
   const species = getSpeciesById(params.id);
@@ -44,23 +51,31 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
       </Link>
 
       <header className="mb-6 grid gap-4 sm:gap-6 sm:grid-cols-[280px_1fr]">
-        <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-zinc-100 sm:aspect-square">
-          {species.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={species.photo_url}
-              alt={displayName}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
-              사진 준비 중
-            </div>
+        <div>
+          <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-zinc-100 sm:aspect-square">
+            {species.photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={species.photo_url}
+                alt={displayName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
+                사진 준비 중
+              </div>
+            )}
+          </div>
+          {species.photo_source === "inaturalist" && species.photo_attribution && (
+            <p className="mt-1 text-[10px] leading-tight text-zinc-400">사진: {species.photo_attribution} (iNaturalist)</p>
           )}
         </div>
         <div className="flex flex-col">
           <div className="flex items-start justify-between gap-2">
-            <CategoryBadge category={species.category} />
+            <div className="flex flex-wrap items-center gap-1.5">
+              <CategoryBadge category={species.category} />
+              <DataSourceBadge dataSource={species.data_source} />
+            </div>
             <FavoriteButton id={species.id} name={displayName} />
           </div>
           <h1 className="mt-3 text-2xl font-black leading-tight tracking-tight text-zinc-900 sm:text-3xl">{displayName}</h1>
@@ -100,9 +115,37 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
                 </dd>
               </div>
             )}
+            {species.mass_g != null && (
+              <div>
+                <dt className="text-zinc-400">평균 체중</dt>
+                <dd className="font-medium text-zinc-900">{formatMass(species.mass_g)}</dd>
+              </div>
+            )}
+            {species.order_name && (
+              <div>
+                <dt className="text-zinc-400">목 (Order)</dt>
+                <dd className="font-medium text-zinc-900">{species.order_name}</dd>
+              </div>
+            )}
+            {species.family_name && (
+              <div>
+                <dt className="text-zinc-400">과 (Family)</dt>
+                <dd className="font-medium text-zinc-900">{species.family_name}</dd>
+              </div>
+            )}
           </dl>
         </div>
       </header>
+
+      {species.data_source === "phylacine_curated" && (
+        <section className="mb-6 rounded-2xl border border-[#9fb013]/40 bg-[#CCE226]/10 p-4">
+          <p className="text-xs font-bold text-zinc-800">ℹ️ IUCN 등급 기준 분류</p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-600">
+            이 종은 IUCN Red List 등급으로 분류되었으며, LastWatch 자체 위험도 계산(EWS-PVA-IUCN 임계점 분석)은
+            아직 적용되지 않았습니다. 체중·분류 정보는 PHYLACINE 데이터베이스, 사진은 iNaturalist에서 가져왔습니다.
+          </p>
+        </section>
+      )}
 
       {species.summary_ko && (
         <section className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5">

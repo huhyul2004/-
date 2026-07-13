@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" role="img" aria-label="사진 없음">
+  <rect width="200" height="150" fill="#f4f4f5"/>
+  <g fill="#d4d4d8">
+    <ellipse cx="100" cy="95" rx="46" ry="30"/>
+    <circle cx="140" cy="70" r="20"/>
+    <path d="M150 52 l8 -14 6 14z"/>
+    <path d="M132 52 l-8 -14 -6 14z"/>
+    <rect x="68" y="112" width="9" height="22" rx="4"/>
+    <rect x="88" y="115" width="9" height="20" rx="4"/>
+    <rect x="108" y="115" width="9" height="20" rx="4"/>
+    <rect x="124" y="112" width="9" height="22" rx="4"/>
+  </g>
+  <text x="100" y="140" font-family="sans-serif" font-size="10" fill="#a1a1aa" text-anchor="middle">사진 준비 중</text>
+</svg>

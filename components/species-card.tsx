@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { RecoveryBadge } from "./recovery-badge";
 import { UrgencyBadge } from "./urgency-badge";
+import { DataSourceBadge } from "./data-source-badge";
 import type { SpeciesRow } from "@/lib/db";
 import type { SpeciesWithTipping } from "@/lib/queries";
 
@@ -43,6 +44,7 @@ export function SpeciesCard({ species }: { species: SpeciesRow | SpeciesWithTipp
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           <CategoryBadge category={species.category} />
           <RecoveryBadge species={species} />
+          <DataSourceBadge dataSource={species.data_source} />
         </div>
 
         {/* Top-right urgency */}

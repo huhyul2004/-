@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 
 const KEY = "last-watch:view";
 
-export function useViewMode(): ["card" | "list", (v: "card" | "list") => void] {
-  const [mode, setMode] = useState<"card" | "list">("card");
+// defaultMode: 저장된 사용자 선택이 없을 때의 기본값(큐레이션=card, 전체=list).
+// 사용자가 명시적으로 고른 값이 있으면 그게 우선.
+export function useViewMode(defaultMode: "card" | "list" = "card"): ["card" | "list", (v: "card" | "list") => void] {
+  const [override, setOverride] = useState<"card" | "list" | null>(null);
   useEffect(() => {
     const saved = window.localStorage.getItem(KEY);
-    if (saved === "card" || saved === "list") setMode(saved);
+    if (saved === "card" || saved === "list") setOverride(saved);
   }, []);
+  const mode = override ?? defaultMode;
   function update(v: "card" | "list") {
-    setMode(v);
+    setOverride(v);
     window.localStorage.setItem(KEY, v);
   }
   return [mode, update];

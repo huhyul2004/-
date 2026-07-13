@@ -65,11 +65,15 @@ async function main() {
     (r) => r.status === "updated" && r.new_photo_url && r.new_photo_url.trim() !== ""
   );
   const notFound = results.filter((r) => r.status === "not_found");
+  // 미발견 중, 기존 사진이 SVG 다이어그램(지도/size 도표)인 것 → 잘못된 사진이므로 제거(NULL)
+  const BAD_OLD_RE = /\.svg/i;
+  const toClear = notFound.filter((r) => r.old_photo_url && BAD_OLD_RE.test(r.old_photo_url));
 
   console.log(`\n리포트 요약 (updated: ${data.updated})`);
   console.log(`  전체 결과:     ${results.length}`);
   console.log(`  photo_url 갱신 대상: ${toUpdate.length}`);
   console.log(`  사진 미발견:   ${notFound.length}`);
+  console.log(`  잘못된 다이어그램 제거(NULL) 대상: ${toClear.length}`);
 
   // 3. 미발견 종 ID 저장 (삭제 아님 — 사용자 결정용)
   const noPhotoFinalPath = path.join(process.cwd(), "data", "no-photo-final.json");
@@ -99,6 +103,12 @@ async function main() {
         `    [${r.species_id}] ${r.species_name}\n      old: ${r.old_photo_url ?? "(none)"}\n      new: ${r.new_photo_url} (${r.source})`
       );
     }
+    if (toClear.length) {
+      console.log(`\n  다이어그램 제거 예시:`);
+      for (const r of toClear.slice(0, 15)) {
+        console.log(`    [${r.species_id}] ${r.species_name} — 제거: ${r.old_photo_url}`);
+      }
+    }
     return;
   }
 
@@ -116,8 +126,23 @@ async function main() {
   });
   const changed = applyAll(toUpdate);
 
+  // 잘못된 SVG 다이어그램 제거 (NULL) — 종 행은 삭제하지 않고 사진만 비움
+  const clearStmt = db.prepare(
+    "UPDATE species SET photo_url = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+  );
+  const clearAll = db.transaction((items: PhotoResult[]) => {
+    let n = 0;
+    for (const r of items) {
+      const res = clearStmt.run(r.species_id);
+      if (res.changes > 0) n++;
+    }
+    return n;
+  });
+  const cleared = clearAll(toClear);
+
   console.log(`\n✓ [APPLIED] photo_url ${changed} 종 갱신 완료`);
-  console.log(`  미발견 ${notFound.length}종은 그대로 유지됨 (삭제하지 않음)`);
+  console.log(`✓ [APPLIED] 잘못된 다이어그램 ${cleared} 종 사진 제거(NULL) 완료`);
+  console.log(`  미발견(기존 사진 없던) ${notFound.length - cleared}종은 그대로 유지됨 (삭제하지 않음)`);
 }
 
 main().catch((e) => {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { UrgencyBadge } from "./urgency-badge";
+import { DataSourceBadge } from "./data-source-badge";
 import type { SpeciesRow } from "@/lib/db";
 import type { SpeciesWithTipping } from "@/lib/queries";
 
@@ -30,6 +31,7 @@ export function SpeciesListRow({ species }: { species: SpeciesRow | SpeciesWithT
         </p>
       </div>
       <div className="flex items-center gap-2">
+        <DataSourceBadge dataSource={species.data_source} className="hidden sm:inline-flex" />
         {hasTipping && <UrgencyBadge species={species as SpeciesWithTipping} compact />}
         <CategoryBadge category={species.category} />
       </div>

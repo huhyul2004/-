@@ -53,6 +53,15 @@ function initSchema(db: Database.Database) {
       extinction_year INTEGER,
       extinction_cause TEXT,
       year_published INTEGER,
+      -- 큐레이션 기능 (scripts/migrate-curation-schema.ts 와 정합)
+      is_curated INTEGER NOT NULL DEFAULT 0,
+      data_source TEXT NOT NULL DEFAULT 'bulk_import',
+      photo_source TEXT,
+      photo_attribution TEXT,
+      order_name TEXT,
+      family_name TEXT,
+      mass_g REAL,
+      life_habit TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -60,6 +69,10 @@ function initSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_species_category ON species(category);
     CREATE INDEX IF NOT EXISTS idx_species_class ON species(class_name);
     CREATE INDEX IF NOT EXISTS idx_species_region ON species(region);
+    CREATE INDEX IF NOT EXISTS idx_species_is_curated ON species(is_curated);
+    CREATE INDEX IF NOT EXISTS idx_species_data_source ON species(data_source);
+    CREATE INDEX IF NOT EXISTS idx_species_scientific_name ON species(scientific_name);
+    CREATE INDEX IF NOT EXISTS idx_species_curated_category ON species(is_curated, category);
 
     CREATE TABLE IF NOT EXISTS threats (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -142,6 +155,15 @@ export interface SpeciesRow {
   extinction_year: number | null;
   extinction_cause: string | null;
   year_published: number | null;
+  // 큐레이션 기능
+  is_curated: number;
+  data_source: string;
+  photo_source: string | null;
+  photo_attribution: string | null;
+  order_name: string | null;
+  family_name: string | null;
+  mass_g: number | null;
+  life_habit: string | null;
 }
 
 export interface ThreatRow {

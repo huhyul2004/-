@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchResult {
   id: string;
@@ -28,6 +28,8 @@ export function SearchBar() {
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const showAll = searchParams.get("show_all") === "true";
   const wrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -51,7 +53,7 @@ export function SearchBar() {
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${showAll ? "&show_all=true" : ""}`);
         const json = await res.json();
         setResults(json.results ?? []);
         setActive(0);
@@ -63,7 +65,7 @@ export function SearchBar() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [q]);
+  }, [q, showAll]);
 
   function go(r: SearchResult) {
     const isExtinct = r.category === "EX" || r.category === "EW";
