@@ -71,23 +71,30 @@ export function listAtRiskSpecies(filters?: {
     params.push(filters.className);
   }
 
+  // 절멸(EX/EW)은 항상 위급·위기·취약 뒤로 (사용자 지시 2026-07-14).
+  //   절멸종은 deadline_days 가 과거(음수)라 urgency 정렬에서 오히려 최상단에 오므로,
+  //   모든 정렬의 1차 키로 "비절멸 먼저" 를 강제한다.
+  const EXTINCT_LAST = "CASE WHEN s.category IN ('EX','EW') THEN 1 ELSE 0 END ASC";
   const sortClauses: Record<SortKey, string> = {
     // 정렬 규칙 (사용자 지시 v3, 2026-05-06):
+    //   0차: 비절멸 먼저 (절멸종은 맨 뒤)
     //   1차: D-day 오름차순 (작은 숫자 = 1위, "지금 즉시" 가 최상단)
     //   2차: D-day 동률 → T-레벨 높은 순 (T4 > T3 > T2 > T1 > T0)
     //   3차: 학명 알파벳 순 (안정적 tiebreaker)
     urgency: `
+      ${EXTINCT_LAST},
       COALESCE(t.deadline_days, 999999) ASC,
       CASE t.intervention_tier
         WHEN 'T4' THEN 5 WHEN 'T3' THEN 4 WHEN 'T2' THEN 3
         WHEN 'T1' THEN 2 WHEN 'T0' THEN 1 ELSE 0
       END DESC,
       s.scientific_name COLLATE NOCASE`,
-    risk: `CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
+    risk: `${EXTINCT_LAST},
+           CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
            s.common_name_ko COLLATE NOCASE`,
-    name: "s.common_name_ko COLLATE NOCASE, s.scientific_name COLLATE NOCASE",
-    recent: "datetime(s.updated_at) DESC, s.common_name_ko COLLATE NOCASE",
-    class: "s.class_name COLLATE NOCASE, s.common_name_ko COLLATE NOCASE",
+    name: `${EXTINCT_LAST}, s.common_name_ko COLLATE NOCASE, s.scientific_name COLLATE NOCASE`,
+    recent: `${EXTINCT_LAST}, datetime(s.updated_at) DESC, s.common_name_ko COLLATE NOCASE`,
+    class: `${EXTINCT_LAST}, s.class_name COLLATE NOCASE, s.common_name_ko COLLATE NOCASE`,
   };
   const orderBy = sortClauses[filters?.sort ?? "urgency"];
   const pageSize = filters?.pageSize ?? PAGE_SIZE;
