@@ -1,7 +1,7 @@
 {
   "generated": "2026-07-16",
-  "count": 158,
-  "note": "큐레이션 종 중 iNaturalist/Wikipedia 자유이용 실사진이 없는 종. 삭제하지 않음.",
+  "count": 135,
+  "note": "iNat/Wikipedia/GBIF/EOL 모두에서 대표 이미지 확보 실패. 삭제 아닌 추적용.",
   "missed": [
     {
       "id": "wd-q146250",
@@ -39,18 +39,8 @@
       "cat": "CR"
     },
     {
-      "id": "wd-q302289",
-      "sci": "Aphanius transgrediens",
-      "cat": "CR"
-    },
-    {
       "id": "wd-q306932",
       "sci": "Armsia petasus",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q307438",
-      "sci": "Belgrandiella ganslmayri",
       "cat": "CR"
     },
     {
@@ -99,11 +89,6 @@
       "cat": "CR"
     },
     {
-      "id": "wd-q303180",
-      "sci": "Coregonus trybomi",
-      "cat": "CR"
-    },
-    {
       "id": "wd-q304040",
       "sci": "Cremnomys elvira",
       "cat": "CR"
@@ -121,11 +106,6 @@
     {
       "id": "wd-q291855",
       "sci": "Cycas collina",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q305801",
-      "sci": "Cyprinodon latifasciatus",
       "cat": "CR"
     },
     {
@@ -156,16 +136,6 @@
     {
       "id": "wd-q304805",
       "sci": "Haplochromis annectidens",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q305869",
-      "sci": "Haplochromis barbarae",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q305884",
-      "sci": "Haplochromis brownae",
       "cat": "CR"
     },
     {
@@ -249,16 +219,6 @@
       "cat": "CR"
     },
     {
-      "id": "wd-q263603",
-      "sci": "Sideroxylon hirtiantherum",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q287418",
-      "sci": "Syzygium andamanicum",
-      "cat": "CR"
-    },
-    {
       "id": "wd-q306497",
       "sci": "Tampichthys dichromus",
       "cat": "CR"
@@ -276,11 +236,6 @@
     {
       "id": "wd-q135155",
       "sci": "Uromys imperator",
-      "cat": "CR"
-    },
-    {
-      "id": "wd-q291467",
-      "sci": "Weberocereus frohningiorum",
       "cat": "CR"
     },
     {
@@ -324,11 +279,6 @@
       "cat": "EN"
     },
     {
-      "id": "wd-q128299",
-      "sci": "Dicrossus gladicauda",
-      "cat": "EN"
-    },
-    {
       "id": "wd-q129448",
       "sci": "Fundulopanchax arnoldi",
       "cat": "EN"
@@ -354,18 +304,8 @@
       "cat": "EN"
     },
     {
-      "id": "wd-q151051",
-      "sci": "Lobelia subpubera",
-      "cat": "EN"
-    },
-    {
       "id": "wd-q142051",
       "sci": "Luciocyprinus striolatus",
-      "cat": "EN"
-    },
-    {
-      "id": "wd-q304697",
-      "sci": "Newcombia lirata",
       "cat": "EN"
     },
     {
@@ -376,21 +316,6 @@
     {
       "id": "wd-q136974",
       "sci": "Salmo aphelios",
-      "cat": "EN"
-    },
-    {
-      "id": "wd-q140828",
-      "sci": "Salmo lumi",
-      "cat": "EN"
-    },
-    {
-      "id": "wd-q286331",
-      "sci": "Stemonoporus elegans",
-      "cat": "EN"
-    },
-    {
-      "id": "wd-q149272",
-      "sci": "Synapsis ilicifolia",
       "cat": "EN"
     },
     {
@@ -489,11 +414,6 @@
       "cat": "EX"
     },
     {
-      "id": "wd-q305147",
-      "sci": "Aphanius splendens",
-      "cat": "EX"
-    },
-    {
       "id": "wd-q151196",
       "sci": "Argocoffeopsis lemblinii",
       "cat": "EX"
@@ -511,11 +431,6 @@
     {
       "id": "wd-q301328",
       "sci": "Brotomys voratus",
-      "cat": "EX"
-    },
-    {
-      "id": "wd-q308048",
-      "sci": "Characodon garmani",
       "cat": "EX"
     },
     {
@@ -586,11 +501,6 @@
     {
       "id": "wd-q304215",
       "sci": "Gambusia amistadensis",
-      "cat": "EX"
-    },
-    {
-      "id": "wd-q309444",
-      "sci": "Gastrocopta chichijimana",
       "cat": "EX"
     },
     {
@@ -679,11 +589,6 @@
       "cat": "EX"
     },
     {
-      "id": "wd-q292847",
-      "sci": "Myrcia skeldingii",
-      "cat": "EX"
-    },
-    {
       "id": "wd-q199256",
       "sci": "Notomys mordax",
       "cat": "EX"
@@ -749,23 +654,8 @@
       "cat": "VU"
     },
     {
-      "id": "wd-q303320",
-      "sci": "Etheostoma acuticeps",
-      "cat": "VU"
-    },
-    {
       "id": "wd-q281820",
       "sci": "Freziera uniauriculata",
-      "cat": "VU"
-    },
-    {
-      "id": "wd-q293187",
-      "sci": "Grasseichthys gabonensis",
-      "cat": "VU"
-    },
-    {
-      "id": "wd-q303616",
-      "sci": "Haplochromis welcommei",
       "cat": "VU"
     },
     {
@@ -776,11 +666,6 @@
     {
       "id": "wd-q141772",
       "sci": "Oreophrynella macconnelli",
-      "cat": "VU"
-    },
-    {
-      "id": "wd-q304365",
-      "sci": "Sabanejewia romanica",
       "cat": "VU"
     },
     {
