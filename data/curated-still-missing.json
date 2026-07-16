@@ -1,0 +1,797 @@
+{
+  "generated": "2026-07-16",
+  "count": 158,
+  "note": "큐레이션 종 중 iNaturalist/Wikipedia 자유이용 실사진이 없는 종. 삭제하지 않음.",
+  "missed": [
+    {
+      "id": "wd-q146250",
+      "sci": "Abies yuanbaoshanensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305638",
+      "sci": "Actinella obserata",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q285147",
+      "sci": "Agrotis kerri",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q257914",
+      "sci": "Alstonia penangiana",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306750",
+      "sci": "Amastra micans",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306967",
+      "sci": "Ancylus ashangiensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q289062",
+      "sci": "Angostura alipes",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q302289",
+      "sci": "Aphanius transgrediens",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306932",
+      "sci": "Armsia petasus",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307438",
+      "sci": "Belgrandiella ganslmayri",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307519",
+      "sci": "Belgrandiella styriaca",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307471",
+      "sci": "Bulimulus ochsneri",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307453",
+      "sci": "Bulimulus reibischi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q303470",
+      "sci": "Caecocypris basimi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307071",
+      "sci": "Campellolebias brucei",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q304381",
+      "sci": "Clupeonella abrau",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307091",
+      "sci": "Coahuilix hubbsi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306964",
+      "sci": "Colophon berrisfordi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305899",
+      "sci": "Colophon cassoni",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q303180",
+      "sci": "Coregonus trybomi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q304040",
+      "sci": "Cremnomys elvira",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q247725",
+      "sci": "Crenicichla cyclostoma",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305658",
+      "sci": "Curassanthura bermudensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q291855",
+      "sci": "Cycas collina",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305801",
+      "sci": "Cyprinodon latifasciatus",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305629",
+      "sci": "Dendromus kahuziensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q150175",
+      "sci": "Erythrodiplax acantha",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q289464",
+      "sci": "Erythrodiplax nivea",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305785",
+      "sci": "Garra phillipsi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q301939",
+      "sci": "Gobio hettitorum",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q304805",
+      "sci": "Haplochromis annectidens",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305869",
+      "sci": "Haplochromis barbarae",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q305884",
+      "sci": "Haplochromis brownae",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306450",
+      "sci": "Haplochromis michaeli",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306165",
+      "sci": "Indolestes boninensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q138320",
+      "sci": "Knipowitschia cameliae",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307626",
+      "sci": "Lanistes nasutus",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q307249",
+      "sci": "Litoria lorica",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q139426",
+      "sci": "Mecistogaster pronoti",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q138486",
+      "sci": "Minyobates steyermarki",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q134356",
+      "sci": "Murina tenebrosa",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q304983",
+      "sci": "Phyllomys unicolor",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q143924",
+      "sci": "Pristimantis xylochobates",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q290803",
+      "sci": "Radula visianica",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q159339",
+      "sci": "Rana chevronta",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q286009",
+      "sci": "Rosselia bracteata",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q144527",
+      "sci": "Salmo ezenami",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q140779",
+      "sci": "Salmo fibreni",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q148791",
+      "sci": "Scinax peixotoi",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q263603",
+      "sci": "Sideroxylon hirtiantherum",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q287418",
+      "sci": "Syzygium andamanicum",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q306497",
+      "sci": "Tampichthys dichromus",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q259508",
+      "sci": "Uromys boeadii",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q146507",
+      "sci": "Uromys emmae",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q135155",
+      "sci": "Uromys imperator",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q291467",
+      "sci": "Weberocereus frohningiorum",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q249949",
+      "sci": "Xenocypris yunnanensis",
+      "cat": "CR"
+    },
+    {
+      "id": "wd-q146308",
+      "sci": "Abies ziyuanensis",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q151265",
+      "sci": "Aloe albovestita",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q154243",
+      "sci": "Aloe peckii",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q211863",
+      "sci": "Aloe pronkii",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q136134",
+      "sci": "Amphilophus margaritifer",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q168609",
+      "sci": "Aulonocara guentheri",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q257929",
+      "sci": "Barbatula zetensis",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q128299",
+      "sci": "Dicrossus gladicauda",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q129448",
+      "sci": "Fundulopanchax arnoldi",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q266292",
+      "sci": "Gulella taitensis",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q303742",
+      "sci": "Hampala lopezi",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q134565",
+      "sci": "Hyperolius nimbae",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q303496",
+      "sci": "Liobagrus nigricauda",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q151051",
+      "sci": "Lobelia subpubera",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q142051",
+      "sci": "Luciocyprinus striolatus",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q304697",
+      "sci": "Newcombia lirata",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q169916",
+      "sci": "Ogmodon vitianus",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q136974",
+      "sci": "Salmo aphelios",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q140828",
+      "sci": "Salmo lumi",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q286331",
+      "sci": "Stemonoporus elegans",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q149272",
+      "sci": "Synapsis ilicifolia",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q146519",
+      "sci": "Uromys rex",
+      "cat": "EN"
+    },
+    {
+      "id": "wd-q89082327",
+      "sci": "Amomum sumatranum",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q15501609",
+      "sci": "Arachis rigonii",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q2704020",
+      "sci": "Aylacostoma chloroticum",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q1755299",
+      "sci": "Aylacostoma guaraniticum",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q2704102",
+      "sci": "Aylacostoma stigmaticum",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q304177",
+      "sci": "Cyprinodon veronicae",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q1390947",
+      "sci": "Dendroseris gigantea",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q15366056",
+      "sci": "Dombeya rodriguesiana",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q5396533",
+      "sci": "Erythroxylum echinodendron",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q2213622",
+      "sci": "Notropis amecae",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q49424289",
+      "sci": "Partula taeniata elongata",
+      "cat": "EW"
+    },
+    {
+      "id": "wd-q309384",
+      "sci": "Acanthametropus pecatonica",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q307551",
+      "sci": "Alasmidonta mccordi",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q306126",
+      "sci": "Alasmidonta robusta",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q306100",
+      "sci": "Alasmidonta wrightiana",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q301899",
+      "sci": "Alburnus akili",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309373",
+      "sci": "Alloperla roberti",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309228",
+      "sci": "Amastra tenuispira",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q305147",
+      "sci": "Aphanius splendens",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q151196",
+      "sci": "Argocoffeopsis lemblinii",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q136501",
+      "sci": "Barbus microbarbis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q146926",
+      "sci": "Blutaparon rigidum",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q301328",
+      "sci": "Brotomys voratus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q308048",
+      "sci": "Characodon garmani",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q306071",
+      "sci": "Chasmistes muriei",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q252635",
+      "sci": "Chilonopsis blofeldi",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309292",
+      "sci": "Chilonopsis exulatus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q384241",
+      "sci": "Chilonopsis subtruncatus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q142947",
+      "sci": "Chondrostoma scodrense",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309105",
+      "sci": "Cottus echinatus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q308517",
+      "sci": "Cyclophorus horridulum",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q303433",
+      "sci": "Cyprinodon ceciliae",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q304167",
+      "sci": "Cyprinodon inmemoriam",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q308252",
+      "sci": "Dupontia proletaria",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q304543",
+      "sci": "Elimia gibbera",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309223",
+      "sci": "Elimia pygmaea",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q307718",
+      "sci": "Evarra bustamantei",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q304215",
+      "sci": "Gambusia amistadensis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309444",
+      "sci": "Gastrocopta chichijimana",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309429",
+      "sci": "Gastrocopta ogasawarana",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309369",
+      "sci": "Gyrotoma walkeri",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309210",
+      "sci": "Harmogenanina linophora",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q309208",
+      "sci": "Harmogenanina subdetecta",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q305696",
+      "sci": "Heteropsomys insulans",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q308675",
+      "sci": "Hygrotus artus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q307632",
+      "sci": "Incerticyclus cinereus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q307567",
+      "sci": "Incerticyclus martinicensis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q301349",
+      "sci": "Isolobodon montanus",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q141850",
+      "sci": "Kokia lanceolata",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q288017",
+      "sci": "Lepidomeda altivelis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q307539",
+      "sci": "Leptoxis vittata",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q304357",
+      "sci": "Litoria nyakalensis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q384973",
+      "sci": "Mautodontha saintjohni",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q287981",
+      "sci": "Mecodema punctellum",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q26660",
+      "sci": "Myadestes woahensis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q146042",
+      "sci": "Myrcia neocambessedeana",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q292847",
+      "sci": "Myrcia skeldingii",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q199256",
+      "sci": "Notomys mordax",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q141028",
+      "sci": "Salmo pallaryi",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q311400",
+      "sci": "Salvelinus neocomensis",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q256827",
+      "sci": "Tetradactylus eastwoodae",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q553320",
+      "sci": "Tristramella magdelainae",
+      "cat": "EX"
+    },
+    {
+      "id": "wd-q114008",
+      "sci": "Accipiter brachyurus",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q113989",
+      "sci": "Accipiter luteoschistaceus",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q290388",
+      "sci": "Amphiglossus splendidus",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q265364",
+      "sci": "Bulbophyllum undecifilum",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q119635",
+      "sci": "Cataglyphis hannae",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q136083",
+      "sci": "Cyprinella alvarezdelvillari",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q303338",
+      "sci": "Cyprinodon verecundus",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q303487",
+      "sci": "Encheloclarias tapeinopterus",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q303320",
+      "sci": "Etheostoma acuticeps",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q281820",
+      "sci": "Freziera uniauriculata",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q293187",
+      "sci": "Grasseichthys gabonensis",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q303616",
+      "sci": "Haplochromis welcommei",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q302759",
+      "sci": "Heliodiaptomus kolleruensis",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q141772",
+      "sci": "Oreophrynella macconnelli",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q304365",
+      "sci": "Sabanejewia romanica",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q135208",
+      "sci": "Scinax alcatraz",
+      "cat": "VU"
+    },
+    {
+      "id": "wd-q302756",
+      "sci": "Troglohyphantes similis",
+      "cat": "VU"
+    }
+  ]
+}
