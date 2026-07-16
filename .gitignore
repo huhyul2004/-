@@ -45,3 +45,6 @@ data/export/
 # 큐레이션 작업 산출물 (species.db 에 반영되므로 별도 추적 불필요)
 data/species.db.bak-*
 data/phylacine/
+data/backups/species-backup-*.json
+data/no-photo-final.json
+data/species.db.bak-mapfix*
