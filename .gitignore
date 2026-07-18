@@ -48,3 +48,6 @@ data/phylacine/
 data/backups/species-backup-*.json
 data/no-photo-final.json
 data/species.db.bak-mapfix*
+data/gbif-eol-added.json
+data/vision-review.json
+data/retry-candidates.json

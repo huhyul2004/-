@@ -18,7 +18,10 @@ import Database from "better-sqlite3";
 import { getAnthropic } from "../lib/anthropic";
 
 const DB_PATH = path.join(process.cwd(), "data", "species.db");
-const CANDIDATES = path.join(process.cwd(), "data", "gbif-eol-added.json");
+const inIdx = process.argv.indexOf("--input");
+const CANDIDATES = inIdx >= 0
+  ? path.resolve(process.argv[inIdx + 1])
+  : path.join(process.cwd(), "data", "gbif-eol-added.json");
 const VISION_MODEL = "claude-haiku-4-5-20251001";
 const UA = process.env.WIKIPEDIA_USER_AGENT || "LastWatch/1.0 (educational; chanzzzang24@gmail.com)";
 
@@ -27,7 +30,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function downloadB64(url: string): Promise<{ data: string; media_type: string } | null> {
   for (let a = 0; a < 3; a++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const timer = setTimeout(() => ctrl.abort(), 45000);
     try {
       const res = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": UA } });
       clearTimeout(timer);
