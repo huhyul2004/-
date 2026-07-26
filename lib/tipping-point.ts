@@ -73,6 +73,34 @@ function trendToLambda(trend: string | null, r_max: number) {
   return { lambda_mean: Math.exp(r), lambda_sd: 0.15, r };
 }
 
+/**
+ * v4 Phase 1: IUCN 공식 trend 우선, 한글 trend fallback
+ * 우선순위: IUCN(Decreasing/Stable/Increasing) → 한글 population_trend → DEFAULT
+ * 매핑: Decreasing=-0.06, Stable=0, Increasing=+0.06 (Decreasing과 대칭, 기존 일관성)
+ * @param iucnTrend  "Decreasing" | "Stable" | "Increasing" | "Unknown" | null
+ * @param koreanTrend 한글 population_trend (fallback용)
+ * @param category IUCN 등급 (EX/EW 방어)
+ */
+export function trendToLambdaV4(
+  iucnTrend: string | null,
+  koreanTrend: string | null,
+  category: string
+): { lambda_mean: number; lambda_sd: number; r: number; source: string } {
+  const SD = 0.15;
+  // EX/EW 방어 — 실사용 경로에선 evaluateTippingPoint 상단 early-return 으로 도달 안 함
+  if (category === "EX" || category === "EW") {
+    return { lambda_mean: 1.0, lambda_sd: SD, r: 0, source: "extinct" };
+  }
+  // 우선순위 1: IUCN 공식 trend (Unknown 은 제외)
+  if (iucnTrend === "Decreasing") return { lambda_mean: Math.exp(-0.06), lambda_sd: SD, r: -0.06, source: "iucn" };
+  if (iucnTrend === "Stable")     return { lambda_mean: 1.0,             lambda_sd: SD, r: 0,     source: "iucn" };
+  if (iucnTrend === "Increasing") return { lambda_mean: Math.exp(0.06),  lambda_sd: SD, r: 0.06,  source: "iucn" };
+  // 우선순위 2: 한글 trend fallback (Unknown 또는 null)
+  if (koreanTrend) return { ...trendToLambda(koreanTrend, 0), source: "korean" };
+  // 우선순위 3: DEFAULT — v3 무정보 처리와 동일 (r=-0.02, 약간 보수적)
+  return { ...trendToLambda(null, 0), source: "default" };
+}
+
 // ===== Layer 2: Stochastic PVA =====
 // Ricker dynamics with environmental + demographic stochasticity + Allee
 //
@@ -510,7 +538,12 @@ export function evaluateTippingPoint(
   const n_sim = opts.n_sim ?? 1500;
 
   const life = lifeFor(species.class_name);
-  const { lambda_mean, lambda_sd, r } = trendToLambda(species.population_trend, life.r_max);
+  // v4 Phase 1: IUCN 공식 trend 우선(Decreasing/Stable/Increasing), Unknown/null 이면 한글 fallback
+  const { lambda_mean, lambda_sd, r } = trendToLambdaV4(
+    species.iucn_population_trend ?? null,
+    species.population_trend,
+    species.category
+  );
 
   // 절멸은 별도 처리 — extinct species 는 점수 100 + 멸종 날짜 = extinction_year
   if (species.category === "EX" || species.category === "EW") {

@@ -26,6 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
 
 # vercel
@@ -51,3 +52,16 @@ data/species.db.bak-mapfix*
 data/gbif-eol-added.json
 data/vision-review.json
 data/retry-candidates.json
+
+# IUCN 작업 DB 백업 (54MB, 커밋 금지)
+data/species.db.backup_*
+data/iucn-sync-failures.json
+
+# v4 재계산 스냅샷 (작업용)
+data/snapshots/
+
+# 실행 로그
+logs/
+
+# python
+__pycache__/

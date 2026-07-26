@@ -164,6 +164,8 @@ export interface SpeciesRow {
   family_name: string | null;
   mass_g: number | null;
   life_habit: string | null;
+  // IUCN Red List v4 sync 컬럼 (optional — 미동기화 행/구 fixture 호환)
+  iucn_population_trend?: string | null;
 }
 
 export interface ThreatRow {
