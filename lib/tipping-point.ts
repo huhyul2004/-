@@ -731,21 +731,81 @@ export function evaluateTippingPoint(
   };
 }
 
+// 등급별 개체수 중앙값 fallback (실측·criterion 없을 때 최후 추정)
+const CATEGORY_FALLBACK: Record<string, number> = {
+  CR: 200,    // < 250 으로 가정
+  EN: 1500,   // < 2500
+  VU: 5000,   // < 10000
+  NT: 20000,
+  LC: 100000,
+  EX: 0,
+  EW: 5,
+  DD: 1000,
+  NE: 1000,
+};
+
+// C-2: IUCN criteria(평가 근거) 기반 fallback 세분화 — 위협등급(CR/EN/VU) 전용.
+//   대문자 A~E 만 Criterion (소문자 a,b,c,d 는 sub-criteria → 무시).
+//   우선순위: D(성체수 절대값) > C(개체군+감소) > A(감소율) > B/E/기타(등급 base).
+//   복수 조합은 D 우선, 없으면 개체수 관련 criterion 중 가장 보수적(낮은) 값.
+function inferPopFromCriterion(category: string, criteria: string | null, base: number): number {
+  if (!criteria) return base;
+  const letters = new Set(criteria.match(/[A-E]/g) ?? []); // 대문자 Criterion 만
+  const dNum = criteria.match(/D(\d)/)?.[1];               // D1 / D2 구분
+
+  // Criterion D — 성체수 절대 임계 (가장 직접적)
+  if (letters.has("D")) {
+    if (category === "CR") return dNum === "1" ? 30 : 25;   // CR D: <50 성체
+    if (category === "EN") return dNum === "1" ? 200 : 150; // EN D: <250
+    if (category === "VU") return dNum === "2" ? 800 : 500; // VU D1: <1000, D2: 제한분포
+  }
+  // Criterion C — 개체군 크기 + 지속 감소
+  if (letters.has("C")) {
+    if (category === "CR") return 150;   // 100~200
+    if (category === "EN") return 1200;
+    if (category === "VU") return 4000;
+  }
+  // Criterion A — 감소율 기반 (저개체군화 반영, base 근처)
+  if (letters.has("A")) {
+    if (category === "CR") return 200;   // 150~250
+    if (category === "EN") return 1200;  // 1000~2000
+    if (category === "VU") return 4500;
+  }
+  // Criterion B(서식지범위, 개체수 무관) / E(정량분석) / 기타 → 등급 base
+  return base;
+}
+
+export type PopulationSource =
+  | "mature_individuals"
+  | "iucn_population_size"
+  | "fallback_criterion"
+  | "fallback_category";
+
+// N0 추정 + 출처 태깅 (산점도·종상세 "계산 근거" 표시에 사용)
+export function inferPopulationWithSource(s: SpeciesRow): { value: number; source: PopulationSource } {
+  const isThreatened = s.category === "CR" || s.category === "EN" || s.category === "VU";
+  // 우선순위 1: 사이트 수기 입력 mature_individuals (예: 자바코뿔소 76 유지)
+  if (s.mature_individuals && s.mature_individuals > 0)
+    return { value: s.mature_individuals, source: "mature_individuals" };
+  // 우선순위 2 (v4): IUCN population_size — 위협등급(CR/EN/VU)에만 적용.
+  //   LC/NT/DD 는 개체수 제한종이 아니고 IUCN pop 값이 subpopulation/비신뢰인 경우가
+  //   많아(예: 북극고래 LC pop=258=지역군) 위험도를 왜곡 → 카테고리 fallback 유지.
+  if (isThreatened && s.iucn_population_size && s.iucn_population_size > 0)
+    return { value: s.iucn_population_size, source: "iucn_population_size" };
+  // 우선순위 3: fallback — 위협등급은 Criterion 기반 세분화, LC/NT/DD 등은 등급 중앙값.
+  const base = CATEGORY_FALLBACK[s.category] ?? 1000;
+  if (isThreatened) {
+    const refined = inferPopFromCriterion(s.category, s.iucn_criteria ?? null, base);
+    // clamping: 등급 정의 상한 이내 (CR<250, EN<2500, VU<10000)
+    const cap = s.category === "CR" ? 249 : s.category === "EN" ? 2499 : 9999;
+    const value = Math.min(refined, cap);
+    return { value, source: value !== base ? "fallback_criterion" : "fallback_category" };
+  }
+  return { value: base, source: "fallback_category" };
+}
+
 function inferPopulation(s: SpeciesRow): number {
-  if (s.mature_individuals && s.mature_individuals > 0) return s.mature_individuals;
-  // 등급별 IUCN 임계값 기반 보수적 추정 (Criterion D 중간값)
-  const fallback: Record<string, number> = {
-    CR: 200,    // < 250 으로 가정
-    EN: 1500,   // < 2500
-    VU: 5000,   // < 10000
-    NT: 20000,
-    LC: 100000,
-    EX: 0,
-    EW: 5,
-    DD: 1000,
-    NE: 1000,
-  };
-  return fallback[s.category] ?? 1000;
+  return inferPopulationWithSource(s).value;
 }
 
 function buildRationale(

@@ -9,6 +9,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
 import { TippingHero } from "@/components/tipping-hero";
 import { CommentSection } from "@/components/comment-section";
+import { inferPopulationWithSource, type PopulationSource } from "@/lib/tipping-point";
 import type { TippingPointResult } from "@/lib/tipping-point";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,13 @@ const CATEGORY_INFO: Record<string, { label: string; korean: string; description
   CR: { label: "위급", korean: "Critically Endangered", description: "야생에서 절멸할 가능성이 매우 높음" },
   EN: { label: "위기", korean: "Endangered", description: "야생에서 절멸할 가능성이 높음" },
   VU: { label: "취약", korean: "Vulnerable", description: "절멸 위험이 큰 상태" },
+};
+
+const POP_SOURCE_LABEL: Record<PopulationSource, string> = {
+  mature_individuals: "실측 성숙 개체수 (큐레이션)",
+  iucn_population_size: "IUCN 공식 개체수",
+  fallback_criterion: "IUCN 평가기준(Criterion) 추정",
+  fallback_category: "IUCN 등급 중앙값 추정",
 };
 
 function formatMass(g: number): string {
@@ -37,6 +45,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
   const actions = getActions(species.id) as { action_name: string }[];
   const habitats = getHabitats(species.id) as { habitat_name: string }[];
   const tipping = getTippingPoint(species.id);
+  const pop = inferPopulationWithSource(species);
   const info = CATEGORY_INFO[species.category];
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
@@ -143,6 +152,45 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
           <p className="mt-1 text-xs leading-relaxed text-zinc-600">
             이 종은 IUCN Red List 등급으로 분류되었으며, LastWatch 자체 위험도 계산(EWS-PVA-IUCN 임계점 분석)은
             아직 적용되지 않았습니다. 체중·분류 정보는 PHYLACINE 데이터베이스, 사진은 iNaturalist에서 가져왔습니다.
+          </p>
+        </section>
+      )}
+
+      {tipping && (
+        <section className="mb-6 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-4">
+          <h2 className="text-sm font-bold text-zinc-800">계산 근거</h2>
+          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-zinc-400">개체수 (N₀)</dt>
+              <dd className="font-medium text-zinc-900">
+                {pop.value.toLocaleString()}마리
+                <span className="ml-1.5 rounded bg-zinc-200 px-1.5 py-0.5 text-[11px] font-normal text-zinc-600">
+                  {POP_SOURCE_LABEL[pop.source]}
+                </span>
+              </dd>
+            </div>
+            {species.mass_g != null && (
+              <div>
+                <dt className="text-zinc-400">성체 체중</dt>
+                <dd className="font-medium text-zinc-900">{formatMass(species.mass_g)}</dd>
+              </div>
+            )}
+            {species.iucn_criteria && (
+              <div>
+                <dt className="text-zinc-400">IUCN 평가 기준</dt>
+                <dd className="font-mono text-xs font-medium text-zinc-900">{species.iucn_criteria}</dd>
+              </div>
+            )}
+            {species.iucn_population_trend && (
+              <div>
+                <dt className="text-zinc-400">IUCN 개체수 추세</dt>
+                <dd className="font-medium text-zinc-900">{species.iucn_population_trend}</dd>
+              </div>
+            )}
+          </dl>
+          <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+            위기점수 = 0.30·EWS + 0.45·PVA + 0.25·IUCN (3-레이어 합의). 개체수 N₀는 실측 →
+            IUCN 공식값 → 평가기준(Criterion) → 등급 순으로 추정하며, 위 배지가 이 종에 실제 적용된 출처입니다.
           </p>
         </section>
       )}

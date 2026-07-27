@@ -45,6 +45,12 @@ export function HeaderNav() {
         검증
       </Link>
       <Link
+        href="/scatter"
+        className="rounded-full px-3 py-1.5 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
+      >
+        분석
+      </Link>
+      <Link
         href="/favorites"
         className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
       >

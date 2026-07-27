@@ -65,3 +65,4 @@ logs/
 
 # python
 __pycache__/
+data/iucn-population-fetch.json
