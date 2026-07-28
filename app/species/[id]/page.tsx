@@ -146,7 +146,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
         </div>
       </header>
 
-      {species.data_source === "phylacine_curated" && (
+      {species.data_source === "phylacine_curated" && !tipping && (
         <section className="mb-6 rounded-2xl border border-[#9fb013]/40 bg-[#CCE226]/10 p-4">
           <p className="text-xs font-bold text-zinc-800">ℹ️ IUCN 등급 기준 분류</p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-600">
