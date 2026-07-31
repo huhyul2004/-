@@ -1,0 +1,2150 @@
+{
+ "generated": "2026-07-29T11:57:17.200627+00:00",
+ "count": 269,
+ "mapping": [
+  {
+   "orig": "Adenomus dasi",
+   "gbif": "SYNONYM",
+   "accepted": "Adenomus kandianus",
+   "iucn_sis_id": 80161781,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Aethomys granti",
+   "gbif": "SYNONYM",
+   "accepted": "Micaelamys granti",
+   "iucn_sis_id": 570,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Aethomys namaquensis",
+   "gbif": "SYNONYM",
+   "accepted": "Micaelamys namaquensis",
+   "iucn_sis_id": 573,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Algyroides marchi",
+   "gbif": "ACCEPTED",
+   "accepted": "Algyroides marchi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Allactaga elater",
+   "gbif": "ACCEPTED",
+   "accepted": "Allactaga elater",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Allactaga euphratica",
+   "gbif": "ACCEPTED",
+   "accepted": "Allactaga euphratica",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Allactaga vinogradovi",
+   "gbif": "ACCEPTED",
+   "accepted": "Allactaga vinogradovi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Allactaga williamsi",
+   "gbif": "ACCEPTED",
+   "accepted": "Allactaga williamsi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Amphiglossus splendidus",
+   "gbif": "SYNONYM",
+   "accepted": "Brachyseps splendidus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Aphanius splendens",
+   "gbif": "ACCEPTED",
+   "accepted": "Aphanius splendens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Aphanius transgrediens",
+   "gbif": "ACCEPTED",
+   "accepted": "Aphanius transgrediens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Arielulus aureocollaris",
+   "gbif": "SYNONYM",
+   "accepted": "Thainycteris aureocollaris",
+   "iucn_sis_id": 40031,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Arvicola scherman",
+   "gbif": "ACCEPTED",
+   "accepted": "Arvicola scherman",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Aulonocara hansbaenschi",
+   "gbif": "ACCEPTED",
+   "accepted": "Aulonocara hansbaenschi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Aulonocara steveni",
+   "gbif": "ACCEPTED",
+   "accepted": "Aulonocara steveni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Bagarius yarrelli",
+   "gbif": "ACCEPTED",
+   "accepted": "Bagarius yarrelli",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Berylmys bowersi",
+   "gbif": "ACCEPTED",
+   "accepted": "Berylmys bowersi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Blanfordimys afghanus",
+   "gbif": "ACCEPTED",
+   "accepted": "Blanfordimys afghanus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Blanfordimys bucharensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Blanfordimys bucharensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Bunomys fratrorum",
+   "gbif": "ACCEPTED",
+   "accepted": "Bunomys fratrorum",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Callicebus aureipalatii",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus aureipalatii",
+   "iucn_sis_id": 136815,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus baptista",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus baptista",
+   "iucn_sis_id": 41560,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus bernhardi",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus bernhardi",
+   "iucn_sis_id": 41561,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus brunneus",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus brunneus",
+   "iucn_sis_id": 41558,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus caligatus",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus caligatus",
+   "iucn_sis_id": 41552,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus caquetensis",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus caquetensis",
+   "iucn_sis_id": 14699281,
+   "iucn_category": "CR",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus cinerascens",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus cinerascens",
+   "iucn_sis_id": 41557,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus cupreus",
+   "gbif": "ACCEPTED",
+   "accepted": "Plecturocebus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Callicebus discolor",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus discolor",
+   "iucn_sis_id": 41553,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus donacophilus",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus donacophilus",
+   "iucn_sis_id": 41548,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus dubius",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus caligatus",
+   "iucn_sis_id": 41552,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus hoffmannsi",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus hoffmannsi",
+   "iucn_sis_id": 41559,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus lucifer",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus lucifer",
+   "iucn_sis_id": 41564,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus lugens",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus lugens",
+   "iucn_sis_id": 41563,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus medemi",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus medemi",
+   "iucn_sis_id": 39944,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus modestus",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus modestus",
+   "iucn_sis_id": 41550,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus moloch",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus moloch",
+   "iucn_sis_id": 41556,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus oenanthe",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus oenanthe",
+   "iucn_sis_id": 3553,
+   "iucn_category": "CR",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus ornatus",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus ornatus",
+   "iucn_sis_id": 39928,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus pallescens",
+   "gbif": "SYNONYM",
+   "accepted": "Plecturocebus pallescens",
+   "iucn_sis_id": 41549,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus purinus",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus torquatus",
+   "iucn_sis_id": 210891841,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus regulus",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus regulus",
+   "iucn_sis_id": 41566,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Callicebus torquatus",
+   "gbif": "SYNONYM",
+   "accepted": "Cheracebus torquatus",
+   "iucn_sis_id": 210891841,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Camellia chrysantha",
+   "gbif": "SYNONYM",
+   "accepted": "Camellia petelotii",
+   "iucn_sis_id": 191436,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Canis adustus",
+   "gbif": "ACCEPTED",
+   "accepted": "Canis adustus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Canis mesomelas",
+   "gbif": "ACCEPTED",
+   "accepted": "Canis mesomelas",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Capricornis milneedwardsii",
+   "gbif": "ACCEPTED",
+   "accepted": "Capricornis milneedwardsii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Capricornis thar",
+   "gbif": "ACCEPTED",
+   "accepted": "Capricornis thar",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Capromys garridoi",
+   "gbif": "SYNONYM",
+   "accepted": "Mysateles garridoi",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Cassia aldabrensis",
+   "gbif": "SYNONYM",
+   "accepted": "Chamaecrista aldabrensis",
+   "iucn_sis_id": 37573,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Centrolene altitudinale",
+   "gbif": "ACCEPTED",
+   "accepted": "Centrolene altitudinale",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Cercopithecus dryas",
+   "gbif": "SYNONYM",
+   "accepted": "Chlorocebus dryas",
+   "iucn_sis_id": 4216,
+   "iucn_category": "EN",
+   "iucn_population_size": 175,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Chaerephon aloysiisabaudiae",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon aloysiisabaudiae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon ansorgei",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon ansorgei",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon bemmeleni",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon bemmeleni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon bivittatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon bivittatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon chapini",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon chapini",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon jobensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon jobensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon jobimena",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon jobimena",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon major",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon major",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon nigeriae",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon nigeriae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon plicatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon plicatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chaerephon pumilus",
+   "gbif": "ACCEPTED",
+   "accepted": "Chaerephon pumilus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chionomys nivalis",
+   "gbif": "ACCEPTED",
+   "accepted": "Chionomys nivalis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Chlorostilbon bracei",
+   "gbif": "SYNONYM",
+   "accepted": "Riccordia bracei",
+   "iucn_sis_id": 22687333,
+   "iucn_category": "EX",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Chlorostilbon elegans",
+   "gbif": "SYNONYM",
+   "accepted": "Riccordia elegans",
+   "iucn_sis_id": 22728709,
+   "iucn_category": "EX",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Cochranella balionota",
+   "gbif": "SYNONYM",
+   "accepted": "Nymphargus balionota",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Cricetulus alticola",
+   "gbif": "ACCEPTED",
+   "accepted": "Cricetulus alticola",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Cricetulus kamensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Cricetulus kamensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Cricetulus migratorius",
+   "gbif": "ACCEPTED",
+   "accepted": "Cricetulus migratorius",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Ctenosaura defensor",
+   "gbif": "SYNONYM",
+   "accepted": "Cachryx defensor",
+   "iucn_sis_id": 44182,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Cynolebias constanciae",
+   "gbif": "SYNONYM",
+   "accepted": "Simpsonichthys constanciae",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Dactylonax palpator",
+   "gbif": "SYNONYM",
+   "accepted": "Dactylopsila palpator",
+   "iucn_sis_id": 6225,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Dasypus hybridus",
+   "gbif": "ACCEPTED",
+   "accepted": "Dasypus hybridus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Dendromus melanotis",
+   "gbif": "ACCEPTED",
+   "accepted": "Dendromus melanotis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Dendromus nyikae",
+   "gbif": "ACCEPTED",
+   "accepted": "Dendromus nyikae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Deppea splendens",
+   "gbif": "ACCEPTED",
+   "accepted": "Deppea splendens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Diaemus youngi",
+   "gbif": "ACCEPTED",
+   "accepted": "Diaemus youngii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Diplomesodon pulchellum",
+   "gbif": "ACCEPTED",
+   "accepted": "Diplomesodon pulchellum",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Dombeya rodriguesiana",
+   "gbif": "ACCEPTED",
+   "accepted": "Dombeya rodriguesiana",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Elephantulus rozeti",
+   "gbif": "ACCEPTED",
+   "accepted": "Elephantulus rozeti",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Elephantulus rufescens",
+   "gbif": "ACCEPTED",
+   "accepted": "Elephantulus rufescens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Encheloclarias prolatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Encheloclarias prolatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Epomops dobsonii",
+   "gbif": "SYNONYM",
+   "accepted": "Epomophorus dobsonii",
+   "iucn_sis_id": 7908,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Eptesicus andinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus andinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus bottae",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus bottae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus brasiliensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus brasiliensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus chiriquinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus chiriquinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus diminutus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus diminutus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus floweri",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus floweri",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus furinalis",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus furinalis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus gobiensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus gobiensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus hottentotus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus hottentotus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus innoxius",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus innoxius",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus isabellinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus isabellinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus nasutus",
+   "gbif": "SYNONYM",
+   "accepted": "Rhyneptesicus nasutus",
+   "iucn_sis_id": 7935,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Eptesicus nilssonii",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus nilssonii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus pachyotis",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus pachyotis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Eptesicus serotinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Eptesicus serotinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Falsistrellus affinis",
+   "gbif": "SYNONYM",
+   "accepted": "Hypsugo affinis",
+   "iucn_sis_id": 17324,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Fukomys mechowi",
+   "gbif": "ACCEPTED",
+   "accepted": "Fukomys mechowii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Galagoides cocos",
+   "gbif": "SYNONYM",
+   "accepted": "Paragalago cocos",
+   "iucn_sis_id": 136212,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Galagoides granti",
+   "gbif": "SYNONYM",
+   "accepted": "Paragalago granti",
+   "iucn_sis_id": 91970347,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Galagoides orinus",
+   "gbif": "SYNONYM",
+   "accepted": "Paragalago orinus",
+   "iucn_sis_id": 40651,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Galagoides rondoensis",
+   "gbif": "SYNONYM",
+   "accepted": "Paragalago rondoensis",
+   "iucn_sis_id": 40652,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Galagoides zanzibaricus",
+   "gbif": "SYNONYM",
+   "accepted": "Paragalago zanzibaricus",
+   "iucn_sis_id": 8790,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Genetta maculata",
+   "gbif": "ACCEPTED",
+   "accepted": "Genetta maculata",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbilliscus afra",
+   "gbif": "ACCEPTED",
+   "accepted": "Gerbilliscus afra",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbillurus paeba",
+   "gbif": "ACCEPTED",
+   "accepted": "Gerbillurus paeba",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbillurus setzeri",
+   "gbif": "ACCEPTED",
+   "accepted": "Gerbillurus setzeri",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbillurus tytonis",
+   "gbif": "ACCEPTED",
+   "accepted": "Gerbillurus tytonis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbillurus vallinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Gerbillurus vallinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Gerbillus mackillingini",
+   "gbif": "SYNONYM",
+   "accepted": "Dipodillus mackilligini",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Grammomys selousi",
+   "gbif": "ACCEPTED",
+   "accepted": "Grammomys selousi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Handleyomys alfaroi",
+   "gbif": "SYNONYM",
+   "accepted": "Oryzomys alfaroi",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Handleyomys melanotis",
+   "gbif": "SYNONYM",
+   "accepted": "Oryzomys melanotis",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Handleyomys rostratus",
+   "gbif": "SYNONYM",
+   "accepted": "Oryzomys rostratus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Handleyomys saturatior",
+   "gbif": "SYNONYM",
+   "accepted": "Oryzomys saturatior",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Herpestes auropunctatus",
+   "gbif": "SYNONYM",
+   "accepted": "Herpestes javanicus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Herpestes brachyurus",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes brachyurus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes edwardsii",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes edwardsi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes fuscus",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes fuscus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes javanicus",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes javanicus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes naso",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes naso",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes semitorquatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes semitorquatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes smithii",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes smithii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes urva",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes urva",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Herpestes vitticollis",
+   "gbif": "ACCEPTED",
+   "accepted": "Herpestes vitticollis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Hipposideros commersoni",
+   "gbif": "SYNONYM",
+   "accepted": "Macronycteris commersonii",
+   "iucn_sis_id": 10120,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Hipposideros cyclops",
+   "gbif": "SYNONYM",
+   "accepted": "Doryrhina cyclops",
+   "iucn_sis_id": 10126,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Hipposideros gigas",
+   "gbif": "SYNONYM",
+   "accepted": "Macronycteris gigas",
+   "iucn_sis_id": 44687,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Hipposideros thomensis",
+   "gbif": "SYNONYM",
+   "accepted": "Macronycteris thomensis",
+   "iucn_sis_id": 44689,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Hipposideros vittatus",
+   "gbif": "SYNONYM",
+   "accepted": "Macronycteris vittatus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Homo sapiens",
+   "gbif": "ACCEPTED",
+   "accepted": "Homo sapiens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Hyla heinzsteinitzi",
+   "gbif": "SYNONYM",
+   "accepted": "Dryophytes japonicus",
+   "iucn_sis_id": 55519,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Knipowitschia cameliae",
+   "gbif": "ACCEPTED",
+   "accepted": "Knipowitschia cameliae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Kunsia fronto",
+   "gbif": "ACCEPTED",
+   "accepted": "Kunsia fronto",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Lagenorhynchus cruciger",
+   "gbif": "ACCEPTED",
+   "accepted": "Lagenorhynchus cruciger",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Lagenorhynchus obliquidens",
+   "gbif": "ACCEPTED",
+   "accepted": "Lagenorhynchus obliquidens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Lagothrix lugens",
+   "gbif": "SYNONYM",
+   "accepted": "Lagothrix lagothricha",
+   "iucn_sis_id": 160881218,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Lasiopodomys fuscus",
+   "gbif": "SYNONYM",
+   "accepted": "Neodon fuscus",
+   "iucn_sis_id": 11341,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Lissonycteris angolensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Lissonycteris angolensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus agilis",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus agilis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus antilopinus",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus antilopinus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus bernardus",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus bernardus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus dorsalis",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus dorsalis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus eugenii",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus eugenii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus greyi",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus greyi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus irma",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus irma",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus parma",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus parma",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus parryi",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus parryi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus robustus",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus robustus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus rufogriseus",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus rufogriseus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Macropus rufus",
+   "gbif": "ACCEPTED",
+   "accepted": "Macropus rufus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Marmosa paraguayanus",
+   "gbif": "SYNONYM",
+   "accepted": "Micoureus paraguayanus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Mecistogaster pronoti",
+   "gbif": "SYNONYM",
+   "accepted": "Platystigma pronoti",
+   "iucn_sis_id": 12921,
+   "iucn_category": "CR",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Megaderma lyra",
+   "gbif": "SYNONYM",
+   "accepted": "Lyroderma lyra",
+   "iucn_sis_id": 12938,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Mellissia begoniifolia",
+   "gbif": "SYNONYM",
+   "accepted": "Withania begoniifolia",
+   "iucn_sis_id": 44011,
+   "iucn_category": "CR",
+   "iucn_population_size": 2,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Melonycteris fardoulisi",
+   "gbif": "SYNONYM",
+   "accepted": "Nesonycteris fardoulisi",
+   "iucn_sis_id": 13141,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Melonycteris woodfordi",
+   "gbif": "SYNONYM",
+   "accepted": "Nesonycteris woodfordi",
+   "iucn_sis_id": 13140,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Mico humilis",
+   "gbif": "ACCEPTED",
+   "accepted": "Mico humilis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microgale dobsoni",
+   "gbif": "ACCEPTED",
+   "accepted": "Microgale dobsoni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microgale talazaci",
+   "gbif": "ACCEPTED",
+   "accepted": "Microgale talazaci",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Micropteropus pusillus",
+   "gbif": "SYNONYM",
+   "accepted": "Epomophorus pusillus",
+   "iucn_sis_id": 13402,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Microtus clarkei",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus clarkei",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus fortis",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus fortis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus gerbei",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus gerbei",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus gregalis",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus gregalis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus hyperboreus",
+   "gbif": "SYNONYM",
+   "accepted": "Microtus middendorffi",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Microtus kikuchii",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus kikuchii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus levis",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus levis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus limnophilus",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus limnophilus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus maximowiczii",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus maximowiczii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus middendorffii",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus middendorffi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus mongolicus",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus mongolicus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus montebelli",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus montebelli",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus oeconomus",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus oeconomus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Microtus sachalinensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Microtus sachalinensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Mimon crenulatum",
+   "gbif": "SYNONYM",
+   "accepted": "Gardnerycteris crenulatum",
+   "iucn_sis_id": 13560,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Mormopterus beccarii",
+   "gbif": "SYNONYM",
+   "accepted": "Ozimops beccarii",
+   "iucn_sis_id": 13880,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Mormopterus loriae",
+   "gbif": "SYNONYM",
+   "accepted": "Ozimops loriae",
+   "iucn_sis_id": 82345325,
+   "iucn_category": "DD",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Mormopterus planiceps",
+   "gbif": "SYNONYM",
+   "accepted": "Ozimops planiceps",
+   "iucn_sis_id": 71732146,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Morunasaurus groi",
+   "gbif": "ACCEPTED",
+   "accepted": "Morunasaurus groi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Murexia melanurus",
+   "gbif": "SYNONYM",
+   "accepted": "Murexechinus melanurus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Mus orangiae",
+   "gbif": "ACCEPTED",
+   "accepted": "Mus orangiae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Mustela africana",
+   "gbif": "ACCEPTED",
+   "accepted": "Mustela africana",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Mustela frenata",
+   "gbif": "ACCEPTED",
+   "accepted": "Mustela frenata",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes andersoni",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes andersoni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes californicus",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes californicus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes centralis",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes centralis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes gapperi",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes gapperi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes glareolus",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes glareolus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes regulus",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes regulus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes rex",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes rex",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes rufocanus",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes rufocanus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes rutilus",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes rutilus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes shanseius",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes shanseius",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Myodes smithii",
+   "gbif": "ACCEPTED",
+   "accepted": "Myodes smithii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Neocallitropsis pancheri",
+   "gbif": "ACCEPTED",
+   "accepted": "Neocallitropsis pancheri",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Neodon juldaschi",
+   "gbif": "SYNONYM",
+   "accepted": "Blanfordimys juldaschi",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Neoromicia brunnea",
+   "gbif": "SYNONYM",
+   "accepted": "Pseudoromicia brunnea",
+   "iucn_sis_id": 44917,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neoromicia capensis",
+   "gbif": "SYNONYM",
+   "accepted": "Laephotis capensis",
+   "iucn_sis_id": 44918,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neoromicia matroka",
+   "gbif": "SYNONYM",
+   "accepted": "Laephotis matroka",
+   "iucn_sis_id": 40033,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neoromicia nana",
+   "gbif": "SYNONYM",
+   "accepted": "Afronycteris nanus",
+   "iucn_sis_id": 44923,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neoromicia rendalli",
+   "gbif": "SYNONYM",
+   "accepted": "Pseudoromicia rendalli",
+   "iucn_sis_id": 44924,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neoromicia tenuipinnis",
+   "gbif": "SYNONYM",
+   "accepted": "Pseudoromicia tenuipinnis",
+   "iucn_sis_id": 44926,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Neotoma anthonyi",
+   "gbif": "ACCEPTED",
+   "accepted": "Neotoma anthonyi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Neotoma bunkeri",
+   "gbif": "ACCEPTED",
+   "accepted": "Neotoma bunkeri",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Neotoma martinensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Neotoma martinensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Neovison vison",
+   "gbif": "SYNONYM",
+   "accepted": "Mustela vison",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Noblella coloma",
+   "gbif": "ACCEPTED",
+   "accepted": "Noblella coloma",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Notopteris macdonaldi",
+   "gbif": "ACCEPTED",
+   "accepted": "Notopteris macdonaldii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Nycticeinops schlieffeni",
+   "gbif": "ACCEPTED",
+   "accepted": "Nycticeinops schlieffenii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Ochotona roylei",
+   "gbif": "ACCEPTED",
+   "accepted": "Ochotona roylii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Opuntia megarhiza",
+   "gbif": "ACCEPTED",
+   "accepted": "Opuntia megarrhiza",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Oreonax flavicauda",
+   "gbif": "SYNONYM",
+   "accepted": "Lagothrix flavicauda",
+   "iucn_sis_id": 39924,
+   "iucn_category": "CR",
+   "iucn_population_size": 5500,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Orthogeomys lanius",
+   "gbif": "ACCEPTED",
+   "accepted": "Orthogeomys lanius",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Otomys saundersiae",
+   "gbif": "ACCEPTED",
+   "accepted": "Otomys saundersiae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Ovis orientalis",
+   "gbif": "SYNONYM",
+   "accepted": "Ovis aries",
+   "iucn_sis_id": 136720,
+   "iucn_category": "NA",
+   "iucn_population_size": 7500,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Paratriaenops furculus",
+   "gbif": "ACCEPTED",
+   "accepted": "Paratriaenops furcula",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Parodia lenninghausii",
+   "gbif": "ACCEPTED",
+   "accepted": "Parodia lenninghausii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Paruromys dominator",
+   "gbif": "ACCEPTED",
+   "accepted": "Paruromys dominator",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Pearsonomys annectens",
+   "gbif": "ACCEPTED",
+   "accepted": "Pearsonomys annectens",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Phreatichthys andruzzii",
+   "gbif": "ACCEPTED",
+   "accepted": "Phreatichthys andruzzii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Piliocolobus temminckii",
+   "gbif": "SYNONYM",
+   "accepted": "Piliocolobus badius",
+   "iucn_sis_id": 161247840,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Piliocolobus waldronae",
+   "gbif": "ACCEPTED",
+   "accepted": "Piliocolobus waldronae",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Pipistrellus alaschanicus",
+   "gbif": "SYNONYM",
+   "accepted": "Hypsugo alaschanicus",
+   "iucn_sis_id": 136560,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus anchietae",
+   "gbif": "SYNONYM",
+   "accepted": "Neoromicia anchietae",
+   "iucn_sis_id": 44851,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus cadornae",
+   "gbif": "SYNONYM",
+   "accepted": "Hypsugo cadornae",
+   "iucn_sis_id": 17331,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus hesperus",
+   "gbif": "SYNONYM",
+   "accepted": "Parastrellus hesperus",
+   "iucn_sis_id": 17341,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus pulveratus",
+   "gbif": "SYNONYM",
+   "accepted": "Hypsugo pulveratus",
+   "iucn_sis_id": 17360,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus rueppellii",
+   "gbif": "SYNONYM",
+   "accepted": "Vansonia rueppellii",
+   "iucn_sis_id": 17361,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pipistrellus subflavus",
+   "gbif": "SYNONYM",
+   "accepted": "Perimyotis subflavus",
+   "iucn_sis_id": 17366,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Plectrohyla ephemera",
+   "gbif": "SYNONYM",
+   "accepted": "Sarcohyla labeculata",
+   "iucn_sis_id": 151284673,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Plectrohyla pachyderma",
+   "gbif": "SYNONYM",
+   "accepted": "Sarcohyla pachyderma",
+   "iucn_sis_id": 55583,
+   "iucn_category": "CR",
+   "iucn_population_size": 24,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Proteles cristata",
+   "gbif": "ACCEPTED",
+   "accepted": "Proteles cristata",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Ptenochirus jagori",
+   "gbif": "ACCEPTED",
+   "accepted": "Ptenochirus jagorii",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Pteropus giganteus",
+   "gbif": "SYNONYM",
+   "accepted": "Pteropus vampyrus",
+   "iucn_sis_id": 18766,
+   "iucn_category": "EN",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pteropus leucopterus",
+   "gbif": "SYNONYM",
+   "accepted": "Desmalopex leucopterus",
+   "iucn_sis_id": 18731,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Pteropus vetulus",
+   "gbif": "ACCEPTED",
+   "accepted": "Pteropus vetula",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Rebutia albopectinata",
+   "gbif": "SYNONYM",
+   "accepted": "Aylostera albopectinata",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Rhogeessa alleni",
+   "gbif": "ACCEPTED",
+   "accepted": "Rhogeessa alleni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Rhogeessa gracilis",
+   "gbif": "ACCEPTED",
+   "accepted": "Rhogeessa gracilis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Rousettus bidens",
+   "gbif": "SYNONYM",
+   "accepted": "Boneia bidens",
+   "iucn_sis_id": 19749,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Rousettus celebensis",
+   "gbif": "ACCEPTED",
+   "accepted": "Rousettus celebensis",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Rousettus lanosus",
+   "gbif": "SYNONYM",
+   "accepted": "Stenonycteris lanosus",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Saguinus fuscicollis",
+   "gbif": "SYNONYM",
+   "accepted": "Leontocebus fuscicollis",
+   "iucn_sis_id": 160885500,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Saguinus geoffroyi",
+   "gbif": "ACCEPTED",
+   "accepted": "Saguinus geoffroyi",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Saguinus imperator",
+   "gbif": "ACCEPTED",
+   "accepted": "Saguinus imperator",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Saguinus inustus",
+   "gbif": "ACCEPTED",
+   "accepted": "Saguinus inustus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Saguinus labiatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Saguinus labiatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Saguinus melanoleucus",
+   "gbif": "SYNONYM",
+   "accepted": "Leontocebus weddelli",
+   "iucn_sis_id": 160939221,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Saguinus nigricollis",
+   "gbif": "SYNONYM",
+   "accepted": "Leontocebus nigricollis",
+   "iucn_sis_id": 39945,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Saguinus oedipus",
+   "gbif": "ACCEPTED",
+   "accepted": "Saguinus oedipus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Saguinus tripartitus",
+   "gbif": "SYNONYM",
+   "accepted": "Leontocebus tripartitus",
+   "iucn_sis_id": 19824,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Scinax alcatraz",
+   "gbif": "SYNONYM",
+   "accepted": "Ololygon alcatraz",
+   "iucn_sis_id": 55924,
+   "iucn_category": "VU",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Scinax peixotoi",
+   "gbif": "SYNONYM",
+   "accepted": "Ololygon peixotoi",
+   "iucn_sis_id": 135887,
+   "iucn_category": "CR",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Scotonycteris ophiodon",
+   "gbif": "SYNONYM",
+   "accepted": "Casinycteris ophiodon",
+   "iucn_sis_id": null,
+   "outcome": "iucn_not_found"
+  },
+  {
+   "orig": "Semnopithecus dussumieri",
+   "gbif": "SYNONYM",
+   "accepted": "Semnopithecus hypoleucos",
+   "iucn_sis_id": 167543916,
+   "iucn_category": "LC",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Sicista tianshanica",
+   "gbif": "ACCEPTED",
+   "accepted": "Sicista tianshanica",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Sigmodon planifrons",
+   "gbif": "ACCEPTED",
+   "accepted": "Sigmodon planifrons",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Sminthopsis aitkeni",
+   "gbif": "ACCEPTED",
+   "accepted": "Sminthopsis aitkeni",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Sminthopsis griseoventer",
+   "gbif": "ACCEPTED",
+   "accepted": "Sminthopsis griseoventer",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Sminthopsis longicaudata",
+   "gbif": "ACCEPTED",
+   "accepted": "Sminthopsis longicaudata",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Solenodon cubanus",
+   "gbif": "ACCEPTED",
+   "accepted": "Solenodon cubanus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Sorex monticolus",
+   "gbif": "ACCEPTED",
+   "accepted": "Sorex monticolus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Strigops habroptila",
+   "gbif": "ACCEPTED",
+   "accepted": "Strigops habroptila",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  },
+  {
+   "orig": "Tarsius syrichta",
+   "gbif": "SYNONYM",
+   "accepted": "Carlito syrichta",
+   "iucn_sis_id": 21492,
+   "iucn_category": "NT",
+   "iucn_population_size": null,
+   "outcome": "recovered",
+   "rowcount": 1
+  },
+  {
+   "orig": "Thylogale lanatus",
+   "gbif": "ACCEPTED",
+   "accepted": "Thylogale lanatus",
+   "iucn_sis_id": null,
+   "outcome": "gbif_accepted_iucn_missing"
+  }
+ ]
+}

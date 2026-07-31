@@ -17,7 +17,7 @@ export default function ScatterPage({ searchParams }: { searchParams: { highligh
     count_with_mass: number;
     species: ScatterSpecies[];
   };
-  const initialHighlight = searchParams?.highlight === "1";
+  const initialHighlight = searchParams?.highlight !== "0"; // 기본 ON, ?highlight=0 으로 끄기
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
