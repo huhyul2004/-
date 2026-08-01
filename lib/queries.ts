@@ -188,6 +188,24 @@ export function getStats() {
   return { byCategory, byClassRisk, extinctByYear };
 }
 
+// v5: 큐레이션 종의 점수 산출 상태 3갈래 (실측 계산 / 절멸 확정 / 데이터 부족)
+export function getScoreCoverage() {
+  const db = getDb();
+  const scope = hasCuratedColumn() ? "WHERE s.is_curated = 1" : "";
+  const row = db
+    .prepare(
+      `SELECT
+         SUM(CASE WHEN s.category NOT IN ('EX','EW') AND tp.species_id IS NOT NULL THEN 1 ELSE 0 END) AS computed,
+         SUM(CASE WHEN s.category IN ('EX','EW') THEN 1 ELSE 0 END) AS extinct,
+         SUM(CASE WHEN s.category NOT IN ('EX','EW') AND tp.species_id IS NULL THEN 1 ELSE 0 END) AS insufficient,
+         COUNT(*) AS total
+       FROM species s LEFT JOIN tipping_points tp ON tp.species_id = s.id
+       ${scope}`
+    )
+    .get() as { computed: number; extinct: number; insufficient: number; total: number };
+  return row;
+}
+
 export function listExtinctSpecies(): SpeciesRow[] {
   const db = getDb();
   const sql = `SELECT * FROM species WHERE category IN (${EXTINCT_CATEGORIES.map(() => "?").join(",")})

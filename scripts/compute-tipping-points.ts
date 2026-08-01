@@ -38,11 +38,20 @@ async function main() {
       computed_at = CURRENT_TIMESTAMP
   `);
 
+  // v5: 데이터 부족(result=null) 종은 tipping_points 행 삭제 → 점수 없음("데이터 부족")
+  const del = db.prepare("DELETE FROM tipping_points WHERE species_id = ?");
+
   let done = 0;
+  let insufficient = 0;
   const t0 = Date.now();
   for (const s of rows) {
     try {
       const result = evaluateTippingPoint(s, { n_sim: 1500, T: 100 });
+      if (result === null) {
+        del.run(s.id); // 실측 개체수 없음 → 데이터 부족
+        insufficient++;
+        continue;
+      }
       const deadlineDate = new Date(result.dates.intervention_deadline_date);
       const extDate = result.dates.extinction_estimate_date
         ? new Date(result.dates.extinction_estimate_date)
@@ -70,7 +79,7 @@ async function main() {
   }
 
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
-  console.log(`\n✓ ${done}/${rows.length} 완료 (${elapsed}s)`);
+  console.log(`\n✓ 점수 산출 ${done}종 · 데이터 부족 ${insufficient}종 / 전체 ${rows.length} (${elapsed}s)`);
 
   // Tier 분포
   const dist = db

@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "@/lib/queries";
 import { CategoryBadge } from "@/components/category-badge";
-import { DataSourceBadge } from "@/components/data-source-badge";
 import { AIRecommend } from "@/components/ai-recommend";
 import { AIChat } from "@/components/ai-chat";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -22,9 +21,8 @@ const CATEGORY_INFO: Record<string, { label: string; korean: string; description
 
 const POP_SOURCE_LABEL: Record<PopulationSource, string> = {
   mature_individuals: "실측 성숙 개체수 (큐레이션)",
-  iucn_population_size: "IUCN 공식 개체수",
-  fallback_criterion: "IUCN 평가기준(Criterion) 추정",
-  fallback_category: "IUCN 등급 중앙값 추정",
+  iucn_population_size: "IUCN 명시 개체수",
+  data_insufficient: "데이터 부족",
 };
 
 function formatMass(g: number): string {
@@ -83,7 +81,15 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap items-center gap-1.5">
               <CategoryBadge category={species.category} />
-              <DataSourceBadge dataSource={species.data_source} />
+              {tipping ? (
+                <span className="inline-flex items-center rounded-full bg-[#60C659]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#2f7d33]">
+                  자체 분석
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-bold text-zinc-500">
+                  IUCN 등급 정보만 제공
+                </span>
+              )}
             </div>
             <FavoriteButton id={species.id} name={displayName} />
           </div>
@@ -146,12 +152,13 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
         </div>
       </header>
 
-      {species.data_source === "phylacine_curated" && !tipping && (
-        <section className="mb-6 rounded-2xl border border-[#9fb013]/40 bg-[#CCE226]/10 p-4">
-          <p className="text-xs font-bold text-zinc-800">ℹ️ IUCN 등급 기준 분류</p>
+      {!tipping && (
+        <section className="mb-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+          <p className="text-xs font-bold text-zinc-800">ℹ️ IUCN 등급 정보만 제공</p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-600">
-            이 종은 IUCN Red List 등급으로 분류되었으며, LastWatch 자체 위험도 계산(EWS-PVA-IUCN 임계점 분석)은
-            아직 적용되지 않았습니다. 체중·분류 정보는 PHYLACINE 데이터베이스, 사진은 iNaturalist에서 가져왔습니다.
+            이 종은 <b>실측 개체수 데이터가 없어</b> LastWatch 자체 위험 점수를 산출하지 않습니다.
+            아래 IUCN 등급·분류 정보만 제공합니다. (v5: 위험 점수는 실측 개체수로만 계산하며,
+            IUCN 등급 기반 추정은 하지 않습니다.)
           </p>
         </section>
       )}
@@ -163,7 +170,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             <div>
               <dt className="text-zinc-400">개체수 (N₀)</dt>
               <dd className="font-medium text-zinc-900">
-                {pop.value.toLocaleString()}마리
+                {pop.value?.toLocaleString() ?? "—"}마리
                 <span className="ml-1.5 rounded bg-zinc-200 px-1.5 py-0.5 text-[11px] font-normal text-zinc-600">
                   {POP_SOURCE_LABEL[pop.source]}
                 </span>
@@ -189,8 +196,8 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             )}
           </dl>
           <p className="mt-3 text-xs leading-relaxed text-zinc-500">
-            위기점수 = 0.30·EWS + 0.45·PVA + 0.25·IUCN (3-레이어 합의). 개체수 N₀는 실측 →
-            IUCN 공식값 → 평가기준(Criterion) → 등급 순으로 추정하며, 위 배지가 이 종에 실제 적용된 출처입니다.
+            위기점수 = EWS · PVA · 유효개체군(Ne) 3-레이어 합의. 개체수 N₀는 <b>실측값(수기·IUCN 명시)만</b>
+            사용하며, IUCN 등급/Criterion 기반 추정은 하지 않습니다(v5). 위 배지가 이 종의 실제 개체수 출처입니다.
           </p>
         </section>
       )}
