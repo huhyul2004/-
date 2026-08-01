@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { RecoveryBadge } from "./recovery-badge";
 import { UrgencyBadge } from "./urgency-badge";
+import { DataSourceBadge } from "./data-source-badge";
 import type { SpeciesRow } from "@/lib/db";
 import type { SpeciesWithTipping } from "@/lib/queries";
 
@@ -43,14 +44,7 @@ export function SpeciesCard({ species }: { species: SpeciesRow | SpeciesWithTipp
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           <CategoryBadge category={species.category} />
           <RecoveryBadge species={species} />
-          {/* v5: 점수 산출 상태 배지 */}
-          {isExtinct ? (
-            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur">절멸</span>
-          ) : hasTipping ? (
-            <span className="rounded-full bg-[#60C659] px-2 py-0.5 text-[10px] font-bold text-white shadow">자체 분석</span>
-          ) : (
-            <span className="rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-bold text-zinc-600 backdrop-blur">IUCN 등급만</span>
-          )}
+          <DataSourceBadge dataSource={species.data_source} />
         </div>
 
         {/* Top-right urgency */}

@@ -34,7 +34,6 @@ for (const name of NAMES) {
   // v4 계산 (evaluateTippingPoint 는 이제 trendToLambdaV4 사용)
   const v4 = evaluateTippingPoint(row, { n_sim: 1500, T: 100 });
   const td = trendToLambdaV4(row.iucn_population_trend ?? null, row.population_trend, row.category);
-  if (!v4) { console.log(`\n▶ ${name}: v5 데이터 부족(null) — 실측 개체수 없음`); continue; }
 
   console.log("\n" + "=".repeat(66));
   console.log(`▶ ${name}  (${row.category}, ${row.class_name})`);

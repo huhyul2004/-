@@ -1,4 +1,4 @@
-import { getStats, countByCategory, getScoreCoverage } from "@/lib/queries";
+import { getStats, countByCategory } from "@/lib/queries";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +27,6 @@ const CAT_LABEL: Record<string, string> = {
 
 export default function StatsPage() {
   const stats = getStats();
-  const cov = getScoreCoverage();
   const totalSpecies = Object.values(countByCategory()).reduce((a, b) => a + b, 0);
   const maxCatN = Math.max(...stats.byCategory.map((c) => c.n));
   const maxClassN = stats.byClassRisk[0]?.n ?? 1;
@@ -45,31 +44,6 @@ export default function StatsPage() {
           기반으로 한 분석입니다.
         </p>
       </header>
-
-      {/* v5: 위험 점수 산출 상태 3갈래 */}
-      <section className="mb-10 rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="mb-1 text-sm font-bold text-zinc-900">위험 점수 산출 현황 (큐레이션 {cov.total.toLocaleString()}종)</h2>
-        <p className="mb-4 text-xs text-zinc-500">
-          LastWatch 위험 점수는 <b>실측 개체수</b>로만 계산합니다. IUCN 등급 기반 추정은 하지 않습니다.
-        </p>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#60C659]/40 bg-[#60C659]/10 p-4">
-            <p className="text-2xl font-black text-zinc-900">{cov.computed.toLocaleString()}<span className="ml-1 text-sm font-medium text-zinc-500">종</span></p>
-            <p className="mt-1 text-xs font-bold text-[#2f7d33]">실측 개체수 기반 계산</p>
-            <p className="mt-0.5 text-[11px] text-zinc-500">수기 실측 + IUCN 명시 개체수</p>
-          </div>
-          <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-4">
-            <p className="text-2xl font-black text-zinc-900">{cov.extinct.toLocaleString()}<span className="ml-1 text-sm font-medium text-zinc-500">종</span></p>
-            <p className="mt-1 text-xs font-bold text-zinc-700">절멸 확정 (EX/EW)</p>
-            <p className="mt-0.5 text-[11px] text-zinc-500">계산이 아닌 사실 표시 (점수 100)</p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-2xl font-black text-zinc-400">{cov.insufficient.toLocaleString()}<span className="ml-1 text-sm font-medium text-zinc-400">종</span></p>
-            <p className="mt-1 text-xs font-bold text-zinc-500">데이터 부족</p>
-            <p className="mt-0.5 text-[11px] text-zinc-400">개체수 없음 → IUCN 등급 정보만 제공</p>
-          </div>
-        </div>
-      </section>
 
       <section className="mb-10 rounded-2xl border border-zinc-200 bg-white p-6">
         <h2 className="mb-4 text-sm font-bold text-zinc-900">IUCN 등급별 분포</h2>

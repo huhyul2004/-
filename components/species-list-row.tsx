@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CategoryBadge } from "./category-badge";
 import { UrgencyBadge } from "./urgency-badge";
+import { DataSourceBadge } from "./data-source-badge";
 import type { SpeciesRow } from "@/lib/db";
 import type { SpeciesWithTipping } from "@/lib/queries";
 
@@ -30,14 +31,7 @@ export function SpeciesListRow({ species }: { species: SpeciesRow | SpeciesWithT
         </p>
       </div>
       <div className="flex items-center gap-2">
-        {/* v5: 점수 산출 상태 */}
-        {isExtinct ? (
-          <span className="hidden rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-white sm:inline-flex">절멸</span>
-        ) : hasTipping ? (
-          <span className="hidden rounded-full bg-[#60C659]/15 px-2 py-0.5 text-[10px] font-bold text-[#2f7d33] sm:inline-flex">자체 분석</span>
-        ) : (
-          <span className="hidden rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-500 sm:inline-flex">IUCN 등급만</span>
-        )}
+        <DataSourceBadge dataSource={species.data_source} className="hidden sm:inline-flex" />
         {hasTipping && <UrgencyBadge species={species as SpeciesWithTipping} compact />}
         <CategoryBadge category={species.category} />
       </div>
