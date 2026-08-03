@@ -1,0 +1,31 @@
+scientific_name,taxon,iucn_category,iucn_rli,consensus_score,lw5,intervention_tier,diff,pop_source,iucn_trend,ews,pva,iucn_layer,primary_driver
+Cervus nippon hortulorum,포유류,LC,0,100.0,5.0,EX,5.0,none/extinct,Increasing,100.0,100.0,100,이미 절멸 — 회고 단계
+Canis lupus coreanus,포유류,LC,0,100.0,5.0,EX,5.0,iucn_population_size,Stable,100.0,100.0,100,이미 절멸 — 회고 단계
+Diceros bicornis,포유류,CR,4,10.4,0.52,T0,-3.48,iucn_population_size,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값
+Lepidochelys kempii,파충류,CR,4,15.1,0.755,T0,-3.245,iucn_population_size,Unknown,66.07563687658173,6.356666666666666,10,EWS 신호
+Byblis gigantea,무척추/식물/기타,CR,4,17.3,0.865,T0,-3.135,iucn_population_size,Stable,50.0,0.30333333333333334,55,IUCN/유전 임계값
+Anas laysanensis,조류,CR,4,20.0,1.0,T1,-3.0,iucn_population_size,Increasing,11.920292202211755,0.0,80,IUCN/유전 임계값
+Nipponia nippon,조류,EN,3,0.4,0.02,T0,-2.98,mature_individuals,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값
+Zyzomys palatalis,포유류,CR,4,22.6,1.1300000000000001,T1,-2.87,iucn_population_size,Unknown,66.07563687658173,9.266666666666666,55,EWS 신호
+Marmota olympus,포유류,LC,0,50.4,2.52,T2,2.52,iucn_population_size,Decreasing,88.07970779778823,42.54666666666667,55,EWS 신호
+Litoria lorica,양서류,CR,4,30.2,1.51,T1,-2.49,iucn_population_size,Stable,50.0,1.28,80,IUCN/유전 임계값
+Dendrolagus pulcherrimus,포유류,CR,4,30.5,1.525,T1,-2.475,iucn_population_size,Stable,50.0,1.9399999999999997,80,IUCN/유전 임계값
+Procellaria westlandica,조류,EN,3,15.2,0.76,T0,-2.24,iucn_population_size,Unknown,66.07563687658173,6.766666666666667,10,EWS 신호
+Echium pininana,무척추/식물/기타,EN,3,15.3,0.765,T0,-2.235,iucn_population_size,Unknown,66.07563687658173,7.243333333333332,10,EWS 신호
+Scilla morrisii,무척추/식물/기타,EN,3,17.4,0.8699999999999999,T0,-2.13,iucn_population_size,Stable,50.0,0.5366666666666666,55,IUCN/유전 임계값
+Plecotus kolombatovici,포유류,LC,0,40.6,2.0300000000000002,T2,2.0300000000000002,iucn_population_size,Decreasing,88.07970779778823,41.949999999999996,10,EWS 신호
+Otocolobus manul,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,iucn_population_size,Decreasing,88.07970779778823,40.709999999999994,10,EWS 신호
+Isoodon obesulus,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,iucn_population_size,Decreasing,88.07970779778823,40.85333333333334,10,EWS 신호
+Gazella bennettii,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,iucn_population_size,Decreasing,88.07970779778823,40.779999999999994,10,EWS 신호
+Antechinomys laniger,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,iucn_population_size,Decreasing,88.07970779778823,40.71333333333334,10,EWS 신호
+Hippotragus equinus,포유류,LC,0,40.1,2.005,T2,2.005,iucn_population_size,Decreasing,88.07970779778823,40.519999999999996,10,EWS 신호
+Eudorcas thomsonii,포유류,LC,0,40.1,2.005,T2,2.005,iucn_population_size,Decreasing,88.07970779778823,40.51,10,EWS 신호
+Gyps indicus,조류,CR,4,40.2,2.0100000000000002,T2,-1.9899999999999998,iucn_population_size,Decreasing,88.07970779778823,40.83,10,EWS 신호
+Necrosyrtes monachus,조류,CR,4,40.3,2.0149999999999997,T2,-1.9850000000000003,iucn_population_size,Decreasing,88.07970779778823,41.15,10,EWS 신호
+Ailuropoda melanoleuca,포유류,VU,2,0.4,0.02,T0,-1.98,mature_individuals,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값
+Mecistops cataphractus,파충류,CR,4,40.5,2.025,T2,-1.975,iucn_population_size,Decreasing,88.07970779778823,41.599999999999994,10,EWS 신호
+Spheniscus demersus,조류,CR,4,40.6,2.0300000000000002,T2,-1.9699999999999998,iucn_population_size,Decreasing,88.07970779778823,41.76333333333333,10,EWS 신호
+Nepenthes chaniana,무척추/식물/기타,EN,3,22.1,1.105,T1,-1.895,iucn_population_size,Unknown,66.07563687658173,7.136666666666666,55,EWS 신호
+Goetzea elegans,무척추/식물/기타,EN,3,22.6,1.1300000000000001,T1,-1.8699999999999999,iucn_population_size,Unknown,66.07563687658173,9.036666666666667,55,EWS 신호
+Echium gentianoides,무척추/식물/기타,VU,2,3.6,0.18,T0,-1.82,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호
+Procellaria conspicillata,조류,VU,2,3.6,0.18,T0,-1.82,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호
