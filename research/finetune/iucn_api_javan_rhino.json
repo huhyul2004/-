@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "생성일": "2026-08-21",
+    "주의": "IUCN API 라이브 호출 아님. 프로젝트 루트 .env(IUCN_API_TOKEN) 파일이 없어 /assessment/18493900 재조회 불가.",
+    "출처": "로컬 캐시(data/iucn-population-fetch.json, data/iucn-generation-fetch.json — 2026-07-26 fetch_iucn_population.py 실행 결과) + data/species.db + data/curated/species.json(시드)",
+    "라이브_재조회_방법": ".env 에 IUCN_API_TOKEN=<키> 저장 후 `python3 fetch_iucn_population.py`(캐시 삭제 필요) 또는 GET https://api.iucnredlist.org/api/v4/assessment/18493900"
+  },
+  "종": {
+    "id": "rhinoceros-sondaicus",
+    "scientific_name": "Rhinoceros sondaicus",
+    "common_name_ko": "자바코뿔소"
+  },
+  "IUCN_식별자": {
+    "sis_id": 19495,
+    "assessment_id": 18493900,
+    "assessment_year": 2020,
+    "criteria": "D",
+    "category": "CR",
+    "url": "https://www.iucnredlist.org/species/19495/18493900",
+    "synced_at": "2026-07-26T04:18:49.514602+00:00"
+  },
+  "IUCN_API_캐시_응답": {
+    "supplementary_info.population_size": {
+      "parsed": 18,
+      "raw": "18",
+      "설명": "fetch_iucn_population.py:100 이 assessment 응답의 supplementary_info.population_size 만 저장. 전체 응답 원본은 미보존."
+    },
+    "generation_length": {
+      "parsed": 12.0,
+      "raw": "12"
+    },
+    "population_trend": "Stable",
+    "미보존_필드": "supplementary_info 의 나머지(subpopulation 여부, scope, 개체수 서술 등)와 assessment 전체 JSON 은 저장되지 않음 → 확인 안 됨"
+  },
+  "DB_현재값": {
+    "mature_individuals": 76,
+    "iucn_population_size": 18,
+    "population_trend_ko": "안정 (매우 적은 수)",
+    "summary_ko": "지구상에서 가장 희귀한 대형 포유류 중 하나. 단 한 곳의 서식지에 76마리만 남아있어 화산 폭발이나 질병 한 번이면 절멸 위험.",
+    "data_source": "lastwatch_original",
+    "created_at": "2026-05-02 09:29:31",
+    "updated_at": "2026-07-13 00:56:50"
+  },
+  "시드_원본(data/curated/species.json)": {
+    "mature_individuals": 76,
+    "summary_ko": "지구상에서 가장 희귀한 대형 포유류 중 하나. 단 한 곳의 서식지에 76마리만 남아있어 화산 폭발이나 질병 한 번이면 절멸 위험.",
+    "year_published": 2020,
+    "최초커밋": "d82b23f (2026-05-03)"
+  },
+  "엔진_사용값": {
+    "N0_선택": "mature_individuals=76 (lib/tipping-point.ts:772-777, mature_individuals 우선)",
+    "consensus_score": 78.0,
+    "tier": "T3",
+    "deadline_days": 5479,
+    "rationale": "현재 추정 개체수 76, 유효 개체군 Ne ≈ 11. 50년 멸종확률 36%. 위급 — 즉시 개입 (T3) 단계로 평가됨. 긴급 보호조치 권고."
+  },
+  "불일치": {
+    "summary_ko": "76마리",
+    "mature_individuals": 76,
+    "iucn_population_size": 18,
+    "판정": "summary_ko(76) == mature_individuals(76) ≠ iucn_population_size(18)"
+  }
+}

@@ -168,6 +168,7 @@ export interface SpeciesRow {
   iucn_population_trend?: string | null;
   iucn_population_size?: number | null;
   iucn_criteria?: string | null;
+  iucn_assessment_year?: number | null;
 }
 
 export interface ThreatRow {
