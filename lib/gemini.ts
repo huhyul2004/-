@@ -1,6 +1,7 @@
 // Gemini (Google AI Studio) REST 호출.
-// Anthropic 크레딧 소진으로 챗봇(/api/chat)만 이쪽으로 옮겼다.
-// recommend / retrospective / search 라우트는 아직 lib/anthropic.ts 를 쓴다.
+// Anthropic 크레딧 소진으로 LLM 을 쓰는 API 라우트 전부(chat / recommend / retrospective)를 이쪽으로 옮겼다.
+// search 라우트는 SQLite 쿼리만 하므로 LLM 을 쓰지 않는다.
+// scripts/ 의 일회성 배치(translate-ko, transliterate-* 등)는 아직 lib/anthropic.ts 를 쓴다.
 // SDK 를 따로 붙이지 않고 fetch 로 직접 친다 — 의존성 추가 없이 generateContent 하나만 쓰면 되기 때문.
 
 export class GeminiConfigError extends Error {
@@ -38,6 +39,8 @@ export async function generateText(opts: {
   system: string;
   messages: LlmMessage[];
   maxTokens: number;
+  /** true 면 응답을 JSON 으로 강제한다 (recommend / retrospective 처럼 스키마를 요구하는 라우트용). */
+  json?: boolean;
 }): Promise<string> {
   const key = getKey();
 
@@ -56,6 +59,8 @@ export async function generateText(opts: {
         // 출처·연도를 그대로 옮겨 적어야 하는 용도라 창의성은 낮게 둔다.
         temperature: 0.2,
         thinkingConfig: { thinkingLevel: "low" },
+        // 마크다운 ``` 펜스 없이 순수 JSON 만 받는다. 파싱은 호출부의 extractJson 이 한 번 더 방어.
+        ...(opts.json ? { responseMimeType: "application/json" } : {}),
       },
     }),
   });
