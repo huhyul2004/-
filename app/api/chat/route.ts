@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "@/lib/queries";
-import { getAnthropic, MODEL, friendlyError, AnthropicConfigError } from "@/lib/anthropic";
+import { generateText, friendlyError, GeminiConfigError } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -125,19 +125,16 @@ LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), 
 [종 컨텍스트]
 ${ctx}`;
 
-    const client = getAnthropic();
-    const resp = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1200,
+    const text = await generateText({
       system,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      maxTokens: 1200,
     });
 
-    const text = resp.content.filter((b) => b.type === "text").map((b: any) => b.text).join("");
     return NextResponse.json({ reply: text.trim() });
   } catch (e) {
     console.error("[chat]", e);
-    const status = e instanceof AnthropicConfigError ? 503 : 500;
+    const status = e instanceof GeminiConfigError ? 503 : 500;
     return NextResponse.json({ error: friendlyError(e) }, { status });
   }
 }
