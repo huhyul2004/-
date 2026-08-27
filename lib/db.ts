@@ -169,6 +169,10 @@ export interface SpeciesRow {
   iucn_population_size?: number | null;
   iucn_criteria?: string | null;
   iucn_assessment_year?: number | null;
+  /** 세대시간(년). 원값은 IUCN supplementary_info.generational_length 그대로 — 단위 미검증 항목이 있다(docs/data-quality-suspects-2026-08-27.md). */
+  iucn_generation_length?: number | null;
+  /** IUCN 동기화 시각(ISO). null 이면 Wikidata 출처라 IUCN 컬럼이 대부분 비어 있다. */
+  iucn_synced_at?: string | null;
 }
 
 export interface ThreatRow {
