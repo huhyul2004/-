@@ -16,6 +16,11 @@ import type { SpeciesRow } from "./db";
 // ===== 분류군별 기본 생활사 파라미터 (학명→기본값 추정용) =====
 // generation_time, growth_rate 추정 — 정확치 데이터 없을 때 사용
 // 출처: IUCN PVA workshop defaults + Cole 1954 + Stearns 1992
+//
+// ne_nc 출처 주의: 위 출처는 generation_time·r_max 를 가리킨다. ne_nc 는
+// 저장소에서 근거를 찾지 못했다 (2026-08-27 조사 — docs/patent/ne-nc-provenance-2026-08-27.md).
+// 분류군별 값과 Frankham 1995 (Genetical Research 66:95, 102종 192추정치) 대응은
+// 위 문서의 표에 정리했다 — 대조용 기록일 뿐 계산에는 쓰지 않는다. 값은 바꾸지 않았다.
 const LIFE_HISTORY: Record<
   string,
   { generation_time: number; r_max: number; ne_nc: number }
