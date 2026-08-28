@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "@/lib/queries";
 import { generateText, friendlyError, GeminiConfigError } from "@/lib/gemini";
+import { inferPopulationWithSource } from "@/lib/tipping-point";
+import { buildLiteratureLines } from "@/lib/literature";
 
 export const runtime = "nodejs";
 
@@ -78,6 +80,24 @@ export async function POST(req: Request) {
           `[LastWatch 자체 계산 (IUCN 공식 지표 아님), 출처: tipping_points.consensus_score]`
       );
 
+    // 문헌 대조 블록 — 개체수가 있는 종에만 붙인다.
+    // v5 와 같은 기준 개체수를 쓰기 위해 inferPopulationWithSource 를 그대로 재사용한다
+    // (tipping-point.ts 는 읽기만 하고 고치지 않는다).
+    const pop = inferPopulationWithSource(species);
+    if (pop.value != null) {
+      const neV5 =
+        (tipping?.payload as { layer_scores?: { iucn?: { Ne?: number } } } | undefined)
+          ?.layer_scores?.iucn?.Ne ?? null;
+      lines.push(
+        ...buildLiteratureLines({
+          N: pop.value,
+          populationSource: `species.${pop.source}`,
+          neV5,
+          className: species.class_name,
+        })
+      );
+    }
+
     if (isExtinct && species.extinction_year)
       lines.push(`절멸 시기: ${species.extinction_year}년  [출처: species.extinction_year]`);
     if (isExtinct && species.extinction_cause)
@@ -111,6 +131,7 @@ export async function POST(req: Request) {
 연도·출처는 같은 줄 대괄호에 적힌 것만 인용합니다. 다른 줄의 연도를 끌어다 붙이지 않습니다.
 LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), IUCN 공식 지표 아님"을 함께 밝힙니다.
 전체 개체수와 성숙 개체수는 서로 다른 값입니다. 섞어 쓰거나 한쪽을 다른 쪽으로 대신하지 않습니다.
+문헌 기준값을 인용할 때는 출처 논문과 그 값에 논쟁이 있는지를 함께 밝힙니다.
 
 [모르는 것]
 컨텍스트에 없는 항목은 "LastWatch 데이터에는 없습니다"라고 답합니다. 일반 상식이나 기억한 문헌으로 빈칸을 메우지 않습니다.
