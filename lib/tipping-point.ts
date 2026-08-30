@@ -19,41 +19,57 @@ import type { SpeciesRow } from "./db";
 //
 // ne_nc 출처 주의: 위 출처는 generation_time·r_max 를 가리킨다. ne_nc 는
 // 저장소에서 근거를 찾지 못했다 (2026-08-27 조사 — docs/patent/ne-nc-provenance-2026-08-27.md).
-// 분류군별 값과 Frankham 1995 (Genetical Research 66:95, 102종 192추정치) 대응은
-// 위 문서의 표에 정리했다 — 대조용 기록일 뿐 계산에는 쓰지 않는다. 값은 바꾸지 않았다.
+// 아래 각 줄에 Frankham 1995 (Genetical Research 66:95, 102종 192추정치) 대응값을
+// 병기한다 — 대조용 기록일 뿐 계산에는 쓰지 않는다. 값은 바꾸지 않았다.
 const LIFE_HISTORY: Record<
   string,
   { generation_time: number; r_max: number; ne_nc: number }
 > = {
   // 포유류 — 큰 개체 / 늦은 성숙
+  // ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
   포유류: { generation_time: 8, r_max: 0.05, ne_nc: 0.15 },
   // 조류 — 중간
+  // ne_nc 0.20 — Frankham 1995 조류 0.21
   조류: { generation_time: 5, r_max: 0.1, ne_nc: 0.2 },
   // 파충류 — 늦은 성숙, 긴 수명
+  // ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
   파충류: { generation_time: 10, r_max: 0.06, ne_nc: 0.15 },
   // 양서류 — 빠른 세대
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   양서류: { generation_time: 3, r_max: 0.25, ne_nc: 0.1 },
   // 어류 — 매우 빠른 번식 가능
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "어류 (조기어류)": { generation_time: 4, r_max: 0.3, ne_nc: 0.05 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "어류 (경골어류)": { generation_time: 4, r_max: 0.3, ne_nc: 0.05 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   "어류 (연골어류)": { generation_time: 12, r_max: 0.05, ne_nc: 0.1 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   어류: { generation_time: 5, r_max: 0.2, ne_nc: 0.05 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   곤충: { generation_time: 1, r_max: 0.5, ne_nc: 0.1 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   거미류: { generation_time: 2, r_max: 0.4, ne_nc: 0.1 },
+  // ne_nc 0.08 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   갑각류: { generation_time: 2, r_max: 0.35, ne_nc: 0.08 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   복족류: { generation_time: 2, r_max: 0.3, ne_nc: 0.1 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   이매패류: { generation_time: 5, r_max: 0.15, ne_nc: 0.05 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "산호류 (육방산호)": { generation_time: 10, r_max: 0.05, ne_nc: 0.05 },
-  // 식물
+  // 식물 — Frankham 1995 는 식물 대응값을 제시하지 않는다 (근거 미확인)
   "식물 (침엽수)": { generation_time: 30, r_max: 0.02, ne_nc: 0.2 },
   "식물 (소철)": { generation_time: 25, r_max: 0.03, ne_nc: 0.2 },
   "식물 (쌍떡잎)": { generation_time: 8, r_max: 0.1, ne_nc: 0.2 },
   양치식물: { generation_time: 5, r_max: 0.15, ne_nc: 0.15 },
   "양치식물 (속새류)": { generation_time: 5, r_max: 0.15, ne_nc: 0.15 },
   "이끼류 (우산이끼)": { generation_time: 2, r_max: 0.3, ne_nc: 0.15 },
+  // 지의류 — Frankham 1995 대응값 없음 (근거 미확인)
   지의류: { generation_time: 10, r_max: 0.03, ne_nc: 0.15 },
 };
 
+// ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
 const DEFAULT_LIFE: { generation_time: number; r_max: number; ne_nc: number } =
   { generation_time: 5, r_max: 0.1, ne_nc: 0.15 };
 
