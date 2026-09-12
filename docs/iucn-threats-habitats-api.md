@@ -121,3 +121,87 @@
 | 종별 위협 수집 | — | **전부** |
 
 `.env.local` 에는 `ANTHROPIC_API_KEY` · `GEMINI_API_KEY` 만 있고 `IUCN_TOKEN` 은 없다.
+
+---
+
+## 6. 토큰 확인 결과 (2026-09-12, `IUCN_API_TOKEN` 추가 후)
+
+`GET /api/v4/assessment/13090494` (Aaptosyax grypus) → **HTTP 200**. 최상위 키에
+`threats` · `habitats` · `conservation_actions` 가 모두 있다 (그 밖에 `stresses` · `use_and_trade` ·
+`systems` · `locations` 등 33개).
+
+| 필드 | 원소 키 | DB 저장 |
+|---|---|---|
+| `threats[]` | `code` · `description.en` · `severity` · `timing` · `scope` · `score` · `internationalTrade` · `ancestry` · `virus` · `ias` · `text` | `threat_code`=code, `threat_name`=description.en, `severity`=severity |
+| `habitats[]` | `code` · `description.en` · `suitability` · `season` · `majorImportance` | `habitat_name`=description.en, `suitability`=suitability |
+| `conservation_actions[]` | `code` · `description.en` · `note` | `action_code`=code, `action_name`=description.en |
+
+예 — threats 원소:
+
+```json
+{"scope": "Majority (50-90%)", "timing": "Ongoing", "score": "Medium Impact: 7",
+ "severity": "Rapid Declines", "description": {"en": "Intentional use: (subsistence/small scale) [harvest]"},
+ "code": "5_4_1", "internationalTrade": null, "ancestry": null, "virus": null, "ias": null, "text": null}
+```
+
+- 저장할 컬럼이 없어 **`timing`(Ongoing/Future/Past…) · `scope` · `score` · `season` · `majorImportance` 는 저장하지 않는다.**
+  → `threats` 에는 과거 위협(timing=Past)도 현재 위협과 구분 없이 들어간다.
+- 이름은 IUCN 영문 그대로다 (수기 시드는 한국어).
+- 같은 `code` 가 여러 번 나오면(계절별 서식지 등) 첫 항목만 남긴다.
+
+### 수집 방식
+
+`sync_iucn_all.py` — `fetch_species()` 의 `if detail:` 블록에서 `parse_details()` 로 읽고,
+UPDATE 성공 후 `insert_details()` 로 INSERT 한다(신규 동기화 경로).
+이미 동기화된 4,048종은 `--details` 백필로 받는다 — 저장된 `iucn_assessment_id` 로 상세만 받아
+같은 두 함수를 쓴다(종당 1콜, `species` 컬럼·점수 미변경, 행이 챗봇 링크와 같은 평가에서 나옴).
+
+- 수기 시드 22종은 `SEED_IDS` 로 고정해 건너뛴다. 세 테이블 중 한 곳만 비어 있어도(예: 여행비둘기 위협 0행)
+  IUCN 행을 넣지 않는다 — 한 종 안에서 출처가 섞이지 않게.
+- 기존 행은 지우거나 고치지 않는다. 행이 이미 있는 종은 건너뛴다(재실행 안전).
+- 진행 캐시 `data/iucn-details-fetch.json` (종별 aid·결과·항목 수). 재실행 시 캐시에 있는 종은 건너뛴다.
+
+### 수집 결과 (2026-09-12)
+
+대상 4,026종 (`iucn_assessment_id` 보유 4,048종 − 수기 시드 22종). 시험 10종 + 전체 4,016종,
+종당 약 1.0초(호출 간 0.5초 지연), 소요 1시간 9분 46초. 실패(404·네트워크·401/403) **0**, 429 백오프 로그 없음.
+
+| 결과 | 종 수 |
+|---|---:|
+| 행 삽입 | 3,903 |
+| 평가에 세 항목 모두 없음 (`empty`) | 123 |
+
+| 테이블 | 수집 전 행 / 종 | 수집 후 행 / 종 | IUCN 수집분 행 / 종 |
+|---|---:|---:|---:|
+| `threats` | 53 / 18 | 8,718 / 2,196 | 8,665 / 2,178 |
+| `habitats` | 40 / 22 | 12,917 / 3,905 | 12,877 / 3,883 |
+| `conservation_actions` | 51 / 18 | 5,191 / 1,756 | 5,140 / 1,738 |
+
+IUCN 수집분 4,026종 중 세 항목 모두 채워진 종 1,490 · 하나 이상 3,903 · 없음 123.
+점수 계산 종(`tipping_points` 941종) 중 위협 보유 18 → **444종**.
+
+검증
+
+- 수기 시드 22종: 세 테이블 행 144줄을 수집 전과 비교 — 동일 (MD5 `ba4a6f002279ee577451b4a1eb0234fe` 전후 일치).
+  시드 종에 코드 달린(IUCN) 행 0.
+- `species` · `tipping_points` 테이블 내용 해시 백업과 일치 — 점수·등급 변동 없음.
+- `pragma integrity_check` ok.
+- 백업 `data/species.db.backup_before_iucn_details_20260912-164238`
+  (MD5 `4c711dbf87cb70ae4243b4b296023643`). 수집 후 `data/species.db` (WAL 체크포인트 후)
+  MD5 `06edc39a1a31f04e4a47fa5c3a69d2aa`.
+- 챗봇 POST (HTTP 200): 메콩자이언트연어잉어(시험 10종)·셰셀찌르레기(전체 수집분, 점수 계산 종)에
+  "이 종의 주요 위협은 뭐야?" — 수집된 위협을 `[출처: threats]` 로 인용, 목록 밖 위협 서술 없음.
+
+### 남은 문제 — 하위 항목 이름만으로는 뜻이 안 서는 위협
+
+`description.en` 은 **맨 아래 항목 이름만** 준다. 상위 분류 없이 읽으면 무엇인지 알 수 없는 이름이 있다.
+
+| threat_name | 행 | 종 | 코드 | 상위 분류 |
+|---|---:|---:|---|---|
+| Named species | 418 | 374 | 8_x_2 | 8_1 외래 침입종 / 8_2 문제성 토착종 … |
+| Scale Unknown/Unrecorded | 344 | 266 | 2_x_4 | 2_1 작물 / 2_2 조림 / 2_3 가축 … |
+| Unspecified species | 243 | 214 | 8_x_1 | 위와 같음 |
+
+합계 1,005행 / 717종 (IUCN 위협 8,665행 중). 셰셀찌르레기 챗봇 답변에서 8_1_2 와 8_2_2 가
+둘 다 "Named species" 라 한 항목으로 합쳐졌다. `threat_code` 는 저장돼 있으므로
+`/api/v4/threats/` 코드 목록(1콜)으로 상위 이름을 붙이면 되돌릴 수 있다 — 저장 형식을 바꾸는 결정이라 적용하지 않았다.

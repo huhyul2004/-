@@ -15,6 +15,11 @@ sync_iucn_test.py 파이프라인을 확장:
 실행:
     python3 sync_iucn_all.py            # 남은 종 전체
     python3 sync_iucn_all.py --limit 50 # 앞 50종만 (부분 테스트)
+    python3 sync_iucn_all.py --details  # 동기화된 종의 위협·서식지·보전활동 백필 (수기 시드 22종 제외)
+
+위협·서식지·보전활동: assessment 상세의 threats/habitats/conservation_actions 를
+threats/habitats/conservation_actions 테이블에 INSERT. 기존 행은 지우거나 고치지 않고,
+세 테이블 중 어디든 행이 있는 종(수기 시드)은 건너뛴다. timing·scope 는 저장할 컬럼이 없다.
 """
 import argparse
 import json
@@ -44,10 +49,26 @@ SUMMARY_EVERY = 100        # 요약 로그 간격 (처리 종 기준)
 
 # 실패 사유 카테고리 (요약에 항상 표시)
 FAIL_KINDS = ["not_found", "multiple_matches", "synonym_needed", "network_error",
-              "not_in_db", "db_integrity"]
+              "auth_error", "not_in_db", "db_integrity"]
 
 load_dotenv(os.path.join(ROOT, ".env"))
+load_dotenv(os.path.join(ROOT, ".env.local"))
 TOKEN = os.getenv("IUCN_API_TOKEN")
+
+# 위협·서식지·보전활동 — assessment 상세 응답의 threats/habitats/conservation_actions
+DETAIL_CACHE = os.path.join(ROOT, "data", "iucn-details-fetch.json")
+# 수기 시드 22종 = IUCN 수집 전(2026-09-12) 세 테이블 중 어디든 행이 있던 종. 수집 후에는 IUCN 종도
+# 행을 가지므로 "행이 있는 종" 으로 다시 계산하면 안 된다 — 목록을 고정한다.
+# 이 종들에는 IUCN 행을 한 줄도 넣지 않는다 — 한 종 안에서 출처가 섞이지 않게.
+SEED_IDS = frozenset({
+    "ailuropoda-melanoleuca", "anguilla-japonica", "canis-lupus-coreanus",
+    "cervus-nippon-hortulorum", "ciconia-boyciana", "ectopistes-migratorius",
+    "gorilla-beringei-graueri", "grus-japonensis", "lipotes-vexillifer", "lutra-lutra",
+    "naemorhedus-caudatus", "nipponia-nippon", "panthera-tigris", "panthera-tigris-altaica",
+    "phocoena-sinus", "rana-coreana", "raphus-cucullatus", "rhincodon-typus",
+    "rhinoceros-sondaicus", "thylacinus-cynocephalus", "ursus-maritimus",
+    "ursus-thibetanus-ussuricus",
+})
 HEADERS = {"Authorization": f"Bearer {TOKEN}", "accept": "application/json"}
 
 
@@ -79,6 +100,8 @@ def api_get(path: str, params: dict | None = None):
             continue
         if r.status_code == 404:
             return None, "not_found"
+        if r.status_code in (401, 403):
+            return None, "auth_error"
         if not r.ok:
             return None, "network_error"
         return r.json(), None
@@ -107,7 +130,7 @@ def fetch_species(sci: str):
 
     data, err = api_get("taxa/scientific_name",
                         {"genus_name": genus, "species_name": species})
-    if err == "network_error":
+    if err in ("network_error", "auth_error"):
         return None, "network_error", None
     if err == "not_found" or not data:
         return None, "not_found", None
@@ -125,7 +148,7 @@ def fetch_species(sci: str):
 
     # 상세 평가 (population_trend 등)
     detail, err2 = api_get(f"assessment/{aid}")
-    if err2 == "network_error":
+    if err2 in ("network_error", "auth_error"):
         return None, "network_error", None
     # 상세가 404여도 taxa 응답의 요약값으로 진행 (detail=None 허용)
 
@@ -134,7 +157,9 @@ def fetch_species(sci: str):
     url = latest.get("url")
     possibly_extinct = latest.get("possibly_extinct")
     pop_trend = None
+    details = None
     if detail:
+        details = parse_details(detail)
         pt = detail.get("population_trend") or {}
         pop_trend = (pt.get("description") or {}).get("en")
         rc = detail.get("red_list_category") or {}
@@ -154,8 +179,78 @@ def fetch_species(sci: str):
         "iucn_possibly_extinct": 1 if possibly_extinct else 0,
         "iucn_url": url,
         "iucn_synced_at": now_iso(),
+        "_details": details,  # UPDATE_SQL 은 이 키를 쓰지 않는다 → insert_details() 로 따로 저장
     }
     return rec, None, note
+
+
+def _en(item: dict):
+    return ((item.get("description") or {}).get("en") or "").strip() or None
+
+
+def parse_details(detail: dict) -> dict:
+    """assessment 상세 응답 → {threats, habitats, actions}. 이름(description.en)이 없는 항목은 버리고,
+    같은 code 가 여러 번 나오면(계절별 서식지·침입종별 위협 등) 첫 항목만 남긴다."""
+    def dedupe(items):
+        seen, out = set(), []
+        for it in items or []:
+            if not _en(it):
+                continue
+            key = it.get("code") or _en(it)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(it)
+        return out
+
+    return {
+        "threats": [{"code": t.get("code"), "name": _en(t), "severity": t.get("severity"),
+                     "timing": t.get("timing")}
+                    for t in dedupe(detail.get("threats"))],
+        "habitats": [{"code": h.get("code"), "name": _en(h), "suitability": h.get("suitability")}
+                     for h in dedupe(detail.get("habitats"))],
+        "actions": [{"code": a.get("code"), "name": _en(a)}
+                    for a in dedupe(detail.get("conservation_actions"))],
+    }
+
+
+def load_seed_ids(cur) -> frozenset:
+    """고정 시드 목록이 DB 와 맞는지 확인 — 22종 모두 여전히 행이 있어야 한다."""
+    have = {r[0] for r in cur.execute(
+        """SELECT species_id FROM threats UNION SELECT species_id FROM habitats
+           UNION SELECT species_id FROM conservation_actions""")}
+    missing = SEED_IDS - have
+    if missing:
+        raise SystemExit(f"✗ 수기 시드 중 행이 없는 종 {sorted(missing)} — 수집 중단")
+    return SEED_IDS
+
+
+def insert_details(cur, species_id: str, details: dict | None, seed_ids: set) -> str:
+    """위협·서식지·보전활동 행 INSERT. 기존 행은 절대 지우거나 고치지 않는다.
+    returns 'inserted' | 'empty' | 'seed_skipped' | 'already_has_rows' | 'no_detail'."""
+    if details is None:
+        return "no_detail"
+    if species_id in seed_ids:
+        return "seed_skipped"
+    has_rows = cur.execute(
+        """SELECT EXISTS(SELECT 1 FROM threats WHERE species_id=?)
+                OR EXISTS(SELECT 1 FROM habitats WHERE species_id=?)
+                OR EXISTS(SELECT 1 FROM conservation_actions WHERE species_id=?)""",
+        (species_id, species_id, species_id)).fetchone()[0]
+    if has_rows:
+        return "already_has_rows"
+    if not (details["threats"] or details["habitats"] or details["actions"]):
+        return "empty"
+    cur.executemany(
+        "INSERT INTO threats (species_id, threat_code, threat_name, severity) VALUES (?,?,?,?)",
+        [(species_id, t["code"], t["name"], t["severity"]) for t in details["threats"]])
+    cur.executemany(
+        "INSERT INTO habitats (species_id, habitat_name, suitability) VALUES (?,?,?)",
+        [(species_id, h["name"], h["suitability"]) for h in details["habitats"]])
+    cur.executemany(
+        "INSERT INTO conservation_actions (species_id, action_code, action_name) VALUES (?,?,?)",
+        [(species_id, a["code"], a["name"]) for a in details["actions"]])
+    return "inserted"
 
 
 UPDATE_SQL = """
@@ -199,17 +294,116 @@ def write_failures(failures: dict) -> None:
         )
 
 
+def backfill_details(limit: int | None) -> int:
+    """이미 동기화된 종(iucn_assessment_id 보유)의 위협·서식지·보전활동 백필.
+
+    fetch_species() 는 taxa 재조회 후 최신 평가를 받아 species 의 iucn_* 컬럼까지 갱신하므로,
+    백필에서는 저장된 iucn_assessment_id 로 상세만 받아 같은 parse_details()/insert_details() 를 쓴다.
+    → 행이 챗봇 링크(iucn_url) 와 같은 평가에서 나오고, species 컬럼·점수는 바뀌지 않으며, 종당 1콜.
+    재개: DETAIL_CACHE 에 있는 종은 건너뜀. 캐시는 DB 커밋과 같은 시점에만 기록한다.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    seed_ids = load_seed_ids(cur)
+
+    cache = {}
+    if os.path.exists(DETAIL_CACHE):
+        with open(DETAIL_CACHE, encoding="utf-8") as f:
+            cache = json.load(f).get("species", {})
+
+    rows = [r for r in cur.execute(
+        """SELECT id, scientific_name, iucn_assessment_id FROM species
+           WHERE is_curated=1 AND iucn_assessment_id IS NOT NULL
+           ORDER BY scientific_name""")
+            if r[0] not in seed_ids and r[0] not in cache]
+    if limit:
+        rows = rows[:limit]
+    print(f"위협·서식지·보전활동 백필 — 수기 시드 {len(seed_ids)}종 제외 · "
+          f"이미 완료 {len(cache)}종 · 이번 처리 {len(rows)}종")
+    if not rows:
+        return 0
+
+    def flush():
+        conn.commit()
+        with open(DETAIL_CACHE, "w", encoding="utf-8") as f:
+            json.dump({"updated": now_iso(), "count": len(cache), "species": cache},
+                      f, ensure_ascii=False, indent=1)
+
+    interrupted = {"flag": False}
+
+    def handle_sigint(signum, frame):
+        interrupted["flag"] = True
+        print("\n⚠ 중단 요청 감지 — 현재 배치 커밋 후 안전 종료합니다…")
+
+    signal.signal(signal.SIGINT, handle_sigint)
+
+    outcome = Counter()
+    pending = 0
+    t0 = time.time()
+    bar = tqdm(rows, unit="종", ncols=100)
+    for i, (sid, sci, aid) in enumerate(bar, 1):
+        detail, err = api_get(f"assessment/{aid}")
+        time.sleep(PER_CALL_SLEEP)
+        if err == "auth_error":
+            tqdm.write(f"✗ 401/403 at {sci} (assessment {aid}) — 중단")
+            flush()
+            return 2
+        if err:
+            outcome[err] += 1  # 캐시에 넣지 않음 → 재실행 시 재시도
+        else:
+            details = parse_details(detail)
+            res = insert_details(cur, sid, details, seed_ids)
+            outcome[res] += 1
+            cache[sid] = {"aid": aid, "result": res,
+                          "n_threats": len(details["threats"]),
+                          "n_habitats": len(details["habitats"]),
+                          "n_actions": len(details["actions"]),
+                          "at": now_iso()}
+            pending += 1
+        bar.set_postfix(삽입=outcome["inserted"], 빈평가=outcome["empty"],
+                        실패=outcome["not_found"] + outcome["network_error"])
+        if pending >= COMMIT_EVERY:
+            flush()
+            pending = 0
+        if i % SUMMARY_EVERY == 0:
+            el = time.time() - t0
+            rate = i / el if el > 0 else 0
+            eta = (len(rows) - i) / rate if rate > 0 else 0
+            tqdm.write(f"  [{i}/{len(rows)}] {dict(outcome)} | {rate:.2f}종/s | 남은시간 ~{hms(eta)}")
+        if interrupted["flag"]:
+            break
+    flush()
+    conn.close()
+
+    print("\n" + "=" * 60)
+    print("위협·서식지·보전활동 백필 요약")
+    print("=" * 60)
+    for k, v in outcome.most_common():
+        print(f"  {k:18s}: {v}")
+    print(f"  소요 시간 : {hms(time.time() - t0)}")
+    print(f"  캐시     : {DETAIL_CACHE} (누적 {len(cache)}종)")
+    if interrupted["flag"]:
+        print("\n  ↻ 재실행하면 남은 종부터 이어서 처리됩니다.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=None, help="처리할 최대 종 수 (부분 실행)")
+    ap.add_argument("--details", action="store_true",
+                    help="이미 동기화된 종의 위협·서식지·보전활동만 백필 (species 컬럼 미변경)")
     args = ap.parse_args()
 
     if not TOKEN:
-        print("✗ IUCN_API_TOKEN 없음 (.env 확인)")
+        print("✗ IUCN_API_TOKEN 없음 (.env / .env.local 확인)")
         return 1
+
+    if args.details:
+        return backfill_details(args.limit)
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
+    seed_ids = load_seed_ids(cur)
 
     # 재개: 아직 동기화 안 된 큐레이션 종만
     cur.execute(
@@ -282,6 +476,7 @@ def main() -> int:
                 pending_commit += 1
                 if note:
                     subspecies_notes += 1
+                insert_details(cur, sid, rec["_details"], seed_ids)
                 # 성공했다가 이전 실패기록이 있으면 제거
                 failures.pop(sci, None)
 
