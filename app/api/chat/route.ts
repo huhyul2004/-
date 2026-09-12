@@ -4,6 +4,7 @@ import { generateText, friendlyError, GeminiConfigError } from "@/lib/gemini";
 import { inferPopulationWithSource } from "@/lib/tipping-point";
 import { buildLiteratureLines } from "@/lib/literature";
 import { buildPeerComparisonLines } from "@/lib/peer-comparison";
+import { floorBreakdown, floorStatusLine } from "@/lib/floor-transparency";
 
 export const runtime = "nodejs";
 
@@ -81,6 +82,12 @@ export async function POST(req: Request) {
           `[LastWatch 자체 계산 (IUCN 공식 지표 아님), 출처: tipping_points.consensus_score]`
       );
 
+    // 개체수 하한 적용 여부 — 표시 전용. 하한에 묶인 종은 하한 적용 전 점수도 함께 보여준다.
+    if (tipping) {
+      const fb = floorBreakdown(species, tipping.payload);
+      if (fb) lines.push(floorStatusLine(fb));
+    }
+
     // 문헌 대조 블록 — 개체수가 있는 종에만 붙인다.
     // v5 와 같은 기준 개체수를 쓰기 위해 inferPopulationWithSource 를 그대로 재사용한다
     // (tipping-point.ts 는 읽기만 하고 고치지 않는다).
@@ -137,6 +144,7 @@ LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), 
 전체 개체수와 성숙 개체수는 서로 다른 값입니다. 섞어 쓰거나 한쪽을 다른 쪽으로 대신하지 않습니다.
 문헌 기준값을 인용할 때는 출처 논문과 그 값에 논쟁이 있는지를 함께 밝힙니다.
 비교 수치를 말할 때는 무엇과 비교한 것인지(등급·분류군·종 수)를 함께 밝힙니다.
+개체수 하한이 적용된 점수를 말할 때는 하한 적용 전 값도 함께 밝힙니다.
 
 [모르는 것]
 컨텍스트에 없는 항목은 "LastWatch 데이터에는 없습니다"라고 답합니다. 일반 상식이나 기억한 문헌으로 빈칸을 메우지 않습니다.

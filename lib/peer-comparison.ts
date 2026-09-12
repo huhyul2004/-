@@ -7,7 +7,8 @@
 // 대상 = v5 점수가 있는 종. EX/EW 는 점수가 100 으로 고정된 사실값이라 비교에서 뺀다.
 //
 // 점수 계산에는 관여하지 않는다. tipping_points 를 읽기만 한다.
-import { getDb } from "./db";
+import { getDb, type SpeciesRow } from "./db";
+import { floorBreakdown, FLOOR_TAG } from "./floor-transparency";
 
 /** 그룹이 이 크기보다 작으면 비교 블록을 넣지 않는다. research/analyze_peer_groups.py 와 같아야 한다. */
 export const MIN_GROUP_SIZE = 3;
@@ -49,7 +50,18 @@ interface Peer {
   /** v5 기준 개체수 — inferPopulationWithSource 와 같은 우선순위 */
   n0: number | null;
   n0Src: "mature_individuals" | "iucn_population_size" | null;
+  /** 개체수 하한을 뺐다면의 점수 (lib/floor-transparency.ts). 재구성할 수 없으면 null */
+  noFloor: number | null;
 }
+
+/** 하한 적용 전 점수를 재구성하는 데 필요한 원 컬럼 */
+type PeerRaw = {
+  payload_json: string;
+  category: SpeciesRow["category"];
+  population_trend: string | null;
+  mature_individuals: number | null;
+  iucn_population_size: number | null;
+};
 
 function median(xs: number[]): number {
   const s = [...xs].sort((a, b) => a - b);
@@ -87,7 +99,8 @@ export function buildPeerComparisonLines(speciesId: string): string[] {
     db
       .prepare(
         `SELECT s.id, COALESCE(s.common_name_ko, s.scientific_name) AS name,
-                t.consensus_score AS score,
+                t.consensus_score AS score, t.payload_json,
+                s.category, s.population_trend, s.mature_individuals, s.iucn_population_size,
                 CASE WHEN s.mature_individuals > 0 THEN s.mature_individuals
                      WHEN s.iucn_population_size > 0 THEN s.iucn_population_size END AS n0,
                 CASE WHEN s.mature_individuals > 0 THEN 'mature_individuals'
@@ -95,8 +108,8 @@ export function buildPeerComparisonLines(speciesId: string): string[] {
          FROM tipping_points t JOIN species s ON s.id = t.species_id
          WHERE s.category = ? AND s.iucn_class = ?`
       )
-      .all(me.category, cls) as Peer[]
-  );
+      .all(me.category, cls) as (Omit<Peer, "noFloor"> & PeerRaw)[]
+  ).map((p) => ({ ...p, noFloor: floorBreakdown(p, JSON.parse(p.payload_json))?.withoutFloor ?? null }));
   const self = peers.find((p) => p.id === speciesId);
   if (!self || peers.length < MIN_GROUP_SIZE) return [];
 
@@ -107,9 +120,23 @@ export function buildPeerComparisonLines(speciesId: string): string[] {
 
   out.push(`[같은 등급·분류군 비교 — ${group}, LastWatch v5 점수가 계산된 ${n}종 기준. 점수는 LastWatch 자체 계산이며 IUCN 공식 지표가 아님]`);
 
-  out.push(
-    `위험도 점수 순위 (높은 순): ${rankText(rankOf(self.score, scores, true), n)}, 이 종 ${fmt(self.score)}점  ${TAG}`
-  );
+  // 개체수 하한 적용 전 순위도 함께 — 하한에 묶인 종이 많은 그룹은 순위가 크게 달라진다.
+  const postRank = rankOf(self.score, scores, true);
+  const preScores = peers.map((p) => p.noFloor);
+  const canPre = self.noFloor != null && preScores.every((v) => v != null);
+  const preRank = canPre ? rankOf(self.noFloor as number, preScores as number[], true) : null;
+  if (preRank && (preRank.rank !== postRank.rank || preRank.ties !== postRank.ties)) {
+    out.push(
+      `위험도 점수 순위 (높은 순): ${rankText(postRank, n)}(개체수 하한 적용 후) / ` +
+        `하한 적용 전 기준 ${rankText(preRank, n)}, 이 종 ${fmt(self.score)}점 (하한 적용 전 ${fmt(self.noFloor as number)}점)  ` +
+        `${TAG} ${FLOOR_TAG}`
+    );
+  } else {
+    out.push(
+      `위험도 점수 순위 (높은 순): ${rankText(postRank, n)}, 이 종 ${fmt(self.score)}점` +
+        `${preRank ? " — 개체수 하한 적용 전후 순위 같음" : ""}  ${TAG}${preRank ? ` ${FLOOR_TAG}` : ""}`
+    );
+  }
   out.push(`그룹 점수 중앙값: ${fmt(median(scores))}점 (이 종 ${fmt(self.score)}점)  ${TAG}`);
 
   // 상위 3위 안에 드는 종 — 3위 점수와 동점인 종까지 전부 포함한다 (임의로 잘라내지 않는다).
