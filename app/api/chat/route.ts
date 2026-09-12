@@ -50,6 +50,17 @@ export async function POST(req: Request) {
     );
     if (species.iucn_assessment_year)
       lines.push(`IUCN 평가 연도: ${species.iucn_assessment_year}년  [출처: species.iucn_assessment_year]`);
+    // IUCN Red List 평가 원문 링크 — 저장된 iucn_url 을 쓰고, 없으면 같은 형식을 sis_id·assessment_id 로 만든다.
+    const iucnLink =
+      species.iucn_url ||
+      (species.iucn_sis_id && species.iucn_assessment_id
+        ? `https://www.iucnredlist.org/species/${species.iucn_sis_id}/${species.iucn_assessment_id}`
+        : null);
+    if (iucnLink)
+      lines.push(
+        `IUCN Red List 평가 원문: ${iucnLink}  ` +
+          `[출처: ${species.iucn_url ? "species.iucn_url" : "species.iucn_sis_id·iucn_assessment_id"}]`
+      );
     if (species.class_name) lines.push(`분류: ${species.class_name}  [출처: species.class_name]`);
     if (species.region) lines.push(`지역: ${species.region}  [출처: species.region]`);
 
@@ -121,6 +132,19 @@ export async function POST(req: Request) {
     if (habitats.length)
       lines.push(`서식지: ${habitats.map((h) => h.habitat_name).join(", ")}  [출처: habitats]`);
 
+    // 위협·보전 활동·서식지가 비어 있으면 비어 있다고 적는다 — 모델이 등급·분류군 일반론으로 채우지 않게.
+    const missing = [
+      threats.length ? null : "주요 위협",
+      actions.length ? null : "보전 활동",
+      habitats.length ? null : "서식지",
+    ].filter(Boolean);
+    if (missing.length)
+      lines.push(
+        `${missing.join("·")}: LastWatch 데이터에 없음` +
+          (iucnLink ? ` — IUCN Red List 평가 원문(${iucnLink})에서 확인 가능` : "") +
+          `  [출처: threats·conservation_actions·habitats 테이블에 이 종의 행 없음]`
+      );
+
     const ctx = lines.join("\n");
 
     const system = `당신은 LastWatch 데이터베이스를 근거로 답하는 보전생물학 조사 보조입니다.
@@ -148,6 +172,7 @@ LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), 
 
 [모르는 것]
 컨텍스트에 없는 항목은 "LastWatch 데이터에는 없습니다"라고 답합니다. 일반 상식이나 기억한 문헌으로 빈칸을 메우지 않습니다.
+데이터에 없는 항목을 답할 때는 IUCN Red List 링크가 있으면 함께 안내합니다. 다만 등급이나 분류군의 일반적 경향으로 그 종의 위협을 추측해 서술하지 않습니다.
 데이터 밖의 내용을 참고로 덧붙일 때는 문장 앞에 "LastWatch 데이터 밖·미검증"이라고 먼저 표시합니다.
 추정·해석·추론은 "추정:"으로 시작해 사실과 분리하고, 어느 데이터에서 어떻게 추정했는지 한 줄로 밝힙니다.
 데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다.

@@ -173,6 +173,10 @@ export interface SpeciesRow {
   iucn_generation_length?: number | null;
   /** IUCN 동기화 시각(ISO). null 이면 Wikidata 출처라 IUCN 컬럼이 대부분 비어 있다. */
   iucn_synced_at?: string | null;
+  /** IUCN Red List 평가 페이지 URL (sync_iucn_all.py 가 assessment 응답의 url 을 저장) */
+  iucn_url?: string | null;
+  iucn_sis_id?: number | null;
+  iucn_assessment_id?: number | null;
 }
 
 export interface ThreatRow {
