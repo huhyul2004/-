@@ -164,11 +164,20 @@ export function buildPeerComparisonLines(speciesId: string): string[] {
     // 컬럼 이름과 내용이 반대다 (app/api/chat/route.ts 주석 참조) — 이름만 쓰면 모델이 거꾸로 읽으므로 뜻을 붙인다.
     //   mature_individuals   → 실제로는 '전체 개체수'
     //   iucn_population_size → 실제로는 '성숙 개체수'
+    const basis =
+      `개체수 비교 기준: v5 기준 개체수 N0 (전체 개체수 species.mature_individuals 가 있으면 우선, ` +
+      `없으면 성숙 개체수 species.iucn_population_size). `;
+    const mixed = bySrc.iucn_population_size > 0 && bySrc.mature_individuals > 0;
     out.push(
-      `개체수 비교 기준: v5 기준 개체수 N0 (전체 개체수 species.mature_individuals 가 있으면 우선, 없으면 성숙 개체수 species.iucn_population_size). ` +
-        `이 그룹은 성숙 개체수(species.iucn_population_size) ${bySrc.iucn_population_size}종·` +
-        `전체 개체수(species.mature_individuals) ${bySrc.mature_individuals}종이 섞여 있어, ` +
-        `서로 다른 두 기준이 한 순위에 함께 들어 있음  ${TAG}`
+      basis +
+        (mixed
+          ? `이 그룹은 성숙 개체수(species.iucn_population_size) ${bySrc.iucn_population_size}종·` +
+            `전체 개체수(species.mature_individuals) ${bySrc.mature_individuals}종이 섞여 있어, ` +
+            `서로 다른 두 기준이 한 순위에 함께 들어 있음`
+          : bySrc.iucn_population_size > 0
+            ? `이 그룹은 ${withN.length}종 전부 성숙 개체수(species.iucn_population_size) 한 기준으로 비교됨`
+            : `이 그룹은 ${withN.length}종 전부 전체 개체수(species.mature_individuals) 한 기준으로 비교됨`) +
+        `  ${TAG}`
     );
   }
   return out;
