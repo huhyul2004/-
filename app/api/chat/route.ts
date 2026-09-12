@@ -3,6 +3,7 @@ import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } 
 import { generateText, friendlyError, GeminiConfigError } from "@/lib/gemini";
 import { inferPopulationWithSource } from "@/lib/tipping-point";
 import { buildLiteratureLines } from "@/lib/literature";
+import { buildPeerComparisonLines } from "@/lib/peer-comparison";
 
 export const runtime = "nodejs";
 
@@ -98,6 +99,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // 같은 등급·분류군 비교 블록 — 비교 상대가 MIN_GROUP_SIZE 미만이면 빈 배열이라 아무것도 붙지 않는다.
+    lines.push(...buildPeerComparisonLines(speciesId));
+
     if (isExtinct && species.extinction_year)
       lines.push(`절멸 시기: ${species.extinction_year}년  [출처: species.extinction_year]`);
     if (isExtinct && species.extinction_cause)
@@ -132,6 +136,7 @@ export async function POST(req: Request) {
 LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), IUCN 공식 지표 아님"을 함께 밝힙니다.
 전체 개체수와 성숙 개체수는 서로 다른 값입니다. 섞어 쓰거나 한쪽을 다른 쪽으로 대신하지 않습니다.
 문헌 기준값을 인용할 때는 출처 논문과 그 값에 논쟁이 있는지를 함께 밝힙니다.
+비교 수치를 말할 때는 무엇과 비교한 것인지(등급·분류군·종 수)를 함께 밝힙니다.
 
 [모르는 것]
 컨텍스트에 없는 항목은 "LastWatch 데이터에는 없습니다"라고 답합니다. 일반 상식이나 기억한 문헌으로 빈칸을 메우지 않습니다.
