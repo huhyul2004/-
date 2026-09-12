@@ -11,6 +11,11 @@ import { evaluateTippingPoint } from "../lib/tipping-point";
 import type { SpeciesRow } from "../lib/db";
 
 // research/audit_class_name.py 의 MAP 과 동일해야 한다.
+// DB_SEED=1 이면 DB 를 채운 compute-tipping-points 와 같은 기본 시드(종 ID 해시)를 쓴다.
+// 미지정 시 seed 42 (2026-08-27 문서의 119종은 이 값이다).
+const SEED_OPTS: { seed?: number } = process.env.DB_SEED ? {} : { seed: 42 };
+const OUT = process.env.DB_SEED ? "/tmp/class_name_fix_sim_dbseed.json" : "/tmp/class_name_fix_sim.json";
+
 const MAP: Record<string, string> = {
   MAMMALIA: "포유류", AVES: "조류", REPTILIA: "파충류", AMPHIBIA: "양서류",
   ACTINOPTERYGII: "어류 (조기어류)", CHONDRICHTHYES: "어류 (연골어류)",
@@ -51,13 +56,13 @@ const before = new Map<string, { score: number; tier: string; ne: number }>();
 const after = new Map<string, { score: number; tier: string; ne: number }>();
 
 for (const r of rows) {
-  const b = evaluateTippingPoint(r, { seed: 42 });
+  const b = evaluateTippingPoint(r, SEED_OPTS);
   if (b) before.set(r.id, { score: b.consensus_score, tier: b.intervention_tier, ne: b.layer_scores.iucn.Ne });
 
   const t = targets.get(r.id);
   // 고친 class_name 으로 다시 평가 — DB 가 아니라 복제한 객체만 바꾼다.
   const fixed = t ? ({ ...r, class_name: t.exp } as Row) : r;
-  const a = evaluateTippingPoint(fixed, { seed: 42 });
+  const a = evaluateTippingPoint(fixed, SEED_OPTS);
   if (a) after.set(r.id, { score: a.consensus_score, tier: a.intervention_tier, ne: a.layer_scores.iucn.Ne });
 }
 
@@ -103,7 +108,7 @@ console.log(`티어가 바뀐 종       ${tierMoved.length}`);
 console.log(`점수 상승 ${changed.filter((c) => c.d > 0).length} / 하락 ${changed.filter((c) => c.d < 0).length} / 동일(Ne만 변화) ${changed.filter((c) => c.d === 0).length}`);
 
 changed.sort((x, y) => Math.abs(y.d) - Math.abs(x.d));
-fs.writeFileSync("/tmp/class_name_fix_sim.json", JSON.stringify({ changed, collateral }, null, 1));
+fs.writeFileSync(OUT, JSON.stringify({ changed, collateral }, null, 1));
 
 console.log("\n=== 변동 폭 상위 10종 ===");
 console.log("종                    등급  현재→정답            N        점수          티어      Ne");
