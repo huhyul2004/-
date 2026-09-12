@@ -57,6 +57,9 @@ TOKEN = os.getenv("IUCN_API_TOKEN")
 
 # 위협·서식지·보전활동 — assessment 상세 응답의 threats/habitats/conservation_actions
 DETAIL_CACHE = os.path.join(ROOT, "data", "iucn-details-fetch.json")
+# IUCN 위협 코드 목록 (GET /api/v4/threats/, 130개 · 3단계). 상위 분류는 코드에서 역산한다:
+# 8_1_2 의 상위는 8_1, 대분류는 8.
+THREAT_CODES = os.path.join(ROOT, "data", "iucn-threat-codes.json")
 # 수기 시드 22종 = IUCN 수집 전(2026-09-12) 세 테이블 중 어디든 행이 있던 종. 수집 후에는 IUCN 종도
 # 행을 가지므로 "행이 있는 종" 으로 다시 계산하면 안 된다 — 목록을 고정한다.
 # 이 종들에는 IUCN 행을 한 줄도 넣지 않는다 — 한 종 안에서 출처가 섞이지 않게.
@@ -214,6 +217,28 @@ def parse_details(detail: dict) -> dict:
     }
 
 
+_THREAT_NAMES: dict | None = None
+
+
+def threat_names() -> dict:
+    """{code: 영문 이름} — data/iucn-threat-codes.json."""
+    global _THREAT_NAMES
+    if _THREAT_NAMES is None:
+        with open(THREAT_CODES, encoding="utf-8") as f:
+            _THREAT_NAMES = {t["code"]: t["description"]["en"] for t in json.load(f)["threats"]}
+    return _THREAT_NAMES
+
+
+def threat_hierarchy(code: str | None) -> tuple:
+    """(바로 위 분류 이름|None, 대분류 이름|None). 대분류 코드(예: "7")는 상위 없음·대분류=자기 자신."""
+    if not code:
+        return None, None
+    names = threat_names()
+    parts = code.split("_")
+    parent = names.get("_".join(parts[:-1])) if len(parts) > 1 else None
+    return parent, names.get(parts[0])
+
+
 def load_seed_ids(cur) -> frozenset:
     """고정 시드 목록이 DB 와 맞는지 확인 — 22종 모두 여전히 행이 있어야 한다."""
     have = {r[0] for r in cur.execute(
@@ -242,8 +267,10 @@ def insert_details(cur, species_id: str, details: dict | None, seed_ids: set) ->
     if not (details["threats"] or details["habitats"] or details["actions"]):
         return "empty"
     cur.executemany(
-        "INSERT INTO threats (species_id, threat_code, threat_name, severity) VALUES (?,?,?,?)",
-        [(species_id, t["code"], t["name"], t["severity"]) for t in details["threats"]])
+        """INSERT INTO threats (species_id, threat_code, threat_name, severity,
+                                threat_parent, threat_category, timing) VALUES (?,?,?,?,?,?,?)""",
+        [(species_id, t["code"], t["name"], t["severity"], *threat_hierarchy(t["code"]), t["timing"])
+         for t in details["threats"]])
     cur.executemany(
         "INSERT INTO habitats (species_id, habitat_name, suitability) VALUES (?,?,?)",
         [(species_id, h["name"], h["suitability"]) for h in details["habitats"]])

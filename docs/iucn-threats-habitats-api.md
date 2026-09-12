@@ -203,5 +203,114 @@ IUCN 수집분 4,026종 중 세 항목 모두 채워진 종 1,490 · 하나 이�
 | Unspecified species | 243 | 214 | 8_x_1 | 위와 같음 |
 
 합계 1,005행 / 717종 (IUCN 위협 8,665행 중). 셰셀찌르레기 챗봇 답변에서 8_1_2 와 8_2_2 가
-둘 다 "Named species" 라 한 항목으로 합쳐졌다. `threat_code` 는 저장돼 있으므로
-`/api/v4/threats/` 코드 목록(1콜)으로 상위 이름을 붙이면 되돌릴 수 있다 — 저장 형식을 바꾸는 결정이라 적용하지 않았다.
+둘 다 "Named species" 라 한 항목으로 합쳐졌다. → 7절에서 해결.
+
+---
+
+## 7. 위협 상위 분류 · 시기 (2026-09-12)
+
+### 위협 코드 체계 — `GET /api/v4/threats/`
+
+HTTP 200, 130개 코드, **3단계** (대분류 12 · 중분류 45 · 세분류 73). 저장: `data/iucn-threat-codes.json`.
+상위는 코드에서 역산된다 — `8_1_2` 의 상위는 `8_1`, 대분류는 `8`. 130개 모두 상위 코드가 목록에 있다.
+
+| 대분류 | 이름 |
+|---|---|
+| 1 | Residential & commercial development |
+| 2 | Agriculture & aquaculture |
+| 3 | Energy production & mining |
+| 4 | Transportation & service corridors |
+| 5 | Biological resource use |
+| 6 | Human intrusions & disturbance |
+| 7 | Natural system modifications |
+| 8 | Invasive and other problematic species, genes & diseases |
+| 9 | Pollution |
+| 10 | Geological events |
+| 11 | Climate change & severe weather |
+| 12 | Other options |
+
+세분류 이름 12개가 여러 코드에 겹친다(Named species ×4 · Unspecified species ×4 · Scale Unknown/Unrecorded ×4 ·
+Motivation Unknown/Unrecorded ×4 · Type Unknown/Unrecorded ×5 · Persecution/control ×3 · Intentional use … ×2 등).
+이 이름을 쓰는 행은 5절의 3개 이름(1,005행)보다 넓은 **3,306행 / 1,780종**이다.
+
+### 새 컬럼 (`threats`)
+
+| 컬럼 | 내용 | 채우는 법 |
+|---|---|---|
+| `threat_parent` | 바로 위 분류 이름 (대분류 코드 행은 NULL, 중분류 코드 행은 대분류 이름) | 코드에서 역산 — API 재조회 없음 |
+| `threat_category` | 대분류 이름 | 코드에서 역산 — API 재조회 없음 |
+| `timing` | Ongoing · Future · Past, Unlikely to Return · Past, Likely to Return · Unknown | `iucn-details-fetch.json` 에 없어(종별 개수만 저장) **재조회** |
+
+기존 `threat_name` 은 그대로다. 수기 시드 행(`threat_code` NULL)은 새 컬럼도 NULL.
+스크립트 `migrate_threat_hierarchy.py` (컬럼 추가 · 상위 채우기 · `--timing` 재조회).
+timing 재조회는 행을 넣을 때와 같은 평가(`iucn-details-fetch.json` 의 aid 와 일치 확인)를 받아
+`(species_id, threat_code)` 로 맞춘다. 진행 캐시 `data/iucn-threat-timing-fetch.json`.
+`sync_iucn_all.py` 의 `insert_details()` 도 앞으로 세 컬럼을 함께 넣는다.
+
+### 같은 이름이 상위로 갈리는가
+
+| threat_name | 코드 | 상위 (threat_parent) | 행 |
+|---|---|---|---:|
+| Named species | 8_1_2 | Invasive non-native/alien species/diseases (외래 침입종) | 330 |
+| | 8_2_2 | Problematic native species/diseases (문제성 토착종) | 56 |
+| | 8_5_2 | Viral/prion-induced diseases | 27 |
+| | 8_4_2 | Problematic species/disease of unknown origin | 5 |
+| Intentional use (species is the target) | 5_1_1 | Hunting & trapping terrestrial animals (육상 사냥·포획) | 537 |
+| | 5_2_1 | Gathering terrestrial plants (식물 채취) | 114 |
+| Intentional use: (subsistence/small scale) [harvest] | 5_4_1 | Fishing & harvesting aquatic resources (어획) | 85 |
+| | 5_3_1 | Logging & wood harvesting (벌채) | 22 |
+| Scale Unknown/Unrecorded | 2_1_4 | Annual & perennial non-timber crops | 184 |
+| | 2_3_4 | Livestock farming & ranching | 101 |
+| | 2_2_3 | Wood & pulp plantations | 55 |
+| | 2_4_3 | Marine & freshwater aquaculture | 4 |
+
+Named species 418행은 상위 4개로 갈리고 상위가 빈 행은 0. 침입종(8_1_2)과 어획·사냥 대상(5_x_1)은 대분류부터 다르다.
+
+### 챗봇
+
+`app/api/chat/route.ts` — IUCN 위협(코드 있음)을 `대분류 > 중분류 > 항목 (코드)` 경로로 적고 **시기별 줄로 나눈다**
+(진행 중 · 앞으로 예상 · 과거-재발 가능 · 과거-재발 가능성 낮음 · 시기 미상 · 시기 기록 없음).
+과거 줄에는 "현재 진행 중 아님" 을 붙인다. 수기 시드 위협(코드 없음)은 예전처럼 이름만.
+시스템 프롬프트 `[위협]` — 상위 분류와 함께 쓰고, 같은 항목 이름이라도 상위가 다르면 합치지 않으며,
+과거 위협을 현재 위협으로 서술하지 않는다. 위협은 점수 계산에 들어가지 않으므로 v5 영향 없음.
+
+챗봇 POST (HTTP 200):
+
+| 종 | 질문 | 결과 |
+|---|---|---|
+| 지위안 전나무 (Abies ziyuanensis) — Past 위협 있음 | 주요 위협, 진행 중·과거 구분 | 진행 중 2개(2_3_4 · 10_3)와 과거 1개(5_3_1 벌채, Past, Unlikely to Return — 현재 진행 중 아님)를 나눠 답함 |
+| 와이오밍 두꺼비 (Anaxyrus baxteri) — Named species 2건 | 주요 위협 | 8_1_2 외래 침입종 > Named species 와 8_2_2 문제성 토착종 > Named species 를 **따로** 답함 (이전 셰셀찌르레기 답변에서는 한 항목으로 합쳐졌음) |
+
+종 상세 페이지(`app/species/[id]/page.tsx:221`) · 절멸 페이지(`app/extinct/[id]/page.tsx:103`) ·
+`/api/recommend` 는 여전히 `threat_name` 만 보여 준다 — 이번 범위(챗봇) 밖, 미변경.
+
+### 결과
+
+상위 분류: IUCN 위협 8,665행 전부 `threat_category` · `threat_parent` 채움 (코드 목록에 없는 코드 0).
+
+timing 재조회: 대상 2,178종(IUCN 위협 행이 있는 종) — 시험 10 + 본 실행 2,132 + 재시도 36 = **2,178종 갱신**,
+코드 불일치 0 · 평가 ID 변경 0 · 최종 실패 0. 본 실행 중 노트북이 배터리 잠자기에 들어가
+네트워크 오류 36종이 났고(캐시에 기록하지 않아 저장된 값 없음) 재시도에서 모두 받았다.
+본 실행 5시간 30분 중 대부분은 잠자기 시간이다(깨어 있는 동안 종당 약 1초).
+
+| timing | 행 | 종 |
+|---|---:|---:|
+| Ongoing | 7,763 | 2,006 |
+| Past, Unlikely to Return | 466 | 255 |
+| Future | 293 | 195 |
+| Past, Likely to Return | 93 | 57 |
+| Unknown | 46 | 28 |
+| NULL (IUCN 응답에 timing 없음) | 4 | 3 |
+
+과거 위협(Past…)이 있는 종 **290종** — 이전에는 현재 위협과 구분 없이 챗봇에 나갔다.
+
+검증
+
+- 수기 시드 22종: 세 테이블 원래 컬럼 144줄 전후 동일 (MD5 `ba4a6f002279ee577451b4a1eb0234fe`).
+  시드 위협 53행 중 새 컬럼이 채워진 행 0.
+- `species` · `tipping_points` 내용 해시 백업과 일치 — v5 점수·floor·Ne/Nc 변동 없음. habitats 12,917 · actions 5,191 행 그대로.
+- `pragma integrity_check` ok. 타입체크(`tsc --noEmit`) — 이번 변경 파일 오류 0
+  (`__tests__/regression.test.ts` 의 기존 오류 12개는 7월 커밋 `c0177ae` 부터 있던 것, 미변경).
+- 백업 `data/species.db.backup_before_threat_hierarchy_20260912-180914` (MD5 `df93b3a4d9fa68742f194329238ec837`).
+  수정 전 `data/species.db` MD5 `06edc39a1a31f04e4a47fa5c3a69d2aa` → 수정 후 (WAL 체크포인트 후)
+  `f657067bdf8a012b40db3d282eaea6ec`.

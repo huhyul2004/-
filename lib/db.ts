@@ -80,6 +80,10 @@ function initSchema(db: Database.Database) {
       threat_code TEXT,
       threat_name TEXT NOT NULL,
       severity TEXT,
+      -- IUCN 위협 코드 상위 분류·시기 (migrate_threat_hierarchy.py 와 정합)
+      threat_parent TEXT,
+      threat_category TEXT,
+      timing TEXT,
       FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS idx_threats_species ON threats(species_id);
