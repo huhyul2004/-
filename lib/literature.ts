@@ -89,6 +89,18 @@ export const TRAILL_2007 = {
   sample: { species: 212 },
 } as const satisfies LiteratureSource & Record<string, unknown>;
 
+// ===== 6. Palstra & Ruzzante 2008 — Ne/Nc 상충 연구 =====
+// 특허 명세서 계열(lastwatch_score_full_spec_v4.md 부록 A, PKA-1551 수정요청서 6쪽)이
+// "Ne/Nc 는 확립된 단일 관계식이 없다" 의 근거로 인용한 문헌. 수치는 저장소 기록에 없어 싣지 않는다.
+export const PALSTRA_RUZZANTE_2008 = {
+  label: "Palstra & Ruzzante 2008",
+  citation:
+    "Palstra, F.P. & Ruzzante, D.E. (2008). Genetic estimates of contemporary effective population size: what can they tell us about the importance of genetic stochasticity for wild population persistence? Molecular Ecology 17, 3428-3447.",
+  disputed: true,
+  disputeNote:
+    "Ne/Nc 비율에 대해 연구 간 상충하는 결과 — 단일 값이나 체중과의 관계식이 확립되지 않음",
+} as const satisfies LiteratureSource & Record<string, unknown>;
+
 /** 전체 목록 — 문헌 인용 감사·테스트용 */
 export const LITERATURE = [
   FRANKHAM_1995,
@@ -96,6 +108,7 @@ export const LITERATURE = [
   FRANKHAM_2014,
   DAMUTH_1981,
   TRAILL_2007,
+  PALSTRA_RUZZANTE_2008,
 ] as const;
 
 /** 논쟁 있는 값에 병기하는 문구 */
@@ -148,6 +161,10 @@ export function buildLiteratureLines(input: LiteratureBlockInput): string[] {
     `유효개체군 Ne (Frankham 1995 Ne/N=${f.neN_general.low} 적용값): ${neFrankham.toLocaleString()}  ` +
       `[출처: ${f.label}, 종합비율 ${f.neN_general.low}~${f.neN_general.high}, ` +
       `${f.sample.species}종 ${f.sample.estimates}추정치, 개별 범위 ${f.neN_range.low}~${f.neN_range.high}]`
+  );
+  out.push(
+    `Ne/Nc 비율 자체: 연구 간 상충하는 결과가 보고되어 단일 값이 확립되지 않음 — 위 두 Ne 는 서로 다른 가정의 대조값  ` +
+      `[출처: ${PALSTRA_RUZZANTE_2008.label}] (논쟁 있음)`
   );
 
   if (className === "조류") {
