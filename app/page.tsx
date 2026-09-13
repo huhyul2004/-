@@ -4,6 +4,7 @@ import {
   countSpecies,
   threatCategoryNames,
   countScope,
+  countByClass,
   PAGE_SIZE,
   NONE,
   TREND_VALUES,
@@ -60,9 +61,9 @@ const THREAT_KO: Record<string, string> = {
   "2": "농업·양식",
   "3": "에너지 생산·채굴",
   "4": "교통·서비스 회랑",
-  "5": "생물자원 이용 (사냥·채취·벌채·어업)",
+  "5": "생물자원 이용",
   "6": "인간 침입·교란",
-  "7": "자연계 변형 (화재·댐 등)",
+  "7": "자연계 변형",
   "8": "침입종·문제종·질병",
   "9": "오염",
   "10": "지질 현상",
@@ -70,6 +71,14 @@ const THREAT_KO: Record<string, string> = {
   "12": "기타",
 };
 const THREAT_CODES = Object.keys(THREAT_KO);
+// 이름이 짧아 뜻이 모자라는 대분류의 풀이 — 툴팁에만
+const THREAT_DETAIL: Record<string, string> = {
+  "5": "사냥·채취·벌채·어업",
+  "7": "화재·댐·물 관리 등",
+};
+
+// 이보다 종이 적은 분류군은 "기타" 로 묶어 보인다 (현재 목록 범위 — 큐레이션/전체 — 의 종 수 기준)
+const MINOR_CLASS_MAX = 10;
 
 const VALID_SORTS: SortKey[] = ["urgency", "score", "population", "risk", "name", "recent", "class"];
 
@@ -163,6 +172,24 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
   if (state.threat)
     active.push({ axis: "threat", label: `위협 ${THREAT_KO[state.threat] ?? state.threat}`, clearHref: buildHref({ threat: undefined }) });
 
+  // "기타" — 현재 범위에서 MINOR_CLASS_MAX 종 미만인 분류군. 필터 조건은 그대로(분류군 여러 개 OR)이고 묶어 보이기만 한다.
+  const scopeClassCounts = countByClass(curatedOnly);
+  const minorClasses = Object.keys(scopeClassCounts)
+    .filter((c) => scopeClassCounts[c] < MINOR_CLASS_MAX)
+    .sort((a, b) => scopeClassCounts[b] - scopeClassCounts[a] || a.localeCompare(b, "ko"));
+  const minorSelected = minorClasses.filter((c) => state.classes.includes(c));
+  const allMinorSelected = minorClasses.length > 0 && minorSelected.length === minorClasses.length;
+  // 기타 전부 걸기 / (이미 전부 걸려 있으면) 전부 풀기
+  const minorToggleHref = allMinorSelected
+    ? buildHref({ classes: state.classes.filter((c) => !minorClasses.includes(c)) })
+    : buildHref({ classes: [...state.classes, ...minorClasses.filter((c) => !state.classes.includes(c))] });
+  const minorCount = minorClasses.reduce((s, c) => s + (facets.class[c] ?? 0), 0);
+
+  // 위협 대분류는 종 수 많은 순 (같으면 IUCN 코드 순) — 코드는 라벨 뒤 괄호로 남긴다
+  const threatOrder = [...THREAT_CODES].sort(
+    (a, b) => (facets.threat[b] ?? 0) - (facets.threat[a] ?? 0) || Number(a) - Number(b)
+  );
+
   // 목록 위 칩 — 값 하나마다 칩 하나, × 는 그 값만 푼다 (분류군은 여러 개일 수 있다)
   const chips: { key: string; label: string; href: string }[] = [];
   if (state.category)
@@ -171,8 +198,13 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
       label: `${state.category} ${CATEGORY_KO[state.category] ?? ""}`.trim(),
       href: buildHref({ category: undefined }),
     });
-  for (const c of state.classes)
+  // 기타에 묶인 분류군을 전부 골랐으면 칩 하나("기타 (N개 분류군)")로, 아니면 하나씩
+  for (const c of state.classes) {
+    if (allMinorSelected && minorClasses.includes(c)) continue;
     chips.push({ key: `class-${c}`, label: c === NONE ? "분류 미상" : c, href: toggleClass(c) });
+  }
+  if (allMinorSelected)
+    chips.push({ key: "class-minor", label: `기타 (${minorClasses.length}개 분류군)`, href: minorToggleHref });
   if (state.trend)
     chips.push({ key: "trend", label: `추세 ${TREND_LABEL[state.trend] ?? state.trend}`, href: buildHref({ trend: undefined }) });
   if (state.tier)
@@ -181,8 +213,8 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
     chips.push({ key: "threat", label: `위협 ${THREAT_KO[state.threat] ?? state.threat}`, href: buildHref({ threat: undefined }) });
 
   const classOptions = Object.keys(facets.class)
-    .filter((c) => c !== NONE)
-    .concat(state.classes.filter((c) => c !== NONE && !(c in facets.class)))
+    .filter((c) => c !== NONE && !minorClasses.includes(c))
+    .concat(state.classes.filter((c) => c !== NONE && !(c in facets.class) && !minorClasses.includes(c)))
     .sort((a, b) => (facets.class[b] ?? 0) - (facets.class[a] ?? 0) || a.localeCompare(b, "ko"));
 
   // 현재 필터 유지하며 전체 모드로 켜는 링크 (빈 결과 CTA용)
@@ -304,6 +336,46 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
               multi
             />
           ) : null}
+          {minorClasses.length > 0 && (
+            // 기타 — 누르면 안의 분류군이 펼쳐지고 하나씩 고를 수 있다. 하나라도 걸려 있으면 펼친 채로.
+            <details className="basis-full" open={minorSelected.length > 0 || undefined}>
+              <summary
+                className={
+                  "inline-flex min-h-[36px] cursor-pointer list-none items-center rounded-full border border-dashed px-3.5 py-1.5 text-[12px] font-bold transition [&::-webkit-details-marker]:hidden " +
+                  (minorCount === 0 && minorSelected.length === 0
+                    ? "border-zinc-200 text-zinc-400 opacity-50"
+                    : "border-zinc-300 bg-white/70 text-zinc-700 hover:border-zinc-400")
+                }
+                title={`${MINOR_CLASS_MAX}종 미만 분류군 ${minorClasses.length}개: ${minorClasses.join(", ")}`}
+              >
+                기타
+                <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{minorCount.toLocaleString()}</span>
+                {minorSelected.length > 0 && (
+                  <span className="ml-1.5 text-[11px] text-[#D81E05]">{minorSelected.length}개 선택</span>
+                )}
+                <span className="ml-1.5 text-[10px] text-zinc-400">▾</span>
+              </summary>
+              <div className="mt-2 flex flex-wrap gap-2 rounded-xl bg-zinc-50/80 p-2">
+                <FacetChip
+                  href={minorToggleHref}
+                  label={allMinorSelected ? "기타 전부 해제" : "기타 전부 선택"}
+                  count={minorCount}
+                  active={allMinorSelected}
+                  title={`${MINOR_CLASS_MAX}종 미만 분류군 ${minorClasses.length}개를 한 번에`}
+                />
+                {minorClasses.map((c) => (
+                  <FacetChip
+                    key={c}
+                    href={toggleClass(c)}
+                    label={c}
+                    count={facets.class[c] ?? 0}
+                    active={state.classes.includes(c)}
+                    multi
+                  />
+                ))}
+              </div>
+            </details>
+          )}
         </FacetGroup>
 
         <FacetGroup title="개체수 추세" hint="IUCN 평가 기준" selected={state.trend ? 1 : 0}>
@@ -339,17 +411,22 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
 
         <FacetGroup
           title="위협 요인"
-          hint="IUCN 위협 분류 대분류 · 분류 코드가 있는 종만 (수기 입력 위협만 있는 종·위협 기록이 없는 종은 해당 없음) · 과거 위협 포함"
+          hint="IUCN 위협 분류 대분류 · 종 수 많은 순, 괄호 안은 IUCN 코드 · 분류 코드가 있는 종만 (수기 입력 위협만 있는 종·위협 기록이 없는 종은 해당 없음) · 과거 위협 포함"
           selected={state.threat ? 1 : 0}
         >
-          {THREAT_CODES.map((code) => (
+          {threatOrder.map((code) => (
             <FacetChip
               key={code}
               href={buildHref({ threat: state.threat === code ? undefined : code })}
-              label={`${code}. ${THREAT_KO[code]}`}
+              label={THREAT_KO[code]}
               count={facets.threat[code] ?? 0}
+              suffix={`(${code})`}
               active={state.threat === code}
-              title={threatNames[code] ? `IUCN 원문: ${threatNames[code]}` : undefined}
+              title={
+                [THREAT_DETAIL[code], threatNames[code] ? `IUCN 원문: ${threatNames[code]}` : null]
+                  .filter(Boolean)
+                  .join(" · ") || undefined
+              }
             />
           ))}
         </FacetGroup>
@@ -508,6 +585,7 @@ function FacetChip({
   count,
   active,
   title,
+  suffix,
   dashed = false,
   multi = false,
 }: {
@@ -516,13 +594,20 @@ function FacetChip({
   count: number;
   active: boolean;
   title?: string;
+  /** 종 수 뒤에 붙는 작은 글자 — 위협 대분류의 IUCN 코드 "(5)" */
+  suffix?: string;
   dashed?: boolean;
   multi?: boolean;
 }) {
   const base =
     "inline-flex min-h-[36px] items-center rounded-full border px-3.5 py-1.5 text-[12px] font-bold transition-all " +
     (dashed ? "border-dashed " : "");
-  const countEl = <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{count.toLocaleString()}</span>;
+  const countEl = (
+    <>
+      <span className="ml-2 font-mono text-[11px] tabular-nums opacity-60">{count.toLocaleString()}</span>
+      {suffix && <span className="ml-1 font-mono text-[11px] font-normal opacity-50">{suffix}</span>}
+    </>
+  );
   if (count === 0 && !active) {
     return (
       <span
