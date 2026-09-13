@@ -138,6 +138,12 @@ EWS = σ(${E.gain} × (${E.tauWeights.ar1}τ + ${E.tauWeights.variance}τ + ${E.
             <p className="mt-2 text-[11px] text-zinc-500">
               범위 {f1(ewsMin)} ~ {f1(ewsMax)}점 · 신뢰도 {E.confidence} (시계열 없음)
             </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-zinc-600">
+              지금은 시계열 대신 추세로 추정한 값이라, 계산되는 종의 EWS 는 <b>{cov.ewsValues.length}가지 값</b>만 갖습니다.{" "}
+              <a href="#ews" className="font-bold text-[#D81E05] underline underline-offset-2">
+                현재 상태 ↓
+              </a>
+            </p>
           </Card>
           <Card>
             <p className="text-[10px] font-black tracking-wider text-[#FC7F3F]">가중치 {W.pva}</p>
@@ -167,6 +173,91 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
             </p>
           </Card>
         </div>
+        <div id="ews" className="mt-4 scroll-mt-20">
+          <Card>
+            <h3 className="text-sm font-bold text-zinc-900">EWS 레이어의 현재 상태 — 추세 기반 추정값</h3>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-700">
+              EWS 는 명세서에서 <b>개체수 시계열</b>을 입력으로 설계되어 있습니다. 지금은 쓸 수 있는 시계열이 없어,
+              개체수 추세에서 추정한 값을 씁니다.
+            </p>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[460px] text-left text-xs">
+                <thead>
+                  <tr className="border-b border-zinc-200 text-zinc-500">
+                    <th className="whitespace-nowrap py-1.5 pr-3 font-bold">항목</th>
+                    <th className="py-1.5 pr-3 font-bold">명세서 설계</th>
+                    <th className="py-1.5 font-bold">지금</th>
+                  </tr>
+                </thead>
+                <tbody className="text-zinc-800">
+                  <tr className="border-b border-zinc-100">
+                    <td className="whitespace-nowrap py-1.5 pr-3 font-bold">입력</td>
+                    <td className="py-1.5 pr-3">종별 연도별 개체수 시계열 N(t)</td>
+                    <td className="py-1.5">개체수 추세 하나로 정한 성장률 r</td>
+                  </tr>
+                  <tr className="border-b border-zinc-100">
+                    <td className="whitespace-nowrap py-1.5 pr-3 font-bold">계산</td>
+                    <td className="py-1.5 pr-3">
+                      추세 제거 → 이동 창마다 자기상관(AR1) · 분산 · 왜도 · 첨도 · 복귀 속도 → 각 지표의 Kendall τ → 가중합 → σ
+                    </td>
+                    <td className="py-1.5">
+                      r 로 τ 하나를 추정해(τ = clamp(−r ÷ {E.tauScale}, −1, 1)) 모든 지표에 같은 값을 넣고 가중합 → σ
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="whitespace-nowrap py-1.5 pr-3 font-bold">신뢰도</td>
+                    <td className="py-1.5 pr-3">—</td>
+                    <td className="py-1.5">{E.confidence} (고정)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-zinc-700">
+              <b>왜 시계열이 없나</b> — 개체수는 IUCN 평가에서 가져오는데, 평가는 여러 해 간격으로 나오고 개체수 칸이 비어 있거나
+              범위로만 적힌 경우가 많아 종별 연도별 개체수를 이을 수 없습니다.
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-zinc-700">
+              그 결과 계산되는 {n(cov.computed)}종의 EWS 점수는 <b>{cov.ewsValues.length}가지 값</b>만 갖고, 추세 입력이 같은 종은
+              EWS 가 같습니다.
+            </p>
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full min-w-[320px] text-left text-xs">
+                <thead>
+                  <tr className="border-b border-zinc-200 text-zinc-500">
+                    <th className="py-1.5 pr-3 font-bold">EWS 점수</th>
+                    <th className="py-1.5 pr-3 font-bold">추세 입력</th>
+                    <th className="py-1.5 text-right font-bold">종 수</th>
+                  </tr>
+                </thead>
+                <tbody className="text-zinc-800">
+                  {cov.ewsValues.map((v) => (
+                    <tr key={v.score} className="border-b border-zinc-100">
+                      <td className="py-1.5 pr-3 font-mono">{f2(v.score)}</td>
+                      <td className="py-1.5 pr-3">
+                        {Object.entries(v.inputs)
+                          .map(([k, c]) => (Object.keys(v.inputs).length > 1 ? `${k} ${n(c)}` : k))
+                          .join(" · ")}
+                      </td>
+                      <td className="py-1.5 text-right font-mono">{n(v.count)}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="py-1.5 pr-3 font-bold" colSpan={2}>
+                      합계 ({cov.ewsValues.length}가지 값)
+                    </td>
+                    <td className="py-1.5 text-right font-mono font-bold">
+                      {n(cov.ewsValues.reduce((s, v) => s + v.count, 0))}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-[11px] text-zinc-500">
+              숫자는 DB 에 저장된 계산 결과에서 셌습니다. 조사 기록: docs/ews-layer-audit.md · docs/ews-timeseries-options.md
+            </p>
+          </Card>
+        </div>
+
         <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
           종 상세의 임계점 연표(개입 마감·골든타임 등 날짜 4개)는 PVA 시뮬레이션 궤적에서 따로 뽑습니다. 그 계산은 점수에 들어가지 않습니다.
         </p>
@@ -548,28 +639,134 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
         </Card>
       </Section>
 
+      <Section id="spec-diff" label="명세서" title="명세서와 구현이 다른 지점">
+        <Card>
+          <p className="text-xs leading-relaxed text-zinc-700">
+            이 점수의 설계는 특허 명세서에서 왔지만, 구현이 명세서와 다른 지점이 있습니다. 명세서는 출원이 끝나 고칠 수 없어,
+            다른 지점은 저장소의 &lsquo;결정 대기 항목&rsquo; 문서(docs/decisions-pending.md)에 목록으로 모아 코드를 맞출지 항목별로 정합니다.
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[480px] text-left text-xs">
+              <thead>
+                <tr className="border-b border-zinc-200 text-zinc-500">
+                  <th className="py-1.5 pr-3 font-bold">지점</th>
+                  <th className="py-1.5 pr-3 font-bold">명세서</th>
+                  <th className="py-1.5 pr-3 font-bold">지금 코드</th>
+                  <th className="py-1.5 pr-3 font-bold">기록</th>
+                  <th className="py-1.5 font-bold">이 페이지</th>
+                </tr>
+              </thead>
+              <tbody className="text-zinc-800">
+                {[
+                  { name: "개체수 하한", spec: "기재 없음", code: `N0 구간별 하한 — ${n(cov.floor.bound)}종의 점수를 정함`, doc: "결정 대기 항목 1", to: "floor" },
+                  { name: "Ne/Nc 비율", spec: "분류군별 명세서 값", code: "명세서와 다른 분류군별 값", doc: "결정 대기 항목 3", to: "layers" },
+                  { name: "수용력 K", spec: "Damuth 식", code: "N0 에서 가정", doc: "결정 대기 항목 2", to: "layers" },
+                  { name: "EWS", spec: "개체수 시계열 기반", code: "추세 기반 추정값", doc: "docs/ews-layer-audit.md", to: "ews" },
+                  { name: "신뢰도", spec: "신뢰도로 레이어 가중치 조정", code: `고정 가중치 + 신뢰도 압축(적용 ${n(cov.compressed)}종)`, doc: "docs/confidence-audit.md", to: "confidence" },
+                  { name: "다수결 문턱", spec: "모든 레이어에 한 문턱", code: `레이어별 문턱 (EWS ${AT.ews} · PVA ${AT.pva} · Ne ${AT.iucn})`, doc: "docs/layer-score-spec-vs-code.md §4", to: "combine" },
+                ].map((r) => (
+                  <tr key={r.name} className="border-b border-zinc-100">
+                    <td className="whitespace-nowrap py-1.5 pr-3 font-bold">{r.name}</td>
+                    <td className="py-1.5 pr-3">{r.spec}</td>
+                    <td className="py-1.5 pr-3">{r.code}</td>
+                    <td className="py-1.5 pr-3 text-zinc-500">{r.doc}</td>
+                    <td className="py-1.5">
+                      <a
+                        href={`#${r.to}`}
+                        className="inline-block whitespace-nowrap font-bold text-[#D81E05] underline underline-offset-2"
+                      >
+                        해당 절
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2 text-[11px] text-zinc-500">
+            결정 대기 목록에는 개체수 하한·수용력 K·Ne/Nc 를 포함한 항목이 올라 있습니다. EWS·신뢰도·다수결 문턱의 차이는 조사 문서에
+            기록되어 있고, 결정 대기 목록에는 아직 올라 있지 않습니다.
+          </p>
+        </Card>
+      </Section>
+
       <Section id="limits" label="한계" title="이 점수로 말할 수 없는 것">
         <Card>
           <ul className="space-y-2 text-xs leading-relaxed text-zinc-700">
-            <li>
-              • <b>개체수 자료가 있는 {n(cov.computed)}종에만 계산됩니다.</b> DB {n(cov.species)}종 가운데 나머지는 개체수를 모릅니다.
-              IUCN 평가 대부분이 개체수 칸을 비워 두기 때문이며, 개체수를 추정해서 채우지는 않습니다.
-            </li>
-            <li>
-              • <b>IUCN 등급은 점수에 넣지 않았습니다.</b> 등급을 입력으로 쓰면 &lsquo;CR 이라서 점수가 높다&rsquo; 는 순환 논증이 되어,
-              점수가 등급을 되풀이할 뿐 새 정보를 주지 못합니다. 그래서 유효개체군 레이어도 IUCN 등급·기준 D 점수를 계산하지만 합산하지 않습니다.
-            </li>
-            <li>
-              • <b>EWS 는 시계열 없이 추세로만 추정합니다.</b> 신뢰도를 {E.confidence}로 낮게 두었고, 추세 정보가 없으면 기본값이 들어갑니다.
-            </li>
-            <li>
-              • <b>개체수 하한은 명세서에 없는 자체 규칙입니다.</b> 개체수가 적은 종의 점수는 레이어 계산보다 이 표가 정할 수 있습니다
-              ({n(cov.floor.bound)}종).
-            </li>
-            <li>
-              • <b>추세 보정은 한글 추세 칸만 봅니다.</b> IUCN 추세가 있는 종도 이 단계에서는 반영되지 않습니다({n(cov.trendAdjusted)}종에만 적용).
-            </li>
-            <li>• 한 번 계산해 저장한 값입니다. 개체수 자료가 바뀌면 다시 계산해야 반영됩니다.</li>
+            {[
+              {
+                to: "coverage",
+                body: (
+                  <>
+                    <b>개체수 자료가 있는 {n(cov.computed)}종에만 계산됩니다.</b> DB {n(cov.species)}종 가운데 나머지는 개체수를 모르며,
+                    개체수를 추정해서 채우지는 않습니다. 한 번 계산해 저장한 값이라 개체수 자료가 바뀌면 다시 계산해야 반영됩니다.
+                  </>
+                ),
+              },
+              {
+                to: "floor",
+                body: (
+                  <>
+                    <b>개체수 하한이 {n(cov.floor.bound)}종의 점수를 정합니다.</b> 명세서에 없는 LastWatch 자체 규칙이며, 이 종들의 점수는
+                    레이어 계산보다 하한 표가 정했습니다.
+                  </>
+                ),
+              },
+              {
+                to: "ews",
+                body: (
+                  <>
+                    <b>EWS 는 추세 기반 추정값입니다.</b> 명세서는 개체수 시계열 기반인데 쓸 수 있는 시계열이 없어, 계산 종의 EWS 는{" "}
+                    {cov.ewsValues.length}가지 값만 갖습니다.
+                  </>
+                ),
+              },
+              {
+                to: "confidence",
+                body: (
+                  <>
+                    <b>신뢰도는 모든 종이 같은 값입니다.</b> 레이어 신뢰도가 고정값이라 종합 신뢰도가 {fixedConfidence.toFixed(4)} 로 같고,
+                    종별로 점수를 얼마나 믿을 수 있는지 알려주지 않습니다.
+                  </>
+                ),
+              },
+              {
+                to: "spec-diff",
+                body: (
+                  <>
+                    <b>명세서와 구현이 다른 지점이 있습니다.</b> 저장소의 결정 대기 항목 목록으로 관리하며, 이 페이지에 알려진 지점을 모았습니다.
+                  </>
+                ),
+              },
+              {
+                to: "layers",
+                body: (
+                  <>
+                    <b>IUCN 등급은 점수에 넣지 않았습니다.</b> 등급을 입력으로 쓰면 &lsquo;CR 이라서 점수가 높다&rsquo; 는 순환 논증이 되어,
+                    점수가 등급을 되풀이할 뿐 새 정보를 주지 못합니다.
+                  </>
+                ),
+              },
+              {
+                to: "combine",
+                body: (
+                  <>
+                    <b>추세 보정은 한글 추세 칸만 봅니다.</b> IUCN 추세가 있는 종도 이 단계에서는 반영되지 않습니다(
+                    {n(cov.trendAdjusted)}종에만 적용).
+                  </>
+                ),
+              },
+            ].map((item) => (
+              <li key={item.to}>
+                • {item.body}{" "}
+                <a
+                  href={`#${item.to}`}
+                  className="inline-block whitespace-nowrap font-bold text-[#D81E05] underline underline-offset-2"
+                >
+                  해당 절 ↑
+                </a>
+              </li>
+            ))}
           </ul>
         </Card>
       </Section>

@@ -155,6 +155,16 @@ export function TippingTimeline({
             <p className={`mt-1 text-xl font-black tabular-nums ${dark ? "text-zinc-100" : "text-zinc-900"}`}>
               {result.layer_scores.ews.score.toFixed(0)}
             </p>
+            {/* EWS 는 개체수 시계열이 없어 추세로 추정한 값 — 절멸 종은 레이어 계산을 하지 않으므로 붙이지 않는다 */}
+            {!isExtinct && (
+              <Link
+                href="/methodology#ews"
+                className={`mt-0.5 inline-block text-[9.5px] underline underline-offset-2 ${subCls}`}
+                title="개체수 시계열이 없어 개체수 추세로 추정한 값"
+              >
+                (추세 기반 추정값)
+              </Link>
+            )}
           </div>
           <div className={`border-x p-3 text-center sm:p-4 ${dividerCls}`}>
             <p className={`tracking-wider ${labelCls}`}>PVA</p>
