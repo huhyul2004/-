@@ -22,21 +22,18 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORY_TILES = [
-  { value: undefined, label: "전체", korean: "All", color: "bg-zinc-900", accent: "bg-zinc-900" },
-  { value: "CR", label: "위급", korean: "Critically Endangered", color: "bg-[#D81E05]", accent: "bg-[#D81E05]" },
-  { value: "EN", label: "위기", korean: "Endangered", color: "bg-[#FC7F3F]", accent: "bg-[#FC7F3F]" },
-  { value: "VU", label: "취약", korean: "Vulnerable", color: "bg-[#F9E814]", accent: "bg-[#F9E814]" },
-] as const;
-
-// 타일 밖의 등급 — 큐레이션 목록에 준위협·최소관심·절멸 종도 있다
-const OTHER_CATEGORIES = [
-  { value: "NT", label: "준위협" },
-  { value: "LC", label: "최소관심" },
-  { value: "DD", label: "정보부족" },
-  { value: "EX", label: "절멸" },
-  { value: "EW", label: "야생절멸" },
-] as const;
+// IUCN 적색목록 범주 — 큐레이션 목록에는 위협 등급 밖(준위협·최소관심·절멸) 종도 있다
+const CATEGORY_KO: Record<string, string> = {
+  CR: "위급",
+  EN: "위기",
+  VU: "취약",
+  NT: "준위협",
+  LC: "최소관심",
+  DD: "정보부족",
+  EX: "절멸",
+  EW: "야생절멸",
+};
+const CATEGORY_CODES = Object.keys(CATEGORY_KO);
 
 const TREND_LABEL: Record<string, string> = {
   Decreasing: "감소",
@@ -46,13 +43,14 @@ const TREND_LABEL: Record<string, string> = {
   [NONE]: "기록 없음",
 };
 
+// 이름은 tipping_points.payload 의 tier_label 그대로
 const TIER_LABEL: Record<string, string> = {
-  T4: "T4",
-  T3: "T3",
-  T2: "T2",
-  T1: "T1",
-  T0: "T0",
-  EX: "EX (절멸)",
+  T4: "T4 임박 — 골든타임",
+  T3: "T3 위급 — 즉시 개입",
+  T2: "T2 경계 — 개입 검토",
+  T1: "T1 주의",
+  T0: "T0 안정",
+  EX: "EX 절멸·야생절멸",
   [NONE]: "점수 없음",
 };
 
@@ -165,6 +163,23 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
   if (state.threat)
     active.push({ axis: "threat", label: `위협 ${THREAT_KO[state.threat] ?? state.threat}`, clearHref: buildHref({ threat: undefined }) });
 
+  // 목록 위 칩 — 값 하나마다 칩 하나, × 는 그 값만 푼다 (분류군은 여러 개일 수 있다)
+  const chips: { key: string; label: string; href: string }[] = [];
+  if (state.category)
+    chips.push({
+      key: "category",
+      label: `${state.category} ${CATEGORY_KO[state.category] ?? ""}`.trim(),
+      href: buildHref({ category: undefined }),
+    });
+  for (const c of state.classes)
+    chips.push({ key: `class-${c}`, label: c === NONE ? "분류 미상" : c, href: toggleClass(c) });
+  if (state.trend)
+    chips.push({ key: "trend", label: `추세 ${TREND_LABEL[state.trend] ?? state.trend}`, href: buildHref({ trend: undefined }) });
+  if (state.tier)
+    chips.push({ key: "tier", label: TIER_LABEL[state.tier] ?? state.tier, href: buildHref({ tier: undefined }) });
+  if (state.threat)
+    chips.push({ key: "threat", label: `위협 ${THREAT_KO[state.threat] ?? state.threat}`, href: buildHref({ threat: undefined }) });
+
   const classOptions = Object.keys(facets.class)
     .filter((c) => c !== NONE)
     .concat(state.classes.filter((c) => c !== NONE && !(c in facets.class)))
@@ -225,82 +240,48 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
         <SearchBar />
       </section>
 
-      <section className="mb-8">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-[11px] font-black tracking-[0.2em] text-zinc-500">CATEGORIES · 등급</h2>
-          <span className="text-[10px] tracking-wider text-zinc-400">IUCN Red List v3.1 · 숫자는 다른 필터를 건 상태의 종 수</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
-          {CATEGORY_TILES.map((tile, i) => {
-            const active = (tile.value ?? null) === (state.category ?? null);
-            const count = tile.value ? (facets.category[tile.value] ?? 0) : countWithoutCategory;
-            const disabled = count === 0 && !active;
-            const isYellow = tile.value === "VU";
-            const textColor = active ? (isYellow ? "text-zinc-900" : "text-white") : "text-zinc-900";
-            const subColor = active ? (isYellow ? "text-zinc-700" : "text-white/85") : "text-zinc-400";
-            const className =
-              "fade-up group relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-5 " +
-              (active
-                ? `${tile.color} border-transparent shadow-xl shadow-zinc-900/10`
-                : disabled
-                ? "cursor-not-allowed border-zinc-200/80 bg-white/60 opacity-40"
-                : "border-zinc-200/80 bg-white/80 backdrop-blur-sm hover:-translate-y-1 hover:border-zinc-300 hover:shadow-xl hover:shadow-zinc-900/10");
-            const body = (
-              <>
-                {!active && <span className={`absolute left-0 top-0 h-full w-[3px] ${tile.accent}`} aria-hidden />}
-                {/* Animated gradient background on active */}
-                {active && (
-                  <span
-                    className="absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-25 blur-3xl"
-                    style={{ background: "radial-gradient(circle, white, transparent)" }}
-                    aria-hidden
-                  />
-                )}
-                <div className={`flex items-baseline gap-2 ${textColor}`}>
-                  {tile.value && (
-                    <span className="font-mono text-[10px] font-black tracking-[0.15em] opacity-80">{tile.value}</span>
-                  )}
-                  <span className="text-base font-black sm:text-lg">{tile.label}</span>
-                </div>
-                <p className={`mt-1 text-[10px] tracking-wide ${subColor}`}>{tile.korean}</p>
-                <p className={`mt-4 text-3xl font-black tabular-nums tracking-tight ${textColor} sm:text-4xl`}>
-                  {count.toLocaleString()}
-                  <span className="ml-1 text-[10px] font-bold tracking-wider opacity-70">SPECIES</span>
-                </p>
-              </>
-            );
-            return disabled ? (
-              <span key={tile.value ?? "all"} aria-disabled="true" className={className}>
-                {body}
-              </span>
-            ) : (
-              <Link
-                key={tile.value ?? "all"}
-                href={buildHref({ category: tile.value })}
-                style={{ animationDelay: `${i * 60}ms` }}
-                className={className}
-              >
-                {body}
-              </Link>
-            );
-          })}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <span className="self-center text-[11px] text-zinc-400">그 밖의 등급</span>
-          {OTHER_CATEGORIES.map((c) => (
+      {/* 필터 — 기본은 접힘(<details>). 걸린 필터는 접혀 있어도 아래 칩으로 보인다. */}
+      <section className="mb-6">
+        <details className="rounded-2xl border border-zinc-200 bg-white/70">
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2.5 [&::-webkit-details-marker]:hidden">
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-zinc-900">
+              필터
+              {chips.length > 0 && (
+                <span className="rounded-full bg-zinc-900 px-2 py-0.5 text-[11px] font-black tabular-nums text-white">
+                  {chips.length}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] text-zinc-400">눌러서 펼치기·접기 ▾</span>
+          </summary>
+          <div className="space-y-2 border-t border-zinc-100 px-4 pb-4 pt-3">
+            <p className="text-[10px] text-zinc-400">
+              항목 옆 숫자는 다른 필터를 건 상태에서의 종 수입니다. 0종인 항목은 누를 수 없습니다.
+            </p>
+
+        <FacetGroup title="등급" hint="IUCN 적색목록 범주 · 하나만 선택" selected={state.category ? 1 : 0}>
+          <FacetChip
+            href={buildHref({ category: undefined })}
+            label="전체"
+            count={countWithoutCategory}
+            active={!state.category}
+          />
+          {CATEGORY_CODES.map((code) => (
             <FacetChip
-              key={c.value}
-              href={buildHref({ category: state.category === c.value ? undefined : c.value })}
-              label={`${c.value} ${c.label}`}
-              count={facets.category[c.value] ?? 0}
-              active={state.category === c.value}
+              key={code}
+              href={buildHref({ category: state.category === code ? undefined : code })}
+              label={`${code} ${CATEGORY_KO[code]}`}
+              count={facets.category[code] ?? 0}
+              active={state.category === code}
             />
           ))}
-        </div>
-      </section>
+        </FacetGroup>
 
-      <section className="mb-8 space-y-5 rounded-2xl border border-zinc-200 bg-white/70 p-4 sm:p-5">
-        <FacetGroup title="TAXONOMY · 분류군" hint="여러 개 선택 가능 (고른 분류군 중 하나에 속하는 종)">
+        <FacetGroup
+          title="분류군"
+          hint="여러 개 선택 가능 (고른 분류군 중 하나에 속하는 종)"
+          selected={state.classes.length}
+        >
           <FacetChip href={buildHref({ classes: [] })} label="전체" count={countWithoutClass} active={state.classes.length === 0} />
           {classOptions.map((c) => (
             <FacetChip
@@ -325,7 +306,7 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
           ) : null}
         </FacetGroup>
 
-        <FacetGroup title="POPULATION TREND · 개체수 추세" hint="IUCN 평가의 개체수 추세">
+        <FacetGroup title="개체수 추세" hint="IUCN 평가 기준" selected={state.trend ? 1 : 0}>
           {[...TREND_VALUES, NONE].map((v) => (
             <FacetChip
               key={v}
@@ -338,7 +319,11 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
           ))}
         </FacetGroup>
 
-        <FacetGroup title="V5 TIER · LastWatch 티어" hint="LastWatch 자체 계산 (IUCN 공식 지표 아님) · T4 가 가장 시급">
+        <FacetGroup
+          title="위험 단계"
+          hint="LastWatch 자체 계산 (IUCN 공식 지표 아님) · T4 가 가장 시급"
+          selected={state.tier ? 1 : 0}
+        >
           {[...TIER_VALUES, NONE].map((v) => (
             <FacetChip
               key={v}
@@ -353,8 +338,9 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
         </FacetGroup>
 
         <FacetGroup
-          title="THREATS · 위협 대분류"
-          hint="IUCN 위협 분류 코드가 있는 종만 (수기 입력 위협만 있는 종·위협 기록이 없는 종은 해당 없음) · 과거 위협 포함"
+          title="위협 요인"
+          hint="IUCN 위협 분류 대분류 · 분류 코드가 있는 종만 (수기 입력 위협만 있는 종·위협 기록이 없는 종은 해당 없음) · 과거 위협 포함"
+          selected={state.threat ? 1 : 0}
         >
           {THREAT_CODES.map((code) => (
             <FacetChip
@@ -363,10 +349,34 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
               label={`${code}. ${THREAT_KO[code]}`}
               count={facets.threat[code] ?? 0}
               active={state.threat === code}
-              title={threatNames[code]}
+              title={threatNames[code] ? `IUCN 원문: ${threatNames[code]}` : undefined}
             />
           ))}
         </FacetGroup>
+          </div>
+        </details>
+
+        {chips.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="걸린 필터">
+            {chips.map((c) => (
+              <Link
+                key={c.key}
+                href={c.href}
+                aria-label={`${c.label} 필터 해제`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-zinc-900 bg-zinc-900 px-3 py-1 text-[12px] font-bold text-white transition hover:bg-zinc-700"
+              >
+                {c.label}
+                <span aria-hidden className="text-[13px] leading-none opacity-80">×</span>
+              </Link>
+            ))}
+            <Link
+              href={resetHref}
+              className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-[12px] font-bold text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900"
+            >
+              전체 해제
+            </Link>
+          </div>
+        )}
       </section>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-50/60 px-4 py-3">
@@ -391,9 +401,6 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
               </span>
             </>
           )}
-          {active.map((a) => (
-            <span key={a.axis} className="ml-2 text-xs text-zinc-500">· {a.label}</span>
-          ))}
         </p>
         <div className="flex items-center gap-3">
           <SortSelector
@@ -467,15 +474,30 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
   );
 }
 
-function FacetGroup({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+// 축 하나 — 따로 접고 펼친다(기본 접힘). 제목 옆에 이 축에서 고른 개수.
+function FacetGroup({
+  title,
+  hint,
+  selected = 0,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  selected?: number;
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-[11px] font-black tracking-[0.2em] text-zinc-500">{title}</h2>
+    <details className="rounded-xl border border-zinc-100 bg-white/60">
+      <summary className="flex min-h-[40px] cursor-pointer list-none flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2 [&::-webkit-details-marker]:hidden">
+        <h2 className="text-[13px] font-bold text-zinc-800">
+          {title}
+          {selected > 0 && <span className="ml-1.5 text-[11px] font-bold text-[#D81E05]">{selected}개 선택</span>}
+        </h2>
         {hint && <span className="text-[10px] text-zinc-400">{hint}</span>}
-      </div>
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </div>
+        <span className="ml-auto text-[11px] text-zinc-400">▾</span>
+      </summary>
+      <div className="flex flex-wrap gap-2 px-3 pb-3 pt-1">{children}</div>
+    </details>
   );
 }
 
