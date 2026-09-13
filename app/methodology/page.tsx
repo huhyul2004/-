@@ -217,6 +217,89 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
         </div>
       </Section>
 
+      <Section id="confidence" label="신뢰도" title="신뢰도 — 지금은 모든 종이 같은 값">
+        <Card>
+          <p className="text-xs leading-relaxed text-zinc-700">
+            종 상세의 &lsquo;신뢰도&rsquo;는 세 레이어 신뢰도의 가중합입니다. 레이어 신뢰도가 모두 고정값이라 계산되는{" "}
+            {n(cov.computed)}종이 전부 같은 값({cov.overallConfidenceValues.map((v) => v.toFixed(4)).join(" · ")})을 갖습니다.
+            <b> 종별로 점수를 얼마나 믿을 수 있는지 알려주는 값이 아닙니다.</b>
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[320px] text-left text-xs">
+              <thead>
+                <tr className="border-b border-zinc-200 text-zinc-500">
+                  <th className="py-1.5 pr-3 font-bold">레이어</th>
+                  <th className="py-1.5 pr-3 font-bold">신뢰도</th>
+                  <th className="py-1.5 font-bold">정해지는 방식</th>
+                </tr>
+              </thead>
+              <tbody className="text-zinc-800">
+                <tr className="border-b border-zinc-100">
+                  <td className="py-1.5 pr-3">{LAYER_NAME.ews}</td>
+                  <td className="py-1.5 pr-3 font-mono">{E.confidence}</td>
+                  <td className="py-1.5">고정값 — 개체수 시계열이 없어 낮게 둠</td>
+                </tr>
+                <tr className="border-b border-zinc-100">
+                  <td className="py-1.5 pr-3">{LAYER_NAME.pva}</td>
+                  <td className="py-1.5 pr-3 font-mono">{P.confidence}</td>
+                  <td className="py-1.5">고정값</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 pr-3">{LAYER_NAME.iucn}</td>
+                  <td className="py-1.5 pr-3 font-mono">{V5_SPEC.neConfidence}</td>
+                  <td className="py-1.5">개체수가 있으면 늘 이 값 (점수가 계산되는 종은 모두 개체수가 있음)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <Formula>{`신뢰도 = ${W.ews}×${E.confidence} + ${W.pva}×${P.confidence} + ${W.iucn}×${V5_SPEC.neConfidence}
+       = ${(W.ews * E.confidence).toFixed(4)} + ${(W.pva * P.confidence).toFixed(4)} + ${(W.iucn * V5_SPEC.neConfidence).toFixed(4)}
+       = ${fixedConfidence.toFixed(4)}   → 화면 표시 ${Math.round(fixedConfidence * 100)}%`}</Formula>
+
+          <h3 className="mt-4 text-sm font-bold text-zinc-900">명세서와 다른 점</h3>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[420px] text-left text-xs">
+              <thead>
+                <tr className="border-b border-zinc-200 text-zinc-500">
+                  <th className="py-1.5 pr-3 font-bold">항목</th>
+                  <th className="py-1.5 pr-3 font-bold">명세서 (full_spec §5.3)</th>
+                  <th className="py-1.5 font-bold">지금 코드</th>
+                </tr>
+              </thead>
+              <tbody className="text-zinc-800">
+                <tr className="border-b border-zinc-100">
+                  <td className="py-1.5 pr-3 font-bold">신뢰도의 역할</td>
+                  <td className="py-1.5 pr-3">
+                    신뢰도로 레이어 가중치를 조정한 뒤 정규화 — <span className="font-mono">w_i = w₀,i × (0.5 + 0.5·c_i)</span>
+                  </td>
+                  <td className="py-1.5">
+                    가중치는 고정({W.ews} · {W.pva} · {W.iucn}), 신뢰도는 압축 조건에만 쓰임
+                  </td>
+                </tr>
+                <tr className="border-b border-zinc-100">
+                  <td className="py-1.5 pr-3 font-bold">신뢰도 압축</td>
+                  <td className="py-1.5 pr-3">없음</td>
+                  <td className="py-1.5 font-mono">
+                    신뢰도 &lt; {LC.below} → 점수 × {LC.scale} + {LC.add}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 pr-3 font-bold">실제 적용</td>
+                  <td className="py-1.5 pr-3">—</td>
+                  <td className="py-1.5">
+                    모든 종이 {fixedConfidence.toFixed(4)} ≥ {LC.below} → <b>압축이 적용된 종 {n(cov.compressed)}종</b>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2 text-[11px] text-zinc-500">
+            명세서 식은 저장소 문서(docs/layer-score-spec-vs-code.md §4)에 옮겨 둔 full_spec §5.3 을 인용했습니다.
+            신뢰도를 종마다 다르게 하려면 신뢰도를 종별 자료로 계산하는 코드가 필요합니다(docs/confidence-audit.md).
+          </p>
+        </Card>
+      </Section>
+
       <Section id="floor" label="하한" title="개체수 하한 규칙">
         <Card className="border-amber-200 bg-amber-50/60">
           <p className="text-sm font-bold text-amber-900">

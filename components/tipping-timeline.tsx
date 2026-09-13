@@ -1,6 +1,12 @@
 // 임계점 엔진 결과를 시각화하는 연표 컴포넌트
 // 종 상세 페이지에 박힘
-import type { TippingPointResult } from "@/lib/tipping-point";
+import Link from "next/link";
+import { V5_SPEC, type TippingPointResult } from "@/lib/tipping-point";
+
+// 계산되는 종의 종합 신뢰도 — 레이어 신뢰도가 모두 고정값이라 모든 종이 이 값이다 (저장값과 같은 반올림)
+const W = V5_SPEC.weights;
+const FIXED_CONFIDENCE =
+  Math.round((W.ews * V5_SPEC.ews.confidence + W.pva * V5_SPEC.pva.confidence + W.iucn * V5_SPEC.neConfidence) * 100) / 100;
 
 const TIER_INFO: Record<string, { label: string; color: string; bg: string; border: string; gradient: string }> = {
   T0: { label: "T0 · 안정", color: "text-[#3a8836]", bg: "bg-[#60C659]", border: "border-[#60C659]", gradient: "from-[#60C659]/10 to-transparent" },
@@ -40,6 +46,17 @@ export function TippingTimeline({
 }) {
   const tierInfo = TIER_INFO[result.intervention_tier] ?? TIER_INFO.T0;
   const isExtinct = result.intervention_tier === "EX";
+  // 신뢰도 — 계산되는 종은 레이어 고정값의 가중합이라 모두 같은 값, 절멸 종은 계산 없이 고정값.
+  // 종별 지표처럼 읽히지 않도록 이유를 붙인다 (값이 고정값과 다르면 붙이지 않는다).
+  const sameForAll = !isExtinct && result.confidence === FIXED_CONFIDENCE;
+  const confidenceNote = isExtinct
+    ? "절멸·야생절멸 — 계산 없이 고정값"
+    : sameForAll
+      ? "모든 종 동일 — 레이어별 고정값의 가중합"
+      : null;
+  const confidenceWhy = sameForAll
+    ? "레이어 신뢰도(EWS·PVA·유효개체군)가 종과 상관없는 고정값이라, 이 숫자는 이 종의 점수를 얼마나 믿을 수 있는지 알려주지 않습니다."
+    : null;
 
   const cardCls = dark
     ? "rounded-3xl border border-zinc-800 bg-zinc-900/80 backdrop-blur text-zinc-100"
@@ -252,8 +269,23 @@ export function TippingTimeline({
           <p className={`text-[10.5px] leading-relaxed ${subCls}`}>
             <span className="font-bold">PVA</span>: Beissinger & McCullough (2002), 1500회 stochastic Ricker simulation<br />
             <span className="font-bold">50/500 Rule</span>: Frankham et al. 2014 — Ne ≥ 100 단기 / Ne ≥ 1000 장기 임계<br />
-            <span className="font-bold">신뢰도</span>: <span className={dark ? "text-zinc-200" : "text-zinc-900"}>{(result.confidence * 100).toFixed(0)}%</span> ·{" "}
-            <span className="font-bold">주 신호</span>: <span className={dark ? "text-zinc-200" : "text-zinc-900"}>{result.primary_driver}</span>
+            <span className="font-bold">신뢰도</span>: <span className={dark ? "text-zinc-200" : "text-zinc-900"}>{(result.confidence * 100).toFixed(0)}%</span>
+            {confidenceNote && (
+              <>
+                {" "}
+                ({confidenceNote}){" "}
+                <Link href="/methodology#confidence" className="underline underline-offset-2">
+                  왜 같은가
+                </Link>
+              </>
+            )}{" "}
+            · <span className="font-bold">주 신호</span>: <span className={dark ? "text-zinc-200" : "text-zinc-900"}>{result.primary_driver}</span>
+            {confidenceWhy && (
+              <>
+                <br />
+                {confidenceWhy}
+              </>
+            )}
           </p>
         </div>
       </div>
