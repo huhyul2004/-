@@ -152,6 +152,16 @@ export interface MethodologyCoverage {
   trendAdjusted: number;
   tiers: Record<string, number>;
   traceMismatches: number;
+  /** 계산 종의 EWS 점수 고유값 — 값마다 종 수와 그 값을 만든 추세 입력 */
+  ewsValues: { score: number; count: number; inputs: Record<string, number> }[];
+}
+
+// EWS 의 r 을 정한 추세 입력 — trendToLambdaV4 의 우선순위(IUCN → 한글 칸 → 기본값)
+const IUCN_TREND_KO: Record<string, string> = { Decreasing: "감소", Stable: "안정", Increasing: "증가" };
+function trendInputLabel(iucnTrend: string | null, koreanTrend: string | null, source: string): string {
+  if (source === "iucn") return `IUCN 추세 ${IUCN_TREND_KO[iucnTrend ?? ""] ?? iucnTrend}`;
+  if (source === "korean") return `한글 추세 칸 '${koreanTrend}'`;
+  return `추세 알 수 없음(IUCN ${iucnTrend ?? "기록 없음"}) → 기본값`;
 }
 
 export function getMethodologyCoverage(): MethodologyCoverage {
@@ -205,9 +215,19 @@ export function getMethodologyCoverage(): MethodologyCoverage {
   let compressed = 0;
   let trendAdjusted = 0;
   let traceMismatches = 0;
+  const ews = new Map<number, { score: number; count: number; inputs: Record<string, number> }>();
   for (const r of rows) {
     inc(popSource, inferPopulationWithSource(r).source);
-    inc(trendSource, trendToLambdaV4(r.iucn_population_trend ?? null, r.population_trend, r.category).source);
+    const trendSrc = trendToLambdaV4(r.iucn_population_trend ?? null, r.population_trend, r.category).source;
+    inc(trendSource, trendSrc);
+    const ewsScore = (JSON.parse(r.payload_json) as LayerPayload).layer_scores?.ews?.score;
+    if (typeof ewsScore === "number") {
+      const key = Math.round(ewsScore * 1e6) / 1e6;
+      const g = ews.get(key) ?? { score: ewsScore, count: 0, inputs: {} };
+      g.count++;
+      inc(g.inputs, trendInputLabel(r.iucn_population_trend ?? null, r.population_trend, trendSrc));
+      ews.set(key, g);
+    }
     if (hasClassLifeHistory(r.class_name)) classLife.own++;
     else classLife.fallback++;
     inc(tiers, r.intervention_tier);
@@ -250,5 +270,6 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     trendAdjusted,
     tiers,
     traceMismatches,
+    ewsValues: Array.from(ews.values()).sort((a, b) => b.score - a.score),
   };
 }
