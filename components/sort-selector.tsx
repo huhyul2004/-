@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import type { SortKey } from "@/lib/queries";
 
-const OPTIONS: { key: "urgency" | "risk" | "name" | "recent" | "class"; label: string }[] = [
+const OPTIONS: { key: SortKey; label: string }[] = [
   { key: "urgency", label: "개입 시급도 (기본)" },
+  { key: "score", label: "v5 점수 높은 순" },
+  { key: "population", label: "개체수 적은 순" },
   { key: "risk", label: "IUCN 등급 순" },
   { key: "name", label: "이름 순" },
   { key: "recent", label: "최근 등록" },
@@ -15,8 +18,8 @@ export function SortSelector({
   value,
   hrefs,
 }: {
-  value: "urgency" | "risk" | "name" | "recent" | "class";
-  hrefs: Record<string, string>;
+  value: SortKey;
+  hrefs: Record<SortKey, string>;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -41,7 +44,7 @@ export function SortSelector({
         <span className="text-[10px] text-zinc-400">▼</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-40 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg">
+        <div className="absolute right-0 top-full z-30 mt-1 w-44 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg">
           {OPTIONS.map((o) => (
             <Link
               key={o.key}

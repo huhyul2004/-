@@ -1,4 +1,13 @@
 /**
+ * ⚠ 사이트에서 호출되지 않는 코드 (2026-09-13 확인).
+ *   - 앱 라우트·컴포넌트 어디에서도 import 하지 않는다. 호출처는 __tests__/regression.test.ts 뿐이고,
+ *     scripts/generate-patent-figures.ts 는 파일 이름을 그림 글자로만 적는다.
+ *   - 실제 보전 전략은 app/api/recommend/route.ts (Gemini) 가 만든다.
+ *   - THREAT_SPECIFIC 은 "hunting"·"bycatch" 같은 영문 키로 위협을 찾는데, DB 의 threats.threat_name 은
+ *     IUCN 영문 이름("Intentional use (species is the target)" 등)이나 수기 한국어 이름이라 한 건도 맞지 않는다.
+ *     되살리려면 threat_code(예: 5_1_1 → 사냥) 로 매칭해야 한다.
+ *   특허 명세서(청구항 2) 대응 코드라 삭제하지 않고 남긴다.
+ *
  * Recommendation Module — Tier × 위협유형 × 지역 권고 행동 매트릭스
  *
  * Independent Claim 2 (BM 발명) — 종합 점수에 대응한 5단계 Tier 코드,
