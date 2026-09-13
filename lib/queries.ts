@@ -14,7 +14,125 @@ export function getCachedOneLiner(speciesId: string): string | null {
   }
 }
 
-export type SortKey = "urgency" | "risk" | "name" | "recent" | "class";
+export type SortKey = "urgency" | "score" | "population" | "risk" | "name" | "recent" | "class";
+
+// 정렬에서 값이 없는 종의 자리 — 목록 화면에 그대로 적는다.
+export const SORT_RULE =
+  "절멸(EX·EW)은 모든 정렬에서 맨 뒤. v5 점수순·개체수순에서 값이 없는 종은 값이 있는 종 뒤에 이름순으로 둡니다.";
+
+// ── 목록 필터 ── 축끼리는 AND, 분류군 안에서는 OR(다중 선택).
+export const NONE = "__none__"; // 값 없음: 분류 미상 · 추세 기록 없음 · 점수 없음
+export const TREND_VALUES = ["Decreasing", "Stable", "Increasing", "Unknown"] as const;
+export const TIER_VALUES = ["T4", "T3", "T2", "T1", "T0", "EX"] as const;
+export type FilterAxis = "category" | "class" | "trend" | "tier" | "threat";
+
+export interface ListFilters {
+  category?: string;
+  /** class_name 여러 개 — OR. NONE 은 class_name IS NULL */
+  classNames?: string[];
+  /** iucn_population_trend. NONE 은 기록 없음 */
+  trend?: string;
+  /** tipping_points.intervention_tier. NONE 은 점수 없음 */
+  tier?: string;
+  /** IUCN 위협 대분류 코드 "1"~"12" — 그 대분류 위협 행(시기 무관)이 하나라도 있는 종 */
+  threat?: string;
+  curatedOnly?: boolean;
+}
+
+// tier 필터·점수 정렬 때문에 tipping_points 를 항상 붙인다 (종당 최대 1행이라 행 수는 그대로).
+const FROM = "FROM species s LEFT JOIN tipping_points t ON t.species_id = s.id";
+
+/** WHERE 절. skip 축은 빼고 만든다 — 그 축의 항목별 종 수(facet)와 "이 필터를 풀면 N종" 에 쓴다. */
+function filterWhere(f: ListFilters, skip?: FilterAxis): { where: string; params: unknown[] } {
+  const scope = scopeClause(f.curatedOnly ?? true);
+  const conds: string[] = [scope.clause];
+  const params: unknown[] = [...scope.params];
+
+  if (skip !== "category" && f.category && (ALL_CATEGORIES as readonly string[]).includes(f.category)) {
+    conds.push("s.category = ?");
+    params.push(f.category);
+  }
+  if (skip !== "class" && f.classNames?.length) {
+    const names = f.classNames.filter((c) => c !== NONE);
+    const parts: string[] = [];
+    if (names.length) {
+      parts.push(`s.class_name IN (${names.map(() => "?").join(",")})`);
+      params.push(...names);
+    }
+    if (f.classNames.includes(NONE)) parts.push("s.class_name IS NULL");
+    conds.push(`(${parts.join(" OR ")})`);
+  }
+  if (skip !== "trend" && f.trend) {
+    if (f.trend === NONE) conds.push("s.iucn_population_trend IS NULL");
+    else if ((TREND_VALUES as readonly string[]).includes(f.trend)) {
+      conds.push("s.iucn_population_trend = ?");
+      params.push(f.trend);
+    }
+  }
+  if (skip !== "tier" && f.tier) {
+    if (f.tier === NONE) conds.push("t.species_id IS NULL");
+    else if ((TIER_VALUES as readonly string[]).includes(f.tier)) {
+      conds.push("t.intervention_tier = ?");
+      params.push(f.tier);
+    }
+  }
+  if (skip !== "threat" && f.threat && /^(1[0-2]|[1-9])$/.test(f.threat)) {
+    // "8" 은 8 과 8_… 만 — LIKE 의 _ 는 한 글자 와일드카드라 이스케이프해야 "80" 같은 코드가 섞이지 않는다
+    conds.push(
+      "EXISTS (SELECT 1 FROM threats th WHERE th.species_id = s.id AND (th.threat_code = ? OR th.threat_code LIKE ? ESCAPE '\\'))"
+    );
+    params.push(f.threat, `${f.threat}\\_%`);
+  }
+  return { where: conds.join(" AND "), params };
+}
+
+export function countSpecies(f: ListFilters, skip?: FilterAxis): number {
+  const { where, params } = filterWhere(f, skip);
+  return (getDb().prepare(`SELECT COUNT(*) AS n ${FROM} WHERE ${where}`).get(...params) as { n: number }).n;
+}
+
+export interface Facets {
+  category: Record<string, number>;
+  class: Record<string, number>;
+  trend: Record<string, number>;
+  tier: Record<string, number>;
+  threat: Record<string, number>;
+}
+
+/** 축마다 "다른 축 필터만 건 상태" 의 항목별 종 수. 값 없음은 NONE 키. */
+export function facetCounts(f: ListFilters): Facets {
+  const db = getDb();
+  const group = (axis: FilterAxis, key: string, join = "", count = "COUNT(*)") => {
+    const { where, params } = filterWhere(f, axis);
+    const rows = db
+      .prepare(`SELECT ${key} AS k, ${count} AS n ${FROM} ${join} WHERE ${where} GROUP BY k`)
+      .all(...params) as { k: string; n: number }[];
+    return Object.fromEntries(rows.map((r) => [r.k, r.n]));
+  };
+  return {
+    category: group("category", "s.category"),
+    class: group("class", `COALESCE(s.class_name, '${NONE}')`),
+    trend: group("trend", `COALESCE(s.iucn_population_trend, '${NONE}')`),
+    tier: group("tier", `COALESCE(t.intervention_tier, '${NONE}')`),
+    threat: group(
+      "threat",
+      "substr(th.threat_code, 1, instr(th.threat_code || '_', '_') - 1)",
+      "JOIN threats th ON th.species_id = s.id AND th.threat_code IS NOT NULL",
+      "COUNT(DISTINCT s.id)"
+    ),
+  };
+}
+
+/** IUCN 위협 대분류 코드 → 영문 이름 (threats.threat_category 에서) */
+export function threatCategoryNames(): Record<string, string> {
+  const rows = getDb()
+    .prepare(
+      `SELECT substr(threat_code, 1, instr(threat_code || '_', '_') - 1) AS code, MIN(threat_category) AS name
+       FROM threats WHERE threat_code IS NOT NULL AND threat_category IS NOT NULL GROUP BY code`
+    )
+    .all() as { code: string; name: string }[];
+  return Object.fromEntries(rows.map((r) => [r.code, r.name]));
+}
 
 // SpeciesRow 에 tipping_point 정보 join 한 확장 타입
 export interface SpeciesWithTipping extends SpeciesRow {
@@ -47,29 +165,20 @@ function scopeClause(curatedOnly: boolean): { clause: string; params: unknown[] 
   return { clause: "1=1", params: [] };
 }
 
-export function listAtRiskSpecies(filters?: {
-  category?: string;
-  className?: string;
-  sort?: SortKey;
-  page?: number;
-  pageSize?: number;
-  curatedOnly?: boolean;
-}): { rows: SpeciesWithTipping[]; total: number } {
+export function listAtRiskSpecies(
+  filters?: ListFilters & {
+    sort?: SortKey;
+    page?: number;
+    pageSize?: number;
+  }
+): { rows: SpeciesWithTipping[]; total: number } {
   const db = getDb();
-  const scope = scopeClause(filters?.curatedOnly ?? true);
-  const conditions: string[] = [scope.clause];
-  const params: unknown[] = [...scope.params];
+  const { where, params } = filterWhere(filters ?? {});
 
-  if (filters?.category && (ALL_CATEGORIES as readonly string[]).includes(filters.category)) {
-    conditions.push("s.category = ?");
-    params.push(filters.category);
-  }
-  if (filters?.className === "__none__") {
-    conditions.push("s.class_name IS NULL");
-  } else if (filters?.className) {
-    conditions.push("s.class_name = ?");
-    params.push(filters.className);
-  }
+  const NAME = "COALESCE(s.common_name_ko, s.common_name_en, s.scientific_name) COLLATE NOCASE";
+  // v5 와 같은 개체수(N₀) — lib/tipping-point.ts inferPopulationWithSource 의 순서 그대로
+  const POP =
+    "CASE WHEN s.mature_individuals > 0 THEN s.mature_individuals WHEN s.iucn_population_size > 0 THEN s.iucn_population_size END";
 
   // 절멸(EX/EW)은 항상 위급·위기·취약 뒤로 (사용자 지시 2026-07-14).
   //   절멸종은 deadline_days 가 과거(음수)라 urgency 정렬에서 오히려 최상단에 오므로,
@@ -89,10 +198,18 @@ export function listAtRiskSpecies(filters?: {
         WHEN 'T1' THEN 2 WHEN 'T0' THEN 1 ELSE 0
       END DESC,
       s.scientific_name COLLATE NOCASE`,
+    // 점수·개체수: 값 없는 종은 값 있는 종 뒤 (SORT_RULE)
+    score: `${EXTINCT_LAST},
+            CASE WHEN t.consensus_score IS NULL THEN 1 ELSE 0 END,
+            t.consensus_score DESC, ${NAME}`,
+    population: `${EXTINCT_LAST},
+                 CASE WHEN ${POP} IS NULL THEN 1 ELSE 0 END,
+                 ${POP} ASC, ${NAME}`,
     risk: `${EXTINCT_LAST},
-           CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2 ELSE 3 END,
-           s.common_name_ko COLLATE NOCASE`,
-    name: `${EXTINCT_LAST}, s.common_name_ko COLLATE NOCASE, s.scientific_name COLLATE NOCASE`,
+           CASE s.category WHEN 'CR' THEN 0 WHEN 'EN' THEN 1 WHEN 'VU' THEN 2
+                           WHEN 'NT' THEN 3 WHEN 'LC' THEN 4 WHEN 'DD' THEN 5 ELSE 6 END,
+           ${NAME}`,
+    name: `${EXTINCT_LAST}, ${NAME}, s.scientific_name COLLATE NOCASE`,
     recent: `${EXTINCT_LAST}, datetime(s.updated_at) DESC, s.common_name_ko COLLATE NOCASE`,
     class: `${EXTINCT_LAST}, s.class_name COLLATE NOCASE, s.common_name_ko COLLATE NOCASE`,
   };
@@ -102,15 +219,13 @@ export function listAtRiskSpecies(filters?: {
   const offset = (page - 1) * pageSize;
 
   // Total count (without LIMIT)
-  const countSql = `SELECT COUNT(*) as n FROM species s WHERE ${conditions.join(" AND ")}`;
-  const total = (db.prepare(countSql).get(...params) as { n: number }).n;
+  const total = (db.prepare(`SELECT COUNT(*) as n ${FROM} WHERE ${where}`).get(...params) as { n: number }).n;
 
   const sql = `
     SELECT s.*,
            t.consensus_score, t.intervention_tier, t.deadline_days, t.extinction_days
-    FROM species s
-    LEFT JOIN tipping_points t ON t.species_id = s.id
-    WHERE ${conditions.join(" AND ")}
+    ${FROM}
+    WHERE ${where}
     ORDER BY ${orderBy}
     LIMIT ? OFFSET ?`;
   const rows = db.prepare(sql).all(...params, pageSize, offset) as SpeciesWithTipping[];

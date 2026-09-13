@@ -16,39 +16,60 @@ import type { SpeciesRow } from "./db";
 // ===== 분류군별 기본 생활사 파라미터 (학명→기본값 추정용) =====
 // generation_time, growth_rate 추정 — 정확치 데이터 없을 때 사용
 // 출처: IUCN PVA workshop defaults + Cole 1954 + Stearns 1992
+//
+// ne_nc 출처 주의: 위 출처는 generation_time·r_max 를 가리킨다. ne_nc 는
+// 저장소에서 근거를 찾지 못했다 (2026-08-27 조사 — docs/patent/ne-nc-provenance-2026-08-27.md).
+// 아래 각 줄에 Frankham 1995 (Genetical Research 66:95, 102종 192추정치) 대응값을
+// 병기한다 — 대조용 기록일 뿐 계산에는 쓰지 않는다. 값은 바꾸지 않았다.
 const LIFE_HISTORY: Record<
   string,
   { generation_time: number; r_max: number; ne_nc: number }
 > = {
   // 포유류 — 큰 개체 / 늦은 성숙
+  // ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
   포유류: { generation_time: 8, r_max: 0.05, ne_nc: 0.15 },
   // 조류 — 중간
+  // ne_nc 0.20 — Frankham 1995 조류 0.21
   조류: { generation_time: 5, r_max: 0.1, ne_nc: 0.2 },
   // 파충류 — 늦은 성숙, 긴 수명
+  // ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
   파충류: { generation_time: 10, r_max: 0.06, ne_nc: 0.15 },
   // 양서류 — 빠른 세대
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   양서류: { generation_time: 3, r_max: 0.25, ne_nc: 0.1 },
   // 어류 — 매우 빠른 번식 가능
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "어류 (조기어류)": { generation_time: 4, r_max: 0.3, ne_nc: 0.05 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "어류 (경골어류)": { generation_time: 4, r_max: 0.3, ne_nc: 0.05 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   "어류 (연골어류)": { generation_time: 12, r_max: 0.05, ne_nc: 0.1 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   어류: { generation_time: 5, r_max: 0.2, ne_nc: 0.05 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   곤충: { generation_time: 1, r_max: 0.5, ne_nc: 0.1 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   거미류: { generation_time: 2, r_max: 0.4, ne_nc: 0.1 },
+  // ne_nc 0.08 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   갑각류: { generation_time: 2, r_max: 0.35, ne_nc: 0.08 },
+  // ne_nc 0.10 — Frankham 1995 일반값과 일치
   복족류: { generation_time: 2, r_max: 0.3, ne_nc: 0.1 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   이매패류: { generation_time: 5, r_max: 0.15, ne_nc: 0.05 },
+  // ne_nc 0.05 — Frankham 1995 일반값보다 낮음 (근거 미확인)
   "산호류 (육방산호)": { generation_time: 10, r_max: 0.05, ne_nc: 0.05 },
-  // 식물
+  // 식물 — Frankham 1995 는 식물 대응값을 제시하지 않는다 (근거 미확인)
   "식물 (침엽수)": { generation_time: 30, r_max: 0.02, ne_nc: 0.2 },
   "식물 (소철)": { generation_time: 25, r_max: 0.03, ne_nc: 0.2 },
   "식물 (쌍떡잎)": { generation_time: 8, r_max: 0.1, ne_nc: 0.2 },
   양치식물: { generation_time: 5, r_max: 0.15, ne_nc: 0.15 },
   "양치식물 (속새류)": { generation_time: 5, r_max: 0.15, ne_nc: 0.15 },
   "이끼류 (우산이끼)": { generation_time: 2, r_max: 0.3, ne_nc: 0.15 },
+  // 지의류 — Frankham 1995 대응값 없음 (근거 미확인)
   지의류: { generation_time: 10, r_max: 0.03, ne_nc: 0.15 },
 };
 
+// ne_nc 0.15 — Frankham 1995 일반 0.10~0.11 보다 높음 (근거 미확인)
 const DEFAULT_LIFE: { generation_time: number; r_max: number; ne_nc: number } =
   { generation_time: 5, r_max: 0.1, ne_nc: 0.15 };
 
@@ -582,6 +603,18 @@ export function evaluateTippingPoint(
   if (overall_conf < 0.5) consensus = consensus * 0.9 + 10;
 
   // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
+  //
+  // [근거와 기재 현황 — 2026-09-12 조사, docs/population-floor-audit.md]
+  //   도입: 커밋 d5525e0 (2026-05-04). 커밋 메시지에 적힌 근거 3항목:
+  //     - IUCN Criterion D: N<50 CR, N<250 EN, N<1000 VU
+  //     - Frankham 50/500: Ne<100 단기 위험, Ne<1000 장기
+  //     - 단일 멸종사건 취약성: N<100 은 안정 추세여도 취약
+  //   특허 명세서 미기재: full_spec v3·v4, 발명신고서 2판, PKA-1551 수정요청서 전수 검색에서
+  //   이 규칙에 대응하는 기재 0건. 명세서는 출원이 끝나 고칠 수 없으므로, 챗봇이 하한 적용
+  //   전 점수를 함께 밝히도록 표시만 추가했다 (lib/floor-transparency.ts).
+  //   이 표를 바꾸면 lib/floor-transparency.ts 의 FLOOR_BANDS 도 같이 바꿀 것
+  //   (__tests__/floor-transparency.test.ts 가 불일치를 잡는다).
+  //
   // P0-2 fix: mature_individuals=NULL 이라도 카테고리 fallback (N0) 에 floor 적용
   // 카테고리 fallback 추정치는 confidence_cap=0.4 로 별도 표기 (다음 단계에서)
   // IUCN Criterion D + Frankham 50/500 + 단일 멸종사건 취약성 반영

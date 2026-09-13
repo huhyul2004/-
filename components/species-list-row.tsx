@@ -36,7 +36,12 @@ export function SpeciesListRow({ species }: { species: SpeciesRow | SpeciesWithT
         ) : hasTipping ? (
           <span className="hidden rounded-full bg-[#60C659]/15 px-2 py-0.5 text-[10px] font-bold text-[#2f7d33] sm:inline-flex">자체 분석</span>
         ) : (
-          <span className="hidden rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-500 sm:inline-flex">IUCN 등급만</span>
+          <span
+            className="hidden rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-500 sm:inline-flex"
+            title="LastWatch 위험 점수: 개체수 데이터가 없어 산출되지 않음"
+          >
+            IUCN 등급만
+          </span>
         )}
         {hasTipping && <UrgencyBadge species={species as SpeciesWithTipping} compact />}
         <CategoryBadge category={species.category} />

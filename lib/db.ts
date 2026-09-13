@@ -80,6 +80,10 @@ function initSchema(db: Database.Database) {
       threat_code TEXT,
       threat_name TEXT NOT NULL,
       severity TEXT,
+      -- IUCN 위협 코드 상위 분류·시기 (migrate_threat_hierarchy.py 와 정합)
+      threat_parent TEXT,
+      threat_category TEXT,
+      timing TEXT,
       FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS idx_threats_species ON threats(species_id);
@@ -168,6 +172,15 @@ export interface SpeciesRow {
   iucn_population_trend?: string | null;
   iucn_population_size?: number | null;
   iucn_criteria?: string | null;
+  iucn_assessment_year?: number | null;
+  /** 세대시간(년). 원값은 IUCN supplementary_info.generational_length 그대로 — 단위 미검증 항목이 있다(docs/data-quality-suspects-2026-08-27.md). */
+  iucn_generation_length?: number | null;
+  /** IUCN 동기화 시각(ISO). null 이면 Wikidata 출처라 IUCN 컬럼이 대부분 비어 있다. */
+  iucn_synced_at?: string | null;
+  /** IUCN Red List 평가 페이지 URL (sync_iucn_all.py 가 assessment 응답의 url 을 저장) */
+  iucn_url?: string | null;
+  iucn_sis_id?: number | null;
+  iucn_assessment_id?: number | null;
 }
 
 export interface ThreatRow {
@@ -176,6 +189,12 @@ export interface ThreatRow {
   threat_code: string | null;
   threat_name: string;
   severity: string | null;
+  /** IUCN 위협 코드의 바로 위 분류 이름 (수기 입력 행은 NULL) */
+  threat_parent: string | null;
+  /** IUCN 위협 코드의 대분류 이름 (수기 입력 행은 NULL) */
+  threat_category: string | null;
+  /** Ongoing · Future · Past, Likely to Return · Past, Unlikely to Return · Unknown (수기 입력 행은 NULL) */
+  timing: string | null;
 }
 
 export interface ConservationActionRow {

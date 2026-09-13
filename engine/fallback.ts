@@ -14,7 +14,7 @@ export interface TaxonDefaults {
   lambda_sd: number;       // 환경 확률성
   density: number;         // 개체/km²
   generation_time: number; // 년
-  ne_nc_ratio: number;     // 메타분석 평균
+  ne_nc_ratio: number;     // 출처 미기재 — 2026-08-27 조사에서 확인 못 함
 }
 
 export const TAXON_DEFAULTS: Record<string, TaxonDefaults> = {

@@ -1,0 +1,572 @@
+scientific_name,iucn_class,taxon,iucn_category,iucn_rli,consensus_score,lw5,intervention_tier,diff,is_extinct,pop_source,iucn_trend,ews,pva,iucn_layer,primary_driver,confidence
+Panthera tigris,MAMMALIA,포유류,EN,3,54.0,2.7,T2,-0.2999999999999998,False,mature_individuals,Decreasing,88.07970779778823,41.51,55,EWS 신호,0.6
+Ailuropoda melanoleuca,MAMMALIA,포유류,VU,2,0.4,0.02,T0,-1.98,False,mature_individuals,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값,0.6
+Ursus maritimus,MAMMALIA,포유류,VU,2,14.5,0.725,T0,-1.275,False,mature_individuals,Stable,50.0,0.02333333333333333,10,EWS 신호,0.6
+Rhinoceros sondaicus,MAMMALIA,포유류,CR,4,78.0,3.9,T3,-0.10000000000000009,False,mature_individuals,Stable,50.0,37.0,95,IUCN/유전 임계값,0.6
+Gorilla beringei graueri,MAMMALIA,포유류,CR,4,48.7,2.435,T2,-1.565,False,mature_individuals,Decreasing,88.07970779778823,41.53333333333333,30,EWS 신호,0.6
+Phocoena sinus,MAMMALIA,포유류,CR,4,100.0,5.0,T4,1.0,False,mature_individuals,Decreasing,88.07970779778823,96.00000000000001,95,PVA 시뮬레이션,0.6
+Grus japonensis,AVES,조류,VU,2,54.8,2.7399999999999998,T2,0.7399999999999998,False,mature_individuals,Decreasing,88.07970779778823,43.55,55,EWS 신호,0.6
+Raphus cucullatus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Thylacinus cynocephalus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Ectopistes migratorius,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lipotes vexillifer,MAMMALIA,포유류,CR,4,100.0,5.0,EX,1.0,False,none/extinct,Decreasing,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Atelopus oxyrhynchus,AMPHIBIA,양서류,CR,4,90.6,4.529999999999999,T4,0.5299999999999994,False,iucn_population_size,Decreasing,88.07970779778823,89.79,95,IUCN/유전 임계값,0.6
+Antilophia bokermanni,AVES,조류,CR,4,67.7,3.3850000000000002,T3,-0.6149999999999998,False,iucn_population_size,Decreasing,88.07970779778823,47.346666666666664,80,EWS 신호,0.6
+Pseudobulweria aterrima,AVES,조류,CR,4,78.5,3.925,T3,-0.07500000000000018,False,iucn_population_size,Decreasing,88.07970779778823,63.00333333333332,95,IUCN/유전 임계값,0.6
+Dobsonia chapmani,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,79.37666666666668,95,IUCN/유전 임계값,0.6
+Acinonyx jubatus venaticus,MAMMALIA,포유류,VU,2,45.0,2.25,T2,0.25,False,iucn_population_size,Decreasing,88.07970779778823,42.22333333333333,30,EWS 신호,0.6
+Gymnobelideus leadbeateri,MAMMALIA,포유류,CR,4,50.6,2.5300000000000002,T2,-1.4699999999999998,False,iucn_population_size,Decreasing,88.07970779778823,42.93666666666667,55,EWS 신호,0.6
+Eutrichomyias rowleyi,AVES,조류,CR,4,84.3,4.215,T4,0.21499999999999986,False,iucn_population_size,Decreasing,88.07970779778823,75.94666666666666,95,IUCN/유전 임계값,0.6
+Acipenser sturio,ACTINOPTERYGII,어류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,84.55666666666667,95,IUCN/유전 임계값,0.6
+Bunolagus monticularis,MAMMALIA,포유류,CR,4,77.3,3.8649999999999998,T3,-0.13500000000000023,False,iucn_population_size,Decreasing,88.07970779778823,60.24333333333334,95,IUCN/유전 임계값,0.6
+Holoaden bradei,AMPHIBIA,양서류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,85.89666666666666,95,IUCN/유전 임계값,0.6
+Santamartamys rufodorsalis,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,85.65666666666665,95,IUCN/유전 임계값,0.6
+Crocodylus intermedius,REPTILIA,파충류,CR,4,76.9,3.845,T3,-0.1549999999999998,False,iucn_population_size,Decreasing,88.07970779778823,59.29666666666667,95,IUCN/유전 임계값,0.6
+Mammillaria marcosii,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,79.0,3.95,T3,-0.04999999999999982,False,iucn_population_size,Decreasing,88.07970779778823,64.11333333333333,95,IUCN/유전 임계값,0.6
+Mammillaria pennispinosa,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,50.9,2.545,T2,-1.455,False,iucn_population_size,Decreasing,88.07970779778823,43.903333333333336,55,EWS 신호,0.6
+Cuora yunnanensis,REPTILIA,파충류,CR,4,90.3,4.515,T4,0.5149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,89.22666666666666,95,IUCN/유전 임계값,0.6
+Rhinopithecus brelichi,MAMMALIA,포유류,CR,4,76.1,3.8049999999999997,T3,-0.19500000000000028,False,iucn_population_size,Decreasing,88.07970779778823,57.50666666666666,95,IUCN/유전 임계값,0.6
+Plectrohyla pachyderma,,무척추/식물/기타,CR,4,90.6,4.529999999999999,T4,0.5299999999999994,False,iucn_population_size,Decreasing,88.07970779778823,89.88666666666666,95,IUCN/유전 임계값,0.6
+Radula visianica,JUNGERMANNIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Stable,50.0,80.23333333333332,95,IUCN/유전 임계값,0.6
+Nomascus concolor,MAMMALIA,포유류,CR,4,50.8,2.54,T2,-1.46,False,iucn_population_size,Decreasing,88.07970779778823,43.553333333333335,55,EWS 신호,0.6
+Lepidochelys kempii,REPTILIA,파충류,CR,4,15.1,0.755,T0,-3.245,False,iucn_population_size,Unknown,66.07563687658173,6.356666666666666,10,EWS 신호,0.6
+Weberocereus frohningiorum,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,65.89333333333333,95,IUCN/유전 임계값,0.6
+Crocodylus mindorensis,REPTILIA,파충류,CR,4,81.1,4.055,T4,0.054999999999999716,False,iucn_population_size,Decreasing,88.07970779778823,68.67666666666668,95,IUCN/유전 임계값,0.6
+Aphrastura masafuerae,AVES,조류,CR,4,70.0,3.5,T3,-0.5,False,iucn_population_size,Stable,50.0,8.05,95,IUCN/유전 임계값,0.6
+Sarothrura ayresi,AVES,조류,CR,4,79.0,3.95,T3,-0.04999999999999982,False,iucn_population_size,Decreasing,88.07970779778823,64.16333333333333,95,IUCN/유전 임계값,0.6
+Anthochaera phrygia,AVES,조류,CR,4,67.6,3.38,T3,-0.6200000000000001,False,iucn_population_size,Decreasing,88.07970779778823,47.10666666666666,80,EWS 신호,0.6
+Mecistops cataphractus,REPTILIA,파충류,CR,4,40.5,2.025,T2,-1.975,False,iucn_population_size,Decreasing,88.07970779778823,41.599999999999994,10,EWS 신호,0.6
+Otus insularis,AVES,조류,CR,4,74.5,3.725,T3,-0.2749999999999999,False,iucn_population_size,Decreasing,88.07970779778823,54.02333333333333,95,IUCN/유전 임계값,0.6
+Vanellus gregarius,AVES,조류,CR,4,93.2,4.66,T4,0.6600000000000001,False,iucn_population_size,Decreasing,88.07970779778823,95.60000000000001,95,PVA 시뮬레이션,0.6
+Auerodendron pauciflorum,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,89.40333333333334,95,IUCN/유전 임계값,0.6
+Rhizanthella gardneri,LILIOPSIDA,무척추/식물/기타,CR,4,93.6,4.68,T4,0.6799999999999997,False,iucn_population_size,Decreasing,88.07970779778823,96.4,95,PVA 시뮬레이션,0.6
+Turbinicarpus laui,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,44.9,2.245,T2,-1.755,False,iucn_population_size,Decreasing,88.07970779778823,41.946666666666665,30,EWS 신호,0.6
+Cyornis banyumas,AVES,조류,CR,4,67.3,3.3649999999999998,T3,-0.6350000000000002,False,iucn_population_size,Decreasing,88.07970779778823,46.39333333333333,80,EWS 신호,0.6
+Microcycas calocoma,CYCADOPSIDA,무척추/식물/기타,CR,4,79.4,3.97,T3,-0.029999999999999805,False,iucn_population_size,Decreasing,88.07970779778823,64.93333333333334,95,IUCN/유전 임계값,0.6
+Didunculus strigirostris,AVES,조류,CR,4,82.1,4.1049999999999995,T4,0.10499999999999954,False,iucn_population_size,Decreasing,88.07970779778823,71.02666666666666,95,IUCN/유전 임계값,0.6
+Byblis gigantea,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,17.3,0.865,T0,-3.135,False,iucn_population_size,Stable,50.0,0.30333333333333334,55,IUCN/유전 임계값,0.6
+Pharotis imogene,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Stable,50.0,56.790000000000006,95,IUCN/유전 임계값,0.6
+Tahina spectabilis,LILIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,82.13,95,IUCN/유전 임계값,0.6
+Mammillaria albiflora,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,45.0,2.25,T2,-1.75,False,iucn_population_size,Decreasing,88.07970779778823,42.25,30,EWS 신호,0.6
+Pteropus aruensis,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,85.71666666666667,95,IUCN/유전 임계값,0.6
+Phoboscincus bocourti,REPTILIA,파충류,CR,4,84.6,4.2299999999999995,T4,0.22999999999999954,False,iucn_population_size,Decreasing,88.07970779778823,76.41666666666667,95,IUCN/유전 임계값,0.6
+Pristimantis xylochobates,AMPHIBIA,양서류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,86.12666666666668,95,IUCN/유전 임계값,0.6
+Turbinicarpus swobodae,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,50.5,2.525,T2,-1.475,False,iucn_population_size,Decreasing,88.07970779778823,42.86333333333333,55,EWS 신호,0.6
+Plecotus teneriffae,MAMMALIA,포유류,CR,4,50.6,2.5300000000000002,T2,-1.4699999999999998,False,iucn_population_size,Decreasing,88.07970779778823,43.01,55,EWS 신호,0.6
+Adansonia perrieri,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,75.9,3.7950000000000004,T3,-0.20499999999999963,False,iucn_population_size,Decreasing,88.07970779778823,57.266666666666666,95,IUCN/유전 임계값,0.6
+Mellissia begoniifolia,,무척추/식물/기타,CR,4,94.8,4.74,T4,0.7400000000000002,False,iucn_population_size,Decreasing,88.07970779778823,99.2,95,PVA 시뮬레이션,0.6
+Abies beshanzuensis,PINOPSIDA,무척추/식물/기타,CR,4,94.6,4.7299999999999995,T4,0.7299999999999995,False,iucn_population_size,Decreasing,88.07970779778823,98.8,95,PVA 시뮬레이션,0.6
+Wikstroemia villosa,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,77.69333333333334,95,IUCN/유전 임계값,0.6
+Haptanthus hazlettii,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,77.3,3.8649999999999998,T3,-0.13500000000000023,False,iucn_population_size,Decreasing,88.07970779778823,60.309999999999995,95,IUCN/유전 임계값,0.6
+Nepenthes attenboroughii,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,60.0,3.0,T3,-1.0,False,iucn_population_size,Unknown,66.07563687658173,13.719999999999999,80,IUCN/유전 임계값,0.6
+Mexipedium xerophyticum,LILIOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,88.58333333333333,95,IUCN/유전 임계값,0.6
+Uromys porculus,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,98.8,95,PVA 시뮬레이션,0.6
+Phalanger matanim,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,73.73666666666668,95,IUCN/유전 임계값,0.6
+Murina tenebrosa,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,99.6,95,PVA 시뮬레이션,0.6
+Diceros bicornis,MAMMALIA,포유류,CR,4,10.4,0.52,T0,-3.48,False,iucn_population_size,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값,0.6
+Craugastor tabasarae,AMPHIBIA,양서류,CR,4,74.1,3.7049999999999996,T3,-0.2950000000000004,False,iucn_population_size,Decreasing,88.07970779778823,53.24666666666666,95,IUCN/유전 임계값,0.6
+Turbinicarpus mandragora,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,44.9,2.245,T2,-1.755,False,iucn_population_size,Decreasing,88.07970779778823,41.95333333333333,30,EWS 신호,0.6
+Uromys imperator,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,98.8,95,PVA 시뮬레이션,0.6
+Calyptura cristata,AVES,조류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,86.22666666666666,95,IUCN/유전 임계값,0.6
+Nepenthes aristolochioides,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,84.4,4.220000000000001,T4,0.22000000000000064,False,iucn_population_size,Decreasing,88.07970779778823,76.16666666666667,95,IUCN/유전 임계값,0.6
+Tylomys bullaris,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,87.28333333333333,95,IUCN/유전 임계값,0.6
+Turbinicarpus alonsoi,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,44.6,2.23,T2,-1.77,False,iucn_population_size,Decreasing,88.07970779778823,41.13666666666666,30,EWS 신호,0.6
+Potorous gilbertii,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,77.81333333333333,95,IUCN/유전 임계값,0.6
+Turbinicarpus hoferi,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,51.7,2.585,T2,-1.415,False,iucn_population_size,Decreasing,88.07970779778823,45.946666666666665,55,EWS 신호,0.6
+Necrosyrtes monachus,AVES,조류,CR,4,40.3,2.0149999999999997,T2,-1.9850000000000003,False,iucn_population_size,Decreasing,88.07970779778823,41.15,10,EWS 신호,0.6
+Mammillaria schwarzii,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,51.2,2.56,T2,-1.44,False,iucn_population_size,Decreasing,88.07970779778823,44.48,55,EWS 신호,0.6
+Equus africanus,MAMMALIA,포유류,CR,4,81.4,4.07,T4,0.07000000000000028,False,iucn_population_size,Decreasing,88.07970779778823,69.49000000000001,95,IUCN/유전 임계값,0.6
+Bostrychia bocagei,AVES,조류,CR,4,51.0,2.55,T2,-1.4500000000000002,False,iucn_population_size,Decreasing,88.07970779778823,44.126666666666665,55,EWS 신호,0.6
+Pseudoryx nghetinhensis,MAMMALIA,포유류,CR,4,77.6,3.88,T3,-0.1200000000000001,False,iucn_population_size,Decreasing,88.07970779778823,60.85333333333334,95,IUCN/유전 임계값,0.6
+Crocodylus siamensis,REPTILIA,파충류,CR,4,51.1,2.555,T2,-1.4449999999999998,False,iucn_population_size,Decreasing,88.07970779778823,44.403333333333336,55,EWS 신호,0.6
+Eubalaena glacialis,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,85.19,95,IUCN/유전 임계값,0.6
+Mammillaria anniana,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,67.1,3.3549999999999995,T3,-0.6450000000000005,False,iucn_population_size,Decreasing,88.07970779778823,46.0,80,EWS 신호,0.6
+Opuntia chaffeyi,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,92.5,4.625,T4,0.625,False,iucn_population_size,Decreasing,88.07970779778823,94.0,95,IUCN/유전 임계값,0.6
+Alligator sinensis,REPTILIA,파충류,CR,4,78.0,3.9,T3,-0.10000000000000009,False,iucn_population_size,Stable,50.0,33.50333333333333,95,IUCN/유전 임계값,0.6
+Crocodylus rhombifer,REPTILIA,파충류,CR,4,50.4,2.52,T2,-1.48,False,iucn_population_size,Decreasing,88.07970779778823,42.589999999999996,55,EWS 신호,0.6
+Axis kuhlii,MAMMALIA,포유류,CR,4,60.0,3.0,T3,-1.0,False,iucn_population_size,Stable,50.0,2.923333333333333,80,IUCN/유전 임계값,0.6
+Turbinicarpus gielsdorfianus,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,44.7,2.2350000000000003,T2,-1.7649999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.516666666666666,30,EWS 신호,0.6
+Mammillaria sanchez-mejoradae,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,67.4,3.37,T3,-0.6299999999999999,False,iucn_population_size,Decreasing,88.07970779778823,46.64666666666667,80,EWS 신호,0.6
+Heteromirafra archeri,AVES,조류,CR,4,78.9,3.9450000000000003,T3,-0.054999999999999716,False,iucn_population_size,Decreasing,88.07970779778823,63.89666666666667,95,IUCN/유전 임계값,0.6
+Ostrya rehderiana,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,94.3,4.715,T4,0.7149999999999999,False,iucn_population_size,Decreasing,88.07970779778823,98.00000000000001,95,PVA 시뮬레이션,0.6
+Dendrolagus scottae,MAMMALIA,포유류,CR,4,70.0,3.5,T3,-0.5,False,iucn_population_size,Stable,50.0,8.826666666666666,95,IUCN/유전 임계값,0.6
+Wollemia nobilis,PINOPSIDA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,79.49666666666666,95,IUCN/유전 임계값,0.6
+Addax nasomaculatus,MAMMALIA,포유류,CR,4,84.2,4.21,T4,0.20999999999999996,False,iucn_population_size,Decreasing,88.07970779778823,75.59666666666666,95,IUCN/유전 임계값,0.6
+Panthera tigris amoyensis,MAMMALIA,포유류,EN,3,49.8,2.4899999999999998,T2,-0.5100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.809999999999995,55,EWS 신호,0.6
+Bos javanicus,MAMMALIA,포유류,CR,4,50.2,2.5100000000000002,T2,-1.4899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,42.09333333333333,55,EWS 신호,0.6
+Terenura sicki,AVES,조류,CR,4,78.6,3.9299999999999997,T3,-0.07000000000000028,False,iucn_population_size,Decreasing,88.07970779778823,63.10333333333333,95,IUCN/유전 임계값,0.6
+Abies yuanbaoshanensis,PINOPSIDA,무척추/식물/기타,CR,4,67.1,3.3549999999999995,T3,-0.6450000000000005,False,iucn_population_size,Decreasing,88.07970779778823,45.86,80,EWS 신호,0.6
+Pithecophaga jefferyi,AVES,조류,CR,4,66.8,3.34,T3,-0.6600000000000001,False,iucn_population_size,Decreasing,88.07970779778823,45.33333333333333,80,EWS 신호,0.6
+Spheniscus demersus,AVES,조류,CR,4,40.6,2.0300000000000002,T2,-1.9699999999999998,False,iucn_population_size,Decreasing,88.07970779778823,41.76333333333333,10,EWS 신호,0.6
+Dendrolagus pulcherrimus,MAMMALIA,포유류,CR,4,30.5,1.525,T1,-2.475,False,iucn_population_size,Stable,50.0,1.9399999999999997,80,IUCN/유전 임계값,0.6
+Dryococelus australis,INSECTA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,88.73333333333333,95,IUCN/유전 임계값,0.6
+Panthera tigris sumatrae,MAMMALIA,포유류,EN,3,50.4,2.52,T2,-0.48,False,iucn_population_size,Decreasing,88.07970779778823,42.44,55,EWS 신호,0.6
+Pipile pipile,AVES,조류,CR,4,70.0,3.5,T3,-0.5,False,iucn_population_size,Increasing,11.920292202211755,0.02333333333333333,95,IUCN/유전 임계값,0.6
+Aegotheles savesi,AVES,조류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,85.80333333333333,95,IUCN/유전 임계값,0.6
+Lepilemur septentrionalis,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Decreasing,88.07970779778823,82.16000000000001,95,IUCN/유전 임계값,0.6
+Gymnogyps californianus,AVES,조류,CR,4,78.0,3.9,T3,-0.10000000000000009,False,iucn_population_size,Increasing,11.920292202211755,2.9466666666666663,95,IUCN/유전 임계값,0.6
+Mammillaria theresae,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,75.9,3.7950000000000004,T3,-0.20499999999999963,False,iucn_population_size,Decreasing,88.07970779778823,57.133333333333326,95,IUCN/유전 임계값,0.6
+Gyps indicus,AVES,조류,CR,4,40.2,2.0100000000000002,T2,-1.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,40.83,10,EWS 신호,0.6
+Arthroleptides dutoiti,AMPHIBIA,양서류,CR,4,74.8,3.7399999999999998,T3,-0.26000000000000023,False,iucn_population_size,Decreasing,88.07970779778823,54.63333333333333,95,IUCN/유전 임계값,0.6
+Batagur trivittata,REPTILIA,파충류,CR,4,93.4,4.67,T4,0.6699999999999999,False,iucn_population_size,Decreasing,88.07970779778823,96.00000000000001,95,PVA 시뮬레이션,0.6
+Batagur kachuga,REPTILIA,파충류,CR,4,67.2,3.3600000000000003,T3,-0.6399999999999997,False,iucn_population_size,Decreasing,88.07970779778823,46.19333333333333,80,EWS 신호,0.6
+Hadramphus tuberculatus,INSECTA,무척추/식물/기타,CR,4,70.0,3.5,T3,-0.5,False,iucn_population_size,Unknown,66.07563687658173,37.67666666666667,95,IUCN/유전 임계값,0.6
+Gorilla beringei,MAMMALIA,포유류,CR,4,50.4,2.52,T2,-1.48,False,iucn_population_size,Decreasing,88.07970779778823,42.53666666666667,55,EWS 신호,0.6
+Litoria lorica,AMPHIBIA,양서류,CR,4,30.2,1.51,T1,-2.49,False,iucn_population_size,Stable,50.0,1.28,80,IUCN/유전 임계값,0.6
+Dipodomys gravipes,MAMMALIA,포유류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,84.85,95,IUCN/유전 임계값,0.6
+Cyclura pinguis,REPTILIA,파충류,CR,4,60.0,3.0,T3,-1.0,False,iucn_population_size,Increasing,11.920292202211755,0.0,80,IUCN/유전 임계값,0.6
+Actinella obserata,GASTROPODA,무척추/식물/기타,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,84.97666666666667,95,IUCN/유전 임계값,0.6
+Eleutherodactylus jasperi,AMPHIBIA,양서류,CR,4,90.0,4.5,T4,0.5,False,iucn_population_size,Unknown,66.07563687658173,87.05,95,IUCN/유전 임계값,0.6
+Gopherus flavomarginatus,REPTILIA,파충류,CR,4,50.6,2.5300000000000002,T2,-1.4699999999999998,False,iucn_population_size,Decreasing,88.07970779778823,43.07666666666666,55,EWS 신호,0.6
+Anas laysanensis,AVES,조류,CR,4,20.0,1.0,T1,-3.0,False,iucn_population_size,Increasing,11.920292202211755,0.0,80,IUCN/유전 임계값,0.6
+Turbinicarpus horripilus,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,50.7,2.535,T2,-0.46499999999999986,False,iucn_population_size,Decreasing,88.07970779778823,43.156666666666666,55,EWS 신호,0.6
+Opuntia pachyrrhiza,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,40.2,2.0100000000000002,T2,-0.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,40.78333333333333,10,EWS 신호,0.6
+Xenicus gilviventris,AVES,조류,EN,3,44.9,2.245,T2,-0.7549999999999999,False,iucn_population_size,Decreasing,88.07970779778823,42.00333333333333,30,EWS 신호,0.6
+Mammillaria microhelia,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,67.3,3.3649999999999998,T3,0.36499999999999977,False,iucn_population_size,Decreasing,88.07970779778823,46.336666666666666,80,EWS 신호,0.6
+Spongiforma squarepantsii,AGARICOMYCETES,무척추/식물/기타,EN,3,67.4,3.37,T3,0.3700000000000001,False,iucn_population_size,Decreasing,88.07970779778823,46.55666666666667,80,EWS 신호,0.6
+Amentotaxus formosana,PINOPSIDA,무척추/식물/기타,EN,3,67.5,3.375,T3,0.375,False,iucn_population_size,Decreasing,88.07970779778823,46.873333333333335,80,EWS 신호,0.6
+Cynometra beddomei,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,76.2,3.81,T3,0.81,False,iucn_population_size,Decreasing,88.07970779778823,57.8,95,IUCN/유전 임계값,0.6
+Aloe helenae,LILIOPSIDA,무척추/식물/기타,EN,3,68.3,3.415,T3,0.41500000000000004,False,iucn_population_size,Decreasing,88.07970779778823,48.57,80,EWS 신호,0.6
+Aloe suzannae,LILIOPSIDA,무척추/식물/기타,EN,3,67.3,3.3649999999999998,T3,0.36499999999999977,False,iucn_population_size,Decreasing,88.07970779778823,46.46333333333333,80,EWS 신호,0.6
+Xanthocyparis vietnamensis,PINOPSIDA,무척추/식물/기타,EN,3,51.7,2.585,T2,-0.41500000000000004,False,iucn_population_size,Decreasing,88.07970779778823,45.82666666666667,55,EWS 신호,0.6
+Melocactus matanzanus,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Unknown,66.07563687658173,25.270000000000003,95,IUCN/유전 임계값,0.6
+Melocactus lanssensianus,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,50.4,2.52,T2,-0.48,False,iucn_population_size,Decreasing,88.07970779778823,42.603333333333325,55,EWS 신호,0.6
+Scilla morrisii,LILIOPSIDA,무척추/식물/기타,EN,3,17.4,0.8699999999999999,T0,-2.13,False,iucn_population_size,Stable,50.0,0.5366666666666666,55,IUCN/유전 임계값,0.6
+Micranthocereus polyanthus,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,50.7,2.535,T2,-0.46499999999999986,False,iucn_population_size,Decreasing,88.07970779778823,43.31666666666666,55,EWS 신호,0.6
+Nepenthes adnata,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Stable,50.0,9.493333333333332,95,IUCN/유전 임계값,0.6
+Synapsis ilicifolia,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,94.8,4.74,T4,0.7400000000000002,False,iucn_population_size,Decreasing,88.07970779778823,99.2,95,PVA 시뮬레이션,0.6
+Anthemis glaberrima,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,40.2,2.0100000000000002,T2,-0.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,40.949999999999996,10,EWS 신호,0.6
+Ariocarpus scaphirostris,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,40.4,2.02,T2,-0.98,False,iucn_population_size,Decreasing,88.07970779778823,41.22,10,EWS 신호,0.6
+Obregonia denegrii,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,44.9,2.245,T2,-0.7549999999999999,False,iucn_population_size,Decreasing,88.07970779778823,42.099999999999994,30,EWS 신호,0.6
+Abies ziyuanensis,PINOPSIDA,무척추/식물/기타,EN,3,51.6,2.58,T2,-0.41999999999999993,False,iucn_population_size,Decreasing,88.07970779778823,45.74999999999999,55,EWS 신호,0.6
+Oreophasis derbianus,AVES,조류,EN,3,51.1,2.555,T2,-0.44499999999999984,False,iucn_population_size,Decreasing,88.07970779778823,44.21666666666667,55,EWS 신호,0.6
+Gomortega keule,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,51.0,2.55,T2,-0.4500000000000002,False,iucn_population_size,Decreasing,88.07970779778823,44.07333333333333,55,EWS 신호,0.6
+Aloe cremnophila,LILIOPSIDA,무척추/식물/기타,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Unknown,66.07563687658173,21.689999999999998,95,IUCN/유전 임계값,0.6
+Sauromalus hispidus,REPTILIA,파충류,EN,3,50.3,2.5149999999999997,T2,-0.4850000000000003,False,iucn_population_size,Decreasing,88.07970779778823,42.21333333333334,55,EWS 신호,0.6
+Goetzea elegans,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,22.6,1.1300000000000001,T1,-1.8699999999999999,False,iucn_population_size,Unknown,66.07563687658173,9.036666666666667,55,EWS 신호,0.6
+Accipiter gundlachi,AVES,조류,EN,3,51.5,2.575,T2,-0.4249999999999998,False,iucn_population_size,Decreasing,88.07970779778823,45.28333333333333,55,EWS 신호,0.6
+Puya raimondii,LILIOPSIDA,무척추/식물/기타,EN,3,40.2,2.0100000000000002,T2,-0.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,40.81333333333333,10,EWS 신호,0.6
+Echinocactus grusonii,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,40.4,2.02,T2,-0.98,False,iucn_population_size,Decreasing,88.07970779778823,41.29333333333333,10,EWS 신호,0.6
+Nepenthes chaniana,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,22.1,1.105,T1,-1.895,False,iucn_population_size,Unknown,66.07563687658173,7.136666666666666,55,EWS 신호,0.6
+Mammillaria mathildae,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,67.3,3.3649999999999998,T3,0.36499999999999977,False,iucn_population_size,Decreasing,88.07970779778823,46.37,80,EWS 신호,0.6
+Dioon purpusii,CYCADOPSIDA,무척추/식물/기타,EN,3,50.5,2.525,T2,-0.4750000000000001,False,iucn_population_size,Decreasing,88.07970779778823,42.70333333333333,55,EWS 신호,0.6
+Garrulax rufifrons,AVES,조류,EN,3,50.3,2.5149999999999997,T2,-0.4850000000000003,False,iucn_population_size,Decreasing,88.07970779778823,42.19,55,EWS 신호,0.6
+Achyranthes mutica,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,79.8,3.9899999999999998,T3,0.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,65.89333333333333,95,IUCN/유전 임계값,0.6
+Cuon alpinus,MAMMALIA,포유류,EN,3,50.6,2.5300000000000002,T2,-0.46999999999999975,False,iucn_population_size,Decreasing,88.07970779778823,43.096666666666664,55,EWS 신호,0.6
+Echium pininana,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,15.3,0.765,T0,-2.235,False,iucn_population_size,Unknown,66.07563687658173,7.243333333333332,10,EWS 신호,0.6
+Cycas circinalis,CYCADOPSIDA,무척추/식물/기타,EN,3,44.9,2.245,T2,-0.7549999999999999,False,iucn_population_size,Decreasing,88.07970779778823,42.03666666666667,30,EWS 신호,0.6
+Rhyticeros everetti,AVES,조류,EN,3,50.6,2.5300000000000002,T2,-0.46999999999999975,False,iucn_population_size,Decreasing,88.07970779778823,43.093333333333334,55,EWS 신호,0.6
+Procellaria westlandica,AVES,조류,EN,3,15.2,0.76,T0,-2.24,False,iucn_population_size,Unknown,66.07563687658173,6.766666666666667,10,EWS 신호,0.6
+Aratinga solstitialis,AVES,조류,EN,3,51.0,2.55,T2,-0.4500000000000002,False,iucn_population_size,Decreasing,88.07970779778823,44.013333333333335,55,EWS 신호,0.6
+Elaeocarpus recurvatus,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,45.2,2.2600000000000002,T2,-0.7399999999999998,False,iucn_population_size,Decreasing,88.07970779778823,42.81999999999999,30,EWS 신호,0.6
+Pavo muticus,AVES,조류,EN,3,40.6,2.0300000000000002,T2,-0.9699999999999998,False,iucn_population_size,Decreasing,88.07970779778823,41.803333333333335,10,EWS 신호,0.6
+Diomedea amsterdamensis,AVES,조류,EN,3,78.0,3.9,T3,0.8999999999999999,False,iucn_population_size,Increasing,11.920292202211755,3.0566666666666666,95,IUCN/유전 임계값,0.6
+Taphrolesbia griseiventris,AVES,조류,EN,3,67.0,3.35,T3,0.3500000000000001,False,iucn_population_size,Decreasing,88.07970779778823,45.79,80,EWS 신호,0.6
+Oxyura maccoa,AVES,조류,EN,3,44.8,2.2399999999999998,T2,-0.7600000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.709999999999994,30,EWS 신호,0.6
+Oxyura leucocephala,AVES,조류,VU,2,50.8,2.54,T2,0.54,False,iucn_population_size,Decreasing,88.07970779778823,43.62333333333333,55,EWS 신호,0.6
+Pterodroma cahow,AVES,조류,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Increasing,11.920292202211755,0.02333333333333333,95,IUCN/유전 임계값,0.6
+Penelopides mindorensis,AVES,조류,EN,3,66.9,3.345,T3,0.3450000000000002,False,iucn_population_size,Decreasing,88.07970779778823,45.52666666666666,80,EWS 신호,0.6
+Copsychus sechellarum,AVES,조류,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Increasing,11.920292202211755,0.09333333333333332,95,IUCN/유전 임계값,0.6
+Acer griseum,MAGNOLIOPSIDA,무척추/식물/기타,EN,3,75.1,3.755,T3,0.7549999999999999,False,iucn_population_size,Decreasing,88.07970779778823,55.33999999999999,95,IUCN/유전 임계값,0.6
+Taoniscus nanus,AVES,조류,EN,3,44.8,2.2399999999999998,T2,-0.7600000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.64666666666667,30,EWS 신호,0.6
+Ctenosaura oedirhina,REPTILIA,파충류,EN,3,44.7,2.2350000000000003,T2,-0.7649999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.49,30,EWS 신호,0.6
+Ctenosaura melanosterna,REPTILIA,파충류,EN,3,44.8,2.2399999999999998,T2,-0.7600000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.76333333333333,30,EWS 신호,0.6
+Ctenosaura palearis,REPTILIA,파충류,EN,3,50.4,2.52,T2,-0.48,False,iucn_population_size,Decreasing,88.07970779778823,42.42999999999999,55,EWS 신호,0.6
+Melicope pallida,MAGNOLIOPSIDA,무척추/식물/기타,CR,4,73.4,3.6700000000000004,T3,-0.3299999999999996,False,iucn_population_size,Decreasing,88.07970779778823,51.71666666666667,95,IUCN/유전 임계값,0.6
+Amazona vinacea,AVES,조류,EN,3,50.2,2.5100000000000002,T2,-0.48999999999999977,False,iucn_population_size,Decreasing,88.07970779778823,41.85666666666666,55,EWS 신호,0.6
+Anas bernieri,AVES,조류,EN,3,51.0,2.55,T2,-0.4500000000000002,False,iucn_population_size,Decreasing,88.07970779778823,44.126666666666665,55,EWS 신호,0.6
+Juniperus gracilior,PINOPSIDA,무척추/식물/기타,EN,3,51.3,2.565,T2,-0.43500000000000005,False,iucn_population_size,Decreasing,88.07970779778823,44.82000000000001,55,EWS 신호,0.6
+Phalacrocorax featherstoni,AVES,조류,EN,3,50.8,2.54,T2,-0.45999999999999996,False,iucn_population_size,Decreasing,88.07970779778823,43.56666666666666,55,EWS 신호,0.6
+Conolophus pallidus,REPTILIA,파충류,VU,2,18.4,0.9199999999999999,T0,-1.08,False,iucn_population_size,Unknown,66.07563687658173,7.426666666666666,30,EWS 신호,0.6
+Procellaria aequinoctialis,AVES,조류,VU,2,39.7,1.985,T1,-0.014999999999999902,False,iucn_population_size,Decreasing,88.07970779778823,39.593333333333334,10,EWS 신호,0.6
+Procellaria conspicillata,AVES,조류,VU,2,3.6,0.18,T0,-1.82,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Tyto aurantia,AVES,조류,VU,2,44.9,2.245,T2,0.2450000000000001,False,iucn_population_size,Decreasing,88.07970779778823,42.07666666666666,30,EWS 신호,0.6
+Aloe ukambensis,LILIOPSIDA,무척추/식물/기타,VU,2,18.3,0.915,T0,-1.085,False,iucn_population_size,Unknown,66.07563687658173,7.039999999999999,30,EWS 신호,0.6
+Gallotia simonyi,REPTILIA,파충류,VU,2,60.0,3.0,T3,1.0,False,iucn_population_size,Unknown,66.07563687658173,16.263333333333332,80,IUCN/유전 임계값,0.6
+Telespiza cantans,AVES,조류,VU,2,13.5,0.675,T0,-1.325,False,iucn_population_size,Stable,50.0,0.16333333333333333,30,EWS 신호,0.6
+Procellaria parkinsoni,AVES,조류,VU,2,13.5,0.675,T0,-1.325,False,iucn_population_size,Stable,50.0,0.16333333333333333,30,EWS 신호,0.6
+Geothlypis beldingi,AVES,조류,VU,2,50.7,2.535,T2,0.5350000000000001,False,iucn_population_size,Decreasing,88.07970779778823,43.25333333333333,55,EWS 신호,0.6
+Accipiter butleri,AVES,조류,VU,2,51.0,2.55,T2,0.5499999999999998,False,iucn_population_size,Decreasing,88.07970779778823,44.01,55,EWS 신호,0.6
+Accipiter luteoschistaceus,AVES,조류,VU,2,50.7,2.535,T2,0.5350000000000001,False,iucn_population_size,Decreasing,88.07970779778823,43.16,55,EWS 신호,0.6
+Accipiter henstii,AVES,조류,VU,2,51.5,2.575,T2,0.5750000000000002,False,iucn_population_size,Decreasing,88.07970779778823,45.25666666666667,55,EWS 신호,0.6
+Accipiter brachyurus,AVES,조류,VU,2,45.0,2.25,T2,0.25,False,iucn_population_size,Decreasing,88.07970779778823,42.166666666666664,30,EWS 신호,0.6
+Parasitaxus usta,PINOPSIDA,무척추/식물/기타,VU,2,40.3,2.0149999999999997,T2,0.01499999999999968,False,iucn_population_size,Decreasing,88.07970779778823,41.193333333333335,10,EWS 신호,0.6
+Pterospermum reticulatum,MAGNOLIOPSIDA,무척추/식물/기타,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Accipiter princeps,AVES,조류,VU,2,44.7,2.2350000000000003,T2,0.23500000000000032,False,iucn_population_size,Decreasing,88.07970779778823,41.523333333333326,30,EWS 신호,0.6
+Psittrichas fulgidus,AVES,조류,VU,2,39.9,1.9949999999999999,T1,-0.0050000000000001155,False,iucn_population_size,Decreasing,88.07970779778823,40.056666666666665,10,EWS 신호,0.6
+Sternula nereis,AVES,조류,VU,2,44.8,2.2399999999999998,T2,0.23999999999999977,False,iucn_population_size,Decreasing,88.07970779778823,41.83,30,EWS 신호,0.6
+Astrophytum asterias,MAGNOLIOPSIDA,무척추/식물/기타,VU,2,44.8,2.2399999999999998,T2,0.23999999999999977,False,iucn_population_size,Decreasing,88.07970779778823,41.64333333333333,30,EWS 신호,0.6
+Cycas armstrongii,CYCADOPSIDA,무척추/식물/기타,VU,2,39.8,1.9899999999999998,T1,-0.010000000000000231,False,iucn_population_size,Decreasing,88.07970779778823,39.88333333333333,10,EWS 신호,0.6
+Echium gentianoides,MAGNOLIOPSIDA,무척추/식물/기타,VU,2,3.6,0.18,T0,-1.82,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Beccariophoenix alfredii,LILIOPSIDA,무척추/식물/기타,VU,2,17.4,0.8699999999999999,T0,-1.1300000000000001,False,iucn_population_size,Stable,50.0,0.5833333333333333,55,IUCN/유전 임계값,0.6
+Nepenthes campanulata,MAGNOLIOPSIDA,무척추/식물/기타,VU,2,13.6,0.6799999999999999,T0,-1.32,False,iucn_population_size,Stable,50.0,0.25666666666666665,30,EWS 신호,0.6
+Lophophora diffusa,MAGNOLIOPSIDA,무척추/식물/기타,VU,2,49.9,2.495,T2,0.4950000000000001,False,iucn_population_size,Decreasing,88.07970779778823,41.1,55,EWS 신호,0.6
+Chondrostoma scodrense,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brotomys voratus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achyranthes atollensis,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Notomys mordax,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinodon ceciliae,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Boromys torrei,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Boromys offella,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Isolobodon montanus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Flabellidium spinosum,BRYOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Coua delalandei,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinodon inmemoriam,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gambusia amistadensis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Litoria nyakalensis,AMPHIBIA,양서류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Pteropus pilosus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leiolopisma mauritiana,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Argyroxiphium virescens,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia gibbera,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella papyracea,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis vittata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Melicope obovata,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Scelotes guentheri,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Pradosia glaziovii,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Turdus ravidus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alburnus akili,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Ctenochromis pectoralis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Blutaparon rigidum,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lophopsittacus mauritianus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Kokia lanceolata,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chilonopsis blofeldi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Porphyrio caerulescens,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lagorchestes asomatus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lepidochrysops hypopolia,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Myrcia neocambessedeana,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Streblorrhiza speciosa,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Myrcia skeldingii,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Campomanesia lundiana,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Roystonea stellata,LILIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cylindraspis inepta,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Geocapromys thoracatus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella casta,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Drosophila lanaiensis,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinus yilongensis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Myadestes woahensis,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Heteropsomys insulans,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cryptonanus ignitus,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Vanvoorstia bennettiana,FLORIDEOPHYCEAE,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Hibiscadelphus crucibracteatus,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Perameles eremiana,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Barbus microbarbis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chasmistes muriei,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chlorostilbon elegans,,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alasmidonta wrightiana,BIVALVIA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alasmidonta robusta,BIVALVIA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chlorostilbon bracei,,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Argocoffeopsis lemblinii,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Tetradactylus eastwoodae,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Juscelinomys candango,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Coregonus johannae,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Hibiscadelphus bombycinus,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Deloneura immaculata,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Necropsar rodericanus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Begonia eiromischa,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyanoramphus ulietanus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Viola cryana,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Salmo pallaryi,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Necropsittacus rodricanus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Xenicus longipes,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Hexolobodon phenax,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella spaldingi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis compacta,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Mecodema punctellum,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lepidomeda altivelis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Acalypha rubrinervis,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Potorous platyops,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Salvelinus agassizii,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leporillus apicalis,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella abbreviata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella caesia,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella thaanumi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Caloprymnus campestris,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lagorchestes leporides,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula turgida,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leiocephalus herminieri,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leiocephalus eremitus,REPTILIA,파충류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Dromaius baudinianus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Anas marecula,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alasmidonta mccordi,BIVALVIA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Incerticyclus martinicensis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Incerticyclus cinereus,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Evarra bustamantei,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Evarra eigenmanni,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Melamprosops phaeosoma,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Coryphomys buehleri,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Salvelinus neocomensis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella decora,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Evarra tlahuacensis,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Characodon garmani,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Podiceps andinus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Auriculella expansa,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Dupontia proletaria,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Mascarenotus murivorus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella valida,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyclophorus horridulum,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Auriculella uniplicata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyclosurus mariei,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia brevis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia vanuxemiana,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia impressa,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra cornea,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra albolabris,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia fusiformis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra crassilabrum,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia jonesi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis lirata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia hartmaniana,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis formosa,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Hygrotus artus,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia clausa,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella dimorpha,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis clipeata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Plagiodontia ipnaeum,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra forbesi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra elongata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amphicyclotulus guadeloupensis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma excisa,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Hirasea planulata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Littoridina gaudichaudii,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis ligata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma lewisii,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma pagoda,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma pumila,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis occultata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alectroenas nitidissimus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Tristramella magdelainae,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella lehuiensis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra reticulata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra pellucida,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra subsoror,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Clappia cahabensis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella buddii,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia laeta,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia pupaeformis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cottus echinatus,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Coregonus alpenae,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma pyramidata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella livida,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Fundulus albolineatus,ACTINOPTERYGII,어류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis torrefacta,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Porphyrio mantelli,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra tenuispira,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia pilsbryi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Elimia pygmaea,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Harmogenanina linophora,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Harmogenanina subdetecta,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chilonopsis exulatus,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Epioblasma haysiana,BIVALVIA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Nestor productus,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Nesiota elliptica,MAGNOLIOPSIDA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra porcus,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amphigyra alabamensis,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alloperla roberti,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra subrostrata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Acanthametropus pecatonica,INSECTA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amastra umbilicata,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Carelia sinclairi,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Epioblasma flexuosa,BIVALVIA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gyrotoma walkeri,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gastrocopta ogasawarana,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Gastrocopta chichijimana,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Achatinella elegans,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Chilonopsis subtruncatus,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptoxis foremanii,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Podilymbus gigas,AVES,조류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Mautodontha saintjohni,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Macrotis leucura,MAMMALIA,포유류,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Abutilon pitcairnense,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Camellia amplexicaulis,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Franklinia alatamaha,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia insignis,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia vulcanicola,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinodon veronicae,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Nectophrynoides asperginis,AMPHIBIA,양서류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brighamia insignis,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula taeniata simulans,GASTROPODA,무척추/식물/기타,CR,4,100.0,5.0,EX,1.0,False,none/extinct,Unknown,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Notropis amecae,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Encephalartos woodii,CYCADOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Furcraea macdougallii,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Allotoca goslinei,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyanea pinnatifida,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Skiffia francesae,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cryptoblepharus egeriae,REPTILIA,파충류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Clianthus puniceus,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia arborea,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Leptogryllus deceptor,INSECTA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lysimachia minoricensis,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Trochetiopsis erythroxylon,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia aurea,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Corvus hawaiiensis,AVES,조류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Amomum sumatranum,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Dendroseris gigantea,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Senecio leucopeplus,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Zenaida graysoni,AVES,조류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyanopsitta spixii,AVES,조류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Aylacostoma chloroticum,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Aylacostoma stigmaticum,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula rosea,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula taeniata elongata,GASTROPODA,무척추/식물/기타,CR,4,100.0,5.0,EX,1.0,False,none/extinct,Unknown,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Euphorbia mayurnathanii,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyanea superba subsp. superba,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Aylacostoma guaraniticum,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyrtandra waiolani,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Rhododendron kanehirae,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyanea superba,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Alphonsea hortensis,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Encephalartos brevifoliolatus,CYCADOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Encephalartos heenanii,CYCADOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Encephalartos nubimontanus,CYCADOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Encephalartos relictus,CYCADOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinodon alvarezi,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cyprinodon longidorsalis,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia versicolor,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula hebe,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Arachis rigonii,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Aloe silicicola,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Scardinius racovitzai,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula varia,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Ochrosia brownii,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Bromus bromoideus,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia sanguinea,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lepidodactylus listeri,REPTILIA,파충류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula nodosa,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula mirabilis,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula dentifera,GASTROPODA,무척추/식물/기타,EX,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula suturalis,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula mooreana,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Kokia cookei,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula taeniata nucleola,GASTROPODA,무척추/식물/기타,CR,4,100.0,5.0,EX,1.0,False,none/extinct,Unknown,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula navigatoria,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Brugmansia suaveolens,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Xiphophorus couchianus,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Kalanchoe fadeniorum,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Erythroxylum echinodendron,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Sophora toromiro,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula garrettii,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Diplazium laffanianum,POLYPODIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Agave lurida,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Mitu mitu,AVES,조류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Todiramphus cinnamominus,AVES,조류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Lachanodes arborea,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Thermosphaeroma thermophilum,MALACOSTRACA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Bromus interruptus,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Corypha taliera,LILIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Xiphophorus meyeri,ACTINOPTERYGII,어류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Anaxyrus baxteri,AMPHIBIA,양서류,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Mangifera casturi,MAGNOLIOPSIDA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula suturalis vexillum,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Partula suturalis strigosa,GASTROPODA,무척추/식물/기타,EW,5,100.0,5.0,EX,0.0,True,none/extinct,,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Ursus thibetanus ussuricus,MAMMALIA,포유류,VU,2,73.1,3.655,T3,1.6549999999999998,False,mature_individuals,Decreasing,88.07970779778823,73.07333333333334,95,IUCN/유전 임계값,0.6
+Naemorhedus caudatus,MAMMALIA,포유류,VU,2,55.2,2.7600000000000002,T2,0.7600000000000002,False,mature_individuals,Decreasing,88.07970779778823,44.56666666666666,55,EWS 신호,0.6
+Lutra lutra,MAMMALIA,포유류,NT,1,0.0,0.0,T0,-1.0,False,mature_individuals,Increasing,11.920292202211755,0.0,30,IUCN/유전 임계값,0.6
+Nipponia nippon,AVES,조류,EN,3,0.4,0.02,T0,-2.98,False,mature_individuals,Increasing,11.920292202211755,0.0,55,IUCN/유전 임계값,0.6
+Ciconia boyciana,AVES,조류,EN,3,54.6,2.73,T2,-0.27,False,mature_individuals,Decreasing,88.07970779778823,42.96666666666666,55,EWS 신호,0.6
+Panthera tigris altaica,MAMMALIA,포유류,EN,3,66.5,3.325,T3,0.3250000000000002,False,mature_individuals,Decreasing,88.07970779778823,44.65333333333333,80,EWS 신호,0.6
+Canis lupus coreanus,MAMMALIA,포유류,LC,0,100.0,5.0,EX,5.0,False,iucn_population_size,Stable,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cervus nippon hortulorum,MAMMALIA,포유류,LC,0,100.0,5.0,EX,5.0,False,none/extinct,Increasing,100.0,100.0,100,이미 절멸 — 회고 단계,1.0
+Cercopithecus dryas,,무척추/식물/기타,EN,3,70.0,3.5,T3,0.5,False,iucn_population_size,Unknown,66.07563687658173,28.573333333333327,95,IUCN/유전 임계값,0.6
+Oreonax flavicauda,,무척추/식물/기타,CR,4,44.7,2.2350000000000003,T2,-1.7649999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.43666666666667,30,EWS 신호,0.6
+Zyzomys palatalis,MAMMALIA,포유류,CR,4,22.6,1.1300000000000001,T1,-2.87,False,iucn_population_size,Unknown,66.07563687658173,9.266666666666666,55,EWS 신호,0.6
+Lepilemur wrightae,MAMMALIA,포유류,EN,3,50.1,2.505,T2,-0.4950000000000001,False,iucn_population_size,Decreasing,88.07970779778823,41.82666666666666,55,EWS 신호,0.6
+Bison bonasus,MAMMALIA,포유류,NT,1,17.3,0.865,T0,-0.135,False,iucn_population_size,Stable,50.0,0.27999999999999997,55,IUCN/유전 임계값,0.6
+Capra aegagrus,MAMMALIA,포유류,NT,1,10.5,0.525,T0,-0.475,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Isoodon auratus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Lagorchestes hirsutus,MAMMALIA,포유류,NT,1,6.6,0.32999999999999996,T0,-0.67,False,iucn_population_size,Increasing,11.920292202211755,0.0,30,IUCN/유전 임계값,0.6
+Leopardus guigna,MAMMALIA,포유류,LC,0,15.2,0.76,T0,0.76,False,iucn_population_size,Unknown,66.07563687658173,6.59,10,EWS 신호,0.6
+Notomys fuscus,MAMMALIA,포유류,NT,1,10.5,0.525,T0,-0.475,False,iucn_population_size,Stable,50.0,0.06999999999999999,10,EWS 신호,0.6
+Syconycteris carolinae,MAMMALIA,포유류,NT,1,40.6,2.0300000000000002,T2,1.0300000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.86333333333333,10,EWS 신호,0.6
+Antilope cervicapra,MAMMALIA,포유류,LC,0,15.3,0.765,T0,0.765,False,iucn_population_size,Unknown,66.07563687658173,7.226666666666666,10,EWS 신호,0.6
+Bettongia gaimardi,MAMMALIA,포유류,NT,1,15.0,0.75,T0,-0.25,False,iucn_population_size,Unknown,66.07563687658173,6.133333333333332,10,EWS 신호,0.6
+Bettongia lesueur,MAMMALIA,포유류,NT,1,10.5,0.525,T0,-0.475,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Bison bison,MAMMALIA,포유류,NT,1,10.6,0.53,T0,-0.47,False,iucn_population_size,Stable,50.0,0.25666666666666665,10,EWS 신호,0.6
+Capra cylindricornis,MAMMALIA,포유류,NT,1,10.5,0.525,T0,-0.475,False,iucn_population_size,Stable,50.0,0.11666666666666668,10,EWS 신호,0.6
+Capra falconeri,MAMMALIA,포유류,NT,1,6.6,0.32999999999999996,T0,-0.67,False,iucn_population_size,Increasing,11.920292202211755,0.0,30,IUCN/유전 임계값,0.6
+Chrysocyon brachyurus,MAMMALIA,포유류,NT,1,15.3,0.765,T0,-0.235,False,iucn_population_size,Unknown,66.07563687658173,6.99,10,EWS 신호,0.6
+Dasyurus geoffroii,MAMMALIA,포유류,NT,1,13.5,0.675,T0,-0.32499999999999996,False,iucn_population_size,Stable,50.0,0.09333333333333332,30,EWS 신호,0.6
+Dasyurus maculatus,MAMMALIA,포유류,NT,1,40.2,2.0100000000000002,T2,1.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.73,10,EWS 신호,0.6
+Dendrolagus lumholtzi,MAMMALIA,포유류,NT,1,15.3,0.765,T0,-0.235,False,iucn_population_size,Unknown,66.07563687658173,7.066666666666667,10,EWS 신호,0.6
+Eudorcas thomsonii,MAMMALIA,포유류,LC,0,40.1,2.005,T2,2.005,False,iucn_population_size,Decreasing,88.07970779778823,40.51,10,EWS 신호,0.6
+Genetta piscivora,MAMMALIA,포유류,NT,1,40.5,2.025,T2,1.025,False,iucn_population_size,Decreasing,88.07970779778823,41.64333333333333,10,EWS 신호,0.6
+Hyaena hyaena,MAMMALIA,포유류,NT,1,40.5,2.025,T2,1.025,False,iucn_population_size,Decreasing,88.07970779778823,41.57333333333333,10,EWS 신호,0.6
+Lasiorhinus latifrons,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Leporillus conditor,MAMMALIA,포유류,NT,1,22.2,1.1099999999999999,T1,0.10999999999999988,False,iucn_population_size,Unknown,66.07563687658173,7.736666666666666,55,EWS 신호,0.6
+Mastacomys fuscus,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.04,10,EWS 신호,0.6
+Monodon monoceros,MAMMALIA,포유류,VU,2,44.7,2.2350000000000003,T2,0.23500000000000032,False,iucn_population_size,Decreasing,88.07970779778823,41.38999999999999,30,EWS 신호,0.6
+Notomys cervinus,MAMMALIA,포유류,NT,1,13.5,0.675,T0,-0.32499999999999996,False,iucn_population_size,Stable,50.0,0.13999999999999999,30,EWS 신호,0.6
+Ornithorhynchus anatinus,MAMMALIA,포유류,NT,1,40.1,2.005,T2,1.005,False,iucn_population_size,Decreasing,88.07970779778823,40.43333333333333,10,EWS 신호,0.6
+Otocolobus manul,MAMMALIA,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.709999999999994,10,EWS 신호,0.6
+Ozotoceros bezoarticus,MAMMALIA,포유류,NT,1,40.7,2.035,T2,1.0350000000000001,False,iucn_population_size,Decreasing,88.07970779778823,42.096666666666664,10,EWS 신호,0.6
+Pantholops hodgsonii,MAMMALIA,포유류,NT,1,3.6,0.18,T0,-0.8200000000000001,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Parahyaena brunnea,MAMMALIA,포유류,NT,1,10.6,0.53,T0,-0.47,False,iucn_population_size,Stable,50.0,0.27999999999999997,10,EWS 신호,0.6
+Petrogale godmani,MAMMALIA,포유류,NT,1,40.6,2.0300000000000002,T2,1.0300000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.81333333333333,10,EWS 신호,0.6
+Petrogale mareeba,MAMMALIA,포유류,NT,1,10.6,0.53,T0,-0.47,False,iucn_population_size,Stable,50.0,0.18666666666666665,10,EWS 신호,0.6
+Petrogale purpureicollis,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.13333333333333,10,EWS 신호,0.6
+Phascogale calura,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.06666666666666,10,EWS 신호,0.6
+Phascogale tapoatafa,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.086666666666666,10,EWS 신호,0.6
+Potorous tridactylus,MAMMALIA,포유류,NT,1,39.8,1.9899999999999998,T1,0.9899999999999998,False,iucn_population_size,Decreasing,88.07970779778823,39.79333333333333,10,EWS 신호,0.6
+Procapra picticaudata,MAMMALIA,포유류,NT,1,40.0,2.0,T2,1.0,False,iucn_population_size,Decreasing,88.07970779778823,40.33333333333333,10,EWS 신호,0.6
+Pseudantechinus mimulus,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,40.97333333333333,10,EWS 신호,0.6
+Pseudochirulus cinereus,MAMMALIA,포유류,NT,1,40.1,2.005,T2,1.005,False,iucn_population_size,Decreasing,88.07970779778823,40.68666666666667,10,EWS 신호,0.6
+Sminthopsis bindi,MAMMALIA,포유류,NT,1,40.6,2.0300000000000002,T2,1.0300000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.773333333333326,10,EWS 신호,0.6
+Sminthopsis douglasi,MAMMALIA,포유류,NT,1,40.1,2.005,T2,1.005,False,iucn_population_size,Decreasing,88.07970779778823,40.68,10,EWS 신호,0.6
+Taphozous australis,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,40.96666666666667,10,EWS 신호,0.6
+Tragelaphus imberbis,MAMMALIA,포유류,NT,1,40.4,2.02,T2,1.02,False,iucn_population_size,Decreasing,88.07970779778823,41.269999999999996,10,EWS 신호,0.6
+Urocyon littoralis,MAMMALIA,포유류,NT,1,6.6,0.32999999999999996,T0,-0.67,False,iucn_population_size,Increasing,11.920292202211755,0.0,30,IUCN/유전 임계값,0.6
+Uromys hadrourus,MAMMALIA,포유류,NT,1,10.5,0.525,T0,-0.475,False,iucn_population_size,Stable,50.0,0.11666666666666668,10,EWS 신호,0.6
+Wyulda squamicaudata,MAMMALIA,포유류,NT,1,40.5,2.025,T2,1.025,False,iucn_population_size,Decreasing,88.07970779778823,41.47666666666666,10,EWS 신호,0.6
+Antechinomys laniger,MAMMALIA,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.71333333333334,10,EWS 신호,0.6
+Antidorcas marsupialis,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus australis,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus forsteri,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus philippii,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus pusillus,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus townsendi,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Arctocephalus tropicalis,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.16333333333333333,10,EWS 신호,0.6
+Balaena mysticetus,MAMMALIA,포유류,VU,2,60.0,3.0,T3,1.0,False,iucn_population_size,Increasing,11.920292202211755,0.0,95,IUCN/유전 임계값,0.6
+Boselaphus tragocamelus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Capra ibex,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.02333333333333333,10,EWS 신호,0.6
+Capra sibirica,MAMMALIA,포유류,NT,1,40.1,2.005,T2,1.005,False,iucn_population_size,Decreasing,88.07970779778823,40.586666666666666,10,EWS 신호,0.6
+Capreolus capreolus,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Castor fiber,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Connochaetes gnou,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Ctenomys peruanus,MAMMALIA,포유류,CR,4,90.5,4.525,T4,0.5250000000000004,False,iucn_population_size,Decreasing,88.07970779778823,89.62333333333333,95,IUCN/유전 임계값,0.6
+Equus kiang,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.06999999999999999,10,EWS 신호,0.6
+Gazella bennettii,MAMMALIA,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.779999999999994,10,EWS 신호,0.6
+Gulo gulo,MAMMALIA,포유류,LC,0,17.3,0.865,T0,0.865,False,iucn_population_size,Stable,50.0,0.30333333333333334,55,IUCN/유전 임계값,0.6
+Halichoerus grypus,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Herpailurus yagouaroundi,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,40.97666666666667,10,EWS 신호,0.6
+Hippotragus equinus,MAMMALIA,포유류,LC,0,40.1,2.005,T2,2.005,False,iucn_population_size,Decreasing,88.07970779778823,40.519999999999996,10,EWS 신호,0.6
+Histriophoca fasciata,MAMMALIA,포유류,LC,0,15.2,0.76,T0,0.76,False,iucn_population_size,Unknown,66.07563687658173,6.696666666666666,10,EWS 신호,0.6
+Hydrurga leptonyx,MAMMALIA,포유류,LC,0,15.3,0.765,T0,0.765,False,iucn_population_size,Unknown,66.07563687658173,7.12,10,EWS 신호,0.6
+Isoodon obesulus,MAMMALIA,포유류,LC,0,40.2,2.0100000000000002,T2,2.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.85333333333334,10,EWS 신호,0.6
+Lama guanicoe,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Leptonychotes weddellii,MAMMALIA,포유류,LC,0,15.1,0.755,T0,0.755,False,iucn_population_size,Unknown,66.07563687658173,6.1933333333333325,10,EWS 신호,0.6
+Lobodon carcinophaga,MAMMALIA,포유류,LC,0,15.2,0.76,T0,0.76,False,iucn_population_size,Unknown,66.07563687658173,6.513333333333334,10,EWS 신호,0.6
+Lycalopex vetulus,MAMMALIA,포유류,NT,1,40.3,2.0149999999999997,T2,1.0149999999999997,False,iucn_population_size,Decreasing,88.07970779778823,41.209999999999994,10,EWS 신호,0.6
+Marmota olympus,MAMMALIA,포유류,LC,0,50.4,2.52,T2,2.52,False,iucn_population_size,Decreasing,88.07970779778823,42.54666666666667,55,EWS 신호,0.6
+Microtus tatricus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.06999999999999999,10,EWS 신호,0.6
+Mirounga angustirostris,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Mustela eversmanii,MAMMALIA,포유류,EN,3,50.2,2.5100000000000002,T2,-0.48999999999999977,False,iucn_population_size,Decreasing,88.07970779778823,41.93666666666667,55,EWS 신호,0.6
+Myzopoda schliemanni,MAMMALIA,포유류,LC,0,15.1,0.755,T0,0.755,False,iucn_population_size,Unknown,66.07563687658173,6.446666666666665,10,EWS 신호,0.6
+Notoryctes caurinus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.11666666666666668,10,EWS 신호,0.6
+Notoryctes typhlops,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.11666666666666668,10,EWS 신호,0.6
+Ommatophoca rossii,MAMMALIA,포유류,LC,0,15.3,0.765,T0,0.765,False,iucn_population_size,Unknown,66.07563687658173,7.06,10,EWS 신호,0.6
+Oreamnos americanus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.02333333333333333,10,EWS 신호,0.6
+Otaria byronia,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.02333333333333333,10,EWS 신호,0.6
+Ovis canadensis,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.04666666666666666,10,EWS 신호,0.6
+Ovis dalli,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Petrogale brachyotis,MAMMALIA,포유류,LC,0,15.3,0.765,T0,0.765,False,iucn_population_size,Unknown,66.07563687658173,7.196666666666666,10,EWS 신호,0.6
+Phoca largha,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.04666666666666666,10,EWS 신호,0.6
+Plecotus kolombatovici,MAMMALIA,포유류,LC,0,40.6,2.0300000000000002,T2,2.0300000000000002,False,iucn_population_size,Decreasing,88.07970779778823,41.949999999999996,10,EWS 신호,0.6
+Procapra gutturosa,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.13999999999999999,10,EWS 신호,0.6
+Pronolagus rupestris,MAMMALIA,포유류,LC,0,15.3,0.765,T0,0.765,False,iucn_population_size,Unknown,66.07563687658173,7.1499999999999995,10,EWS 신호,0.6
+Pronolagus saundersiae,MAMMALIA,포유류,LC,0,15.4,0.77,T0,0.77,False,iucn_population_size,Unknown,66.07563687658173,7.576666666666666,10,EWS 신호,0.6
+Pseudantechinus bilarni,MAMMALIA,포유류,NT,1,40.2,2.0100000000000002,T2,1.0100000000000002,False,iucn_population_size,Decreasing,88.07970779778823,40.849999999999994,10,EWS 신호,0.6
+Pseudochirops archeri,MAMMALIA,포유류,NT,1,39.9,1.9949999999999999,T1,0.9949999999999999,False,iucn_population_size,Decreasing,88.07970779778823,40.10999999999999,10,EWS 신호,0.6
+Pusa sibirica,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.09333333333333332,10,EWS 신호,0.6
+Rupicapra pyrenaica,MAMMALIA,포유류,LC,0,3.6,0.18,T0,0.18,False,iucn_population_size,Increasing,11.920292202211755,0.0,10,EWS 신호,0.6
+Rupicapra rupicapra,MAMMALIA,포유류,LC,0,15.2,0.76,T0,0.76,False,iucn_population_size,Unknown,66.07563687658173,6.679999999999999,10,EWS 신호,0.6
+Sminthopsis dolichura,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.06999999999999999,10,EWS 신호,0.6
+Sminthopsis leucopus,MAMMALIA,포유류,LC,0,10.5,0.525,T0,0.525,False,iucn_population_size,Stable,50.0,0.16333333333333333,10,EWS 신호,0.6

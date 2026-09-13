@@ -1,0 +1,208 @@
+scientific_name,class_name,iucn_category,mature_individuals,iucn_population_size,iucn_criteria
+"Abies ziyuanensis",(null),EN,,1110,"B1ab(iii); C2a(i)"
+"Accipiter brachyurus",(null),VU,,6249,C2a(ii)
+"Accipiter butleri",(null),VU,,1500,"B1ab(ii,iii,iv)+2ab(ii,iii,iv)"
+"Accipiter gundlachi",(null),EN,,750,C2a(ii)
+"Accipiter henstii",(null),VU,,749,"C2a(i); D1"
+"Accipiter luteoschistaceus",(null),VU,,1749,C2a(i)
+"Accipiter princeps",(null),VU,,6249,C2a(ii)
+"Acer griseum",(null),EN,,235,"B2ab(iv,v); C2a(i); D"
+"Achyranthes mutica",(null),EN,,140,"B1ab(i,ii,iii,iv,v)+2ab(i,ii,iii,iv,v); D"
+"Adansonia perrieri",(null),CR,,201,C2a(i)
+"Aloe bellatula",(null),CR,,0,"C2a(i,ii); D"
+"Aloe cremnophila",(null),EN,,240,D
+"Aloe helenae",(null),EN,,350,"B1ab(i,ii,iii,v)+2ab(i,ii,iii,v); C2a(i); D"
+"Aloe suzannae",(null),EN,,600,"B2ab(i,ii,iii,v)"
+"Aloe ukambensis",(null),VU,,6249,"B2ab(ii,v); C2a(i)"
+"Amazona vinacea",(null),EN,,1749,C2a(i)
+"Amentotaxus formosana",(null),EN,,500,"B1ab(iii,v)+2ab(iii,v); C1"
+"Anas bernieri",(null),EN,,1265,C2a(ii)
+"Anthemis glaberrima",(null),EN,,28805,B1ab(iii)+2ab(iii)
+"Aratinga solstitialis",(null),EN,,1749,C2a(ii)
+"Ariocarpus scaphirostris",(null),EN,,25000,"B1ab(iii,v)+2ab(iii,v)"
+"Astrophytum asterias",(null),VU,,5000,"B1ab(ii,iii,v)"
+"Auerodendron pauciflorum",(null),CR,,21,"B1ab(i,iii,iv,v); C2a(i,ii); D"
+"Beccariophoenix alfredii",(null),VU,,1000,D2
+"Byblis gigantea",(null),CR,,3000,"B1b(i,iii,iv,v)c(iv)"
+"Conolophus pallidus",(null),VU,,3750,"A1ce; D2"
+"Copsychus sechellarum",(null),EN,,190,D
+"Ctenosaura melanosterna",(null),EN,,3750,"B1ab(i,ii,iii,iv,v)"
+"Ctenosaura oedirhina",(null),EN,,5560,B1ab(v)+2ab(v)
+"Ctenosaura palearis",(null),EN,,2530,"A2acd; B1ab(i,ii,iii,v)+2ab(i,ii,iii,v)"
+"Cuon alpinus",(null),EN,,1582,C2a(i)
+"Cycas armstrongii",(null),VU,,100000,A4cde
+"Cycas circinalis",(null),EN,,6450,A2cd+4cd
+"Cynometra beddomei",(null),EN,,200,D
+"Diomedea amsterdamensis",(null),EN,,92,D
+"Dioon purpusii",(null),EN,,3130,B1ab(v)
+"Echinocactus grusonii",(null),EN,,11000,B1ab(v)
+"Echium gentianoides",(null),VU,,6797,D2
+"Echium pininana",(null),EN,,13023,B2ac(iv)
+"Elaeocarpus recurvatus",(null),EN,,4000,A2c
+"Gallotia simonyi",(null),VU,,350,D1
+"Garrulax rufifrons",(null),EN,,1500,C2a(i)
+"Geothlypis beldingi",(null),VU,,1160,A2bc
+"Goetzea elegans",(null),EN,,1700,"B1ab(i,iii,v); C2a(i)"
+"Gomortega keule",(null),EN,,1030,"B2ab(i,ii,iii,iv,v); C2a(i)"
+"Haptanthus hazlettii",(null),CR,,174,"B1ab(iii,v)+2ab(iii,v); C1+2a(ii)"
+"Juniperus gracilior",(null),EN,,999,"B2ab(ii,iii,iv,v)"
+"Lophophora diffusa",(null),VU,,3000,B1ab(v)+2ab(v)
+"Mammillaria albiflora",(null),CR,,5000,"B1ab(iii,v)+2ab(iii,v)"
+"Mammillaria anniana",(null),CR,,500,B1ab(v)
+"Mammillaria marcosii",(null),CR,,150,"A2d+3d; B1ab(v)+2ab(v); C2a(ii)"
+"Mammillaria mathildae",(null),EN,,493,"B2ab(i,ii,iii,v)"
+"Mammillaria microhelia",(null),EN,,499,"B1ab(iii,v)"
+"Mammillaria pennispinosa",(null),CR,,1250,B2ab(v)
+"Mammillaria sanchez-mejoradae",(null),CR,,500,B1ab(v)+2ab(v)
+"Mammillaria schwarzii",(null),CR,,999,"B1ab(iv,v)c(iv)"
+"Mammillaria theresae",(null),CR,,200,B1ab(v)
+"Melicope pallida",(null),CR,,307,"B1ab(i,ii,iii,iv,v)"
+"Mellissia begoniifolia",(null),CR,,2,"B1ab(iii,iv,v)c(i,ii,iii,iv)+2ab(iii,iv,v)c(i,ii,iii,iv); C2a(i,ii)b; D"
+"Melocactus lanssensianus",(null),EN,,2000,"B1ab(i,ii,iii)"
+"Melocactus matanzanus",(null),EN,,200,"B1ab(iii,v); D"
+"Mexipedium xerophyticum",(null),CR,,27,"B1ab(i,ii,iii,iv,v)+2ab(i,ii,iii,iv,v); C1+2a(i,ii); D"
+"Micranthocereus polyanthus",(null),EN,,1700,"A2c; B1ab(iii,v); C2a(i)"
+"Nepenthes adnata",(null),EN,,200,D
+"Nepenthes aristolochioides",(null),CR,,60,"A2a; B1ab(v); C2a(i)"
+"Nepenthes attenboroughii",(null),CR,,400,B1ab(v)+2ab(v)
+"Nepenthes campanulata",(null),VU,,5000,D2
+"Nepenthes chaniana",(null),EN,,3000,B1ac(iv)+2ac(iv)
+"Obregonia denegrii",(null),EN,,5000,"B1ab(iii,v)+2ab(iii,v)"
+"Opuntia chaffeyi",(null),CR,,15,D
+"Opuntia pachyrrhiza",(null),EN,,9999,"B1ab(iii,v)"
+"Oreophasis derbianus",(null),EN,,1150,C2a(i)
+"Ostrya rehderiana",(null),CR,,5,"B1ab(i,ii,v)+2ab(i,ii,v); C2a(i,ii); D"
+"Oxyura leucocephala",(null),VU,,1300,C1+2a(i)
+"Oxyura maccoa",(null),EN,,5250,A2acde
+"Parasitaxus usta",(null),VU,,9999,"B1ab(iii,iv,v)+2ab(iii,iv,v); C2a(i)"
+"Pavo muticus",(null),EN,,14999,A2cd+3cd+4cd
+"Penelopides mindorensis",(null),EN,,624,C2a(i)
+"Phalacrocorax featherstoni",(null),EN,,868,"A2bde+3bde+4bde; C1+2a(ii)"
+"Procellaria aequinoctialis",(null),VU,,3000000,A4bcde
+"Procellaria conspicillata",(null),VU,,20000,D2
+"Procellaria parkinsoni",(null),VU,,5500,D2
+"Procellaria westlandica",(null),EN,,10800,B2ab(iii)
+"Psittrichas fulgidus",(null),VU,,34999,A2bcd+3bcd+4bcd
+"Pterodroma cahow",(null),EN,,196,D
+"Pterospermum reticulatum",(null),LC,,58000,
+"Puya raimondii",(null),EN,,832500,A2ac+3c
+"Rhizanthella gardneri",(null),CR,,9,"C1+2a(i); D"
+"Rhyticeros everetti",(null),EN,,1500,"A2cd+3cd+4cd; C2a(ii)"
+"Sauromalus hispidus",(null),EN,,3000,"B1b(i,ii,iv,v)c(iv)"
+"Scilla morrisii",(null),EN,,1044,"B1ab(ii,iii)+2ab(ii,iii)"
+"Spongiforma squarepantsii",(null),EN,,500,C2a(i)
+"Sternula nereis",(null),VU,,6249,C1
+"Synapsis ilicifolia",(null),CR,,2,"B1ab(i,ii,iii,iv,v)+2ab(i,ii,iii,iv,v); D"
+"Tahina spectabilis",(null),CR,,30,"B1ab(iii); D"
+"Taoniscus nanus",(null),EN,,6249,"B2ab(ii,iii)"
+"Taphrolesbia griseiventris",(null),EN,,624,C2a(i)
+"Telespiza cantans",(null),VU,,4250,D2
+"Turbinicarpus alonsoi",(null),CR,,4999,B1ab(v)+2ab(v)
+"Turbinicarpus gielsdorfianus",(null),CR,,4000,"B1ab(iii,v)"
+"Turbinicarpus hoferi",(null),CR,,749,B1ab(v)+2ab(v)
+"Turbinicarpus horripilus",(null),EN,,1000,B1ab(v)+2ab(v)
+"Turbinicarpus laui",(null),CR,,4000,"B2ab(iii,v)"
+"Turbinicarpus mandragora",(null),CR,,4000,B1ab(v)+2ab(v)
+"Turbinicarpus swobodae",(null),CR,,2000,B1ab(v)+2ab(v)
+"Tyto aurantia",(null),VU,,6249,C1+2a(ii)
+"Weberocereus frohningiorum",(null),CR,,49,D
+"Wikstroemia villosa",(null),CR,,49,"C2a(i); D"
+"Xanthocyparis vietnamensis",(null),EN,,750,"B2ab(iii,v)"
+"Xenicus gilviventris",(null),EN,,5000,A2ce+3ce+4ce
+"Dryococelus australis","곤충",CR,,22,D
+"Hadramphus tuberculatus","곤충",CR,,138,B1ab(v)+2ab(v)
+"Actinella obserata","복족류",CR,,25,D
+"Partula arguta","복족류",CR,,0,D
+"Microcycas calocoma","식물 (소철)",CR,,149,C2a(i)
+"Abies beshanzuensis","식물 (침엽수)",CR,,3,"B2ab(v); C2a(i,ii); D"
+"Abies yuanbaoshanensis","식물 (침엽수)",CR,,420,B1ab(v)+2ab(v)
+"Wollemia nobilis","식물 (침엽수)",CR,,45,"B1ab(iii,v)+2ab(iii,v); C2a(i,ii); D"
+"Arthroleptides dutoiti","양서류",CR,,249,C2a(ii)
+"Atelopus oxyrhynchus","양서류",CR,,24,D
+"Craugastor tabasarae","양서류",CR,,249,C2a(i)
+"Eleutherodactylus jasperi","양서류",CR,,24,D
+"Holoaden bradei","양서류",CR,,24,D
+"Litoria castanea","양서류",CR,,0,D
+"Litoria lorica","양서류",CR,,825,B1ac(iv)+2ac(iv)
+"Plectrohyla pachyderma","양서류",CR,,24,D
+"Pristimantis xylochobates","양서류",CR,,24,D
+"Acipenser sturio","어류 (조기어류)",CR,,35,"A2cde; D"
+"Radula visianica","이끼류 (우산이끼)",CR,,24,D
+"Ciconia boyciana","조류",EN,1500,1749,C2a(ii)
+"Grus japonensis","조류",VU,1830,2300,"A2ac+4ac; C1"
+"Nipponia nippon","조류",EN,600,,B1ab(iii)
+"Aegotheles savesi","파충류",CR,,25,D
+"Alligator sinensis","파충류",CR,,77,"A1b; B1ab(ii,v)+2ab(ii,v); C1+2a(i)"
+"Anas laysanensis","파충류",CR,,590,B1ac(iv)
+"Anthochaera phrygia","파충류",CR,,375,A2bce
+"Antilophia bokermanni","파충류",CR,,425,C2a(ii)
+"Aphrastura masafuerae","파충류",CR,,210,B1ab(iii)
+"Batagur kachuga","파충류",CR,,500,A2cd+4cd
+"Batagur trivittata","파충류",CR,,10,"A2bcd; B1ab(i,ii,iii)+2ab(i,ii,iii); D"
+"Bostrychia bocagei","파충류",CR,,915,C2a(ii)
+"Calyptura cristata","파충류",CR,,25,D
+"Crocodylus intermedius","파충류",CR,,190,"A2bcd; C2a(i)"
+"Crocodylus mindorensis","파충류",CR,,114,A2cd
+"Crocodylus rhombifer","파충류",CR,,2400,A2cde
+"Crocodylus siamensis","파충류",CR,,750,A2cd
+"Cuora yunnanensis","파충류",CR,,25,"B2ab(ii,iii,v); D"
+"Cyclura pinguis","파충류",CR,,390,B1ab(iii)
+"Cyornis banyumas","파충류",CR,,550,A2bcd
+"Didunculus strigirostris","파충류",CR,,100,C2a(i)
+"Eutrichomyias rowleyi","파충류",CR,,60,"B1ab(i,ii,iii,v); C2a(i,ii); D"
+"Gopherus flavomarginatus","파충류",CR,,2500,A4bcd
+"Gymnogyps californianus","파충류",CR,,93,"C2a(i); D"
+"Gyps indicus","파충류",CR,,10000,A2abce+4abce
+"Heteromirafra archeri","파충류",CR,,149,"A3bc; C1+2a(i)"
+"Lepidochelys kempii","파충류",CR,,22341,A2bd
+"Mecistops cataphractus","파충류",CR,,10500,A2acde+3cde+4acde
+"Necrosyrtes monachus","파충류",CR,,131000,A3cd+4acd
+"Otus insularis","파충류",CR,,240,"B1ab(ii,iii,v); C2a(ii)"
+"Phoboscincus bocourti","파충류",CR,,54,"B1ab(iii,v)+2ab(iii,v); C2a(i); D"
+"Pipile pipile","파충류",CR,,240,"C2a(i,ii)"
+"Pithecophaga jefferyi","파충류",CR,,526,"A2cd+4cd; C2a(i)"
+"Pseudobulweria aterrima","파충류",CR,,150,C2a(ii)
+"Sarothrura ayresi","파충류",CR,,149,C2a(i)
+"Spheniscus demersus","파충류",CR,,19800,A3bce+4bce
+"Terenura sicki","파충류",CR,,149,C2a(i)
+"Vanellus gregarius","파충류",CR,,11,"A2bcd+3bcd+4bcd; C1+2a(i,ii); D"
+"Acinonyx jubatus venaticus","포유류",VU,,6517,"A4b; C1"
+"Addax nasomaculatus","포유류",CR,,60,"A2cd; C2a(ii); D"
+"Ailuropoda melanoleuca","포유류",VU,1864,750,"C2a(i); D1"
+"Axis kuhlii","포유류",CR,,350,C2a(ii)
+"Bos javanicus","포유류",CR,,3300,A2abcd+4cd
+"Bunolagus monticularis","포유류",CR,,182,C2a(i)
+"Canis lupus coreanus","포유류",LC,0,172500,
+"Cervus nippon hortulorum","포유류",LC,0,,
+"Dendrolagus pulcherrimus","포유류",CR,,500,A1ad
+"Dendrolagus scottae","포유류",CR,,200,A2d
+"Diceros bicornis","포유류",CR,,3142,A2abd+4abd
+"Dipodomys gravipes","포유류",CR,,26,"C2a(i,ii); D"
+"Dobsonia chapmani","포유류",CR,,45,"C2a(i,ii); D"
+"Equus africanus","포유류",CR,,111,C2a(i)
+"Eubalaena glacialis","포유류",CR,,34,D
+"Gorilla beringei","포유류",CR,,2600,A4bcd
+"Gorilla beringei graueri","포유류",CR,3800,2600,A4bcd
+"Gymnobelideus leadbeateri","포유류",CR,,2500,A2abc+3bc+4abc
+"Lepilemur septentrionalis","포유류",CR,,40,"A2acd+3cd+4acd; C2a(i,ii); D"
+"Lipotes vexillifer","포유류",CR,0,,"C2a(i,ii); D"
+"Lutra lutra","포유류",NT,4000,,A3c+4c
+"Murina tenebrosa","포유류",CR,,1,D
+"Naemorhedus caudatus","포유류",VU,800,6250,C2a(i)
+"Nomascus concolor","포유류",CR,,1500,A2acd+3cd
+"Panthera tigris","포유류",EN,3140,3140,A2abcd
+"Panthera tigris amoyensis","포유류",EN,,3140,A2abcd
+"Panthera tigris sumatrae","포유류",EN,,3140,A2abcd
+"Phalanger matanim","포유류",CR,,40,D
+"Pharotis imogene","포유류",CR,,45,D
+"Plecotus teneriffae","포유류",CR,,1250,"B2ab(ii,iii,v)"
+"Potorous gilbertii","포유류",CR,,49,D
+"Pseudoryx nghetinhensis","포유류",CR,,175,"A2acd+3cd+4acd; C2a(i)"
+"Pteropus aruensis","포유류",CR,,25,D
+"Rhinopithecus brelichi","포유류",CR,,200,"B1ab(iii,v); C2a(ii)"
+"Santamartamys rufodorsalis","포유류",CR,,25,D
+"Tylomys bullaris","포유류",CR,,30,"B1ab(i,ii,iii,iv,v)+2ab(i,ii,iii,iv,v); D"
+"Uromys imperator","포유류",CR,,3,D
+"Uromys porculus","포유류",CR,,3,D
+"Ursus maritimus","포유류",VU,26000,1900,A3c
+"Ursus thibetanus ussuricus","포유류",VU,86,,A2cd

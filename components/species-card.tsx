@@ -49,7 +49,12 @@ export function SpeciesCard({ species }: { species: SpeciesRow | SpeciesWithTipp
           ) : hasTipping ? (
             <span className="rounded-full bg-[#60C659] px-2 py-0.5 text-[10px] font-bold text-white shadow">자체 분석</span>
           ) : (
-            <span className="rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-bold text-zinc-600 backdrop-blur">IUCN 등급만</span>
+            <span
+              className="rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-bold text-zinc-600 backdrop-blur"
+              title="LastWatch 위험 점수: 개체수 데이터가 없어 산출되지 않음"
+            >
+              IUCN 등급만
+            </span>
           )}
         </div>
 

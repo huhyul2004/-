@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getSpeciesById } from "@/lib/queries";
-import { getAnthropic, MODEL, extractJson, friendlyError, AnthropicConfigError } from "@/lib/anthropic";
+import { generateText, friendlyError, GeminiConfigError } from "@/lib/gemini";
+// extractJson 은 공급자 중립 유틸이라 lib/anthropic 에 그대로 둔다 (scripts/ 배치들이 같이 쓴다).
+import { extractJson } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -64,15 +66,12 @@ IUCN 등급: ${ctx.category} (${ctx.category === "EX" ? "절멸" : "야생절멸
 
 위 정보를 바탕으로 JSON 답변만 출력하세요.`;
 
-    const client = getAnthropic();
-    const resp = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1500,
+    const text = await generateText({
       system,
       messages: [{ role: "user", content: user }],
+      maxTokens: 1500,
+      json: true,
     });
-
-    const text = resp.content.filter((b) => b.type === "text").map((b: any) => b.text).join("");
     const parsed = extractJson<RetroPayload>(text);
 
     try {
@@ -86,7 +85,7 @@ IUCN 등급: ${ctx.category} (${ctx.category === "EX" ? "절멸" : "야생절멸
     return NextResponse.json(parsed);
   } catch (e) {
     console.error("[retrospective]", e);
-    const status = e instanceof AnthropicConfigError ? 503 : 500;
+    const status = e instanceof GeminiConfigError ? 503 : 500;
     return NextResponse.json({ error: friendlyError(e) }, { status });
   }
 }
