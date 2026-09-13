@@ -84,11 +84,34 @@ export default function RootLayout({
                 </ul>
               </div>
               <div>
-                <p className="text-[10px] font-black tracking-widest text-zinc-400">METHODOLOGY</p>
-                <ul className="mt-2 space-y-1 text-[11px] text-zinc-500">
-                  <li>· EWS-PVA-IUCN Hybrid Engine</li>
-                  <li>· Frankham 50/500 Rule</li>
-                  <li>· Beissinger PVA simulation</li>
+                {/* 계산식 설명 페이지로 — 모바일에는 상단 메뉴가 없어 이 링크가 진입 경로 중 하나다 */}
+                <Link
+                  href="/methodology"
+                  className="text-[10px] font-black tracking-widest text-zinc-400 transition hover:text-zinc-900"
+                >
+                  METHODOLOGY →
+                </Link>
+                <ul className="mt-2 space-y-0.5 text-[11px] text-zinc-500">
+                  <li>
+                    <Link href="/methodology#layers" className="inline-block py-1 transition hover:text-zinc-900 hover:underline">
+                      · EWS-PVA-IUCN Hybrid Engine
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/methodology#layers" className="inline-block py-1 transition hover:text-zinc-900 hover:underline">
+                      · Frankham 50/500 Rule
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/methodology#layers" className="inline-block py-1 transition hover:text-zinc-900 hover:underline">
+                      · Beissinger PVA simulation
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/methodology" className="inline-block py-1 font-bold text-[#D81E05] hover:underline">
+                      · 위험 점수 계산식 보기 →
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
