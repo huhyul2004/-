@@ -73,6 +73,8 @@ export function CommentSection({ speciesId, dark = false }: { speciesId: string;
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 댓글 서비스(Supabase) 가 설정되지 않은 배포 — API 가 503 + disabled 로 알린다
+  const [disabled, setDisabled] = useState(false);
   const [liked, setLiked] = useState<Set<string>>(new Set());
 
   // 페이지당 익명 닉네임 placeholder (마운트 시 1회 고정)
@@ -92,6 +94,10 @@ export function CommentSection({ speciesId, dark = false }: { speciesId: string;
           { cache: "no-store" }
         );
         const json = await res.json();
+        if (json.disabled) {
+          setDisabled(true);
+          return;
+        }
         if (!res.ok) throw new Error(json.error ?? "불러오기 실패");
         setComments((prev) => (replace ? json.comments : [...prev, ...json.comments]));
         setTotal(json.total ?? 0);
@@ -126,6 +132,10 @@ export function CommentSection({ speciesId, dark = false }: { speciesId: string;
         }),
       });
       const json = await res.json();
+      if (json.disabled) {
+        setDisabled(true);
+        return;
+      }
       if (!res.ok) throw new Error(json.error ?? "작성 실패");
       setComments((prev) => [json.comment, ...prev]);
       setTotal((t) => t + 1);
@@ -177,6 +187,17 @@ export function CommentSection({ speciesId, dark = false }: { speciesId: string;
   }
 
   const remaining = MAX_CONTENT_LEN - content.length;
+
+  if (disabled) {
+    return (
+      <section className={`mt-10 border-t ${t.wrap} pt-8`}>
+        <h2 className={`mb-4 text-lg font-bold ${t.heading}`}>댓글</h2>
+        <p className={`rounded-2xl border ${t.formCard} px-4 py-6 text-center text-sm ${t.muted}`}>
+          댓글 기능 준비 중이에요. 준비가 끝나면 이 자리에서 의견을 남길 수 있어요.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className={`mt-10 border-t ${t.wrap} pt-8`}>

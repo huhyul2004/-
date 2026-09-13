@@ -43,7 +43,7 @@ export async function GET(req: Request) {
       hasMore: offset + (data?.length ?? 0) < total,
     });
   } catch (e) {
-    return NextResponse.json({ error: friendly(e) }, { status: 500 });
+    return errorResponse(e);
   }
 }
 
@@ -106,11 +106,18 @@ export async function POST(req: Request) {
     if (error) throw error;
     return NextResponse.json({ comment: data }, { status: 201 });
   } catch (e) {
-    return NextResponse.json({ error: friendly(e) }, { status: 500 });
+    return errorResponse(e);
   }
 }
 
-function friendly(e: unknown): string {
-  if (e instanceof SupabaseConfigError) return e.message;
-  return "댓글 처리 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.";
+// Supabase 환경변수가 없으면 "댓글 기능이 꺼져 있음" 으로 알린다 (503 + disabled) —
+// 화면(components/comment-section.tsx)은 이걸 받으면 오류 대신 "댓글 기능 준비 중" 을 보이고 작성 폼을 숨긴다.
+function errorResponse(e: unknown) {
+  if (e instanceof SupabaseConfigError) {
+    return NextResponse.json({ error: e.message, disabled: true }, { status: 503 });
+  }
+  return NextResponse.json(
+    { error: "댓글 처리 중 오류가 발생했어요. 잠시 후 다시 시도해주세요." },
+    { status: 500 }
+  );
 }
