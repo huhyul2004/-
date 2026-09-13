@@ -170,6 +170,9 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             아래 IUCN 등급·분류 정보만 제공합니다. (v5: 위험 점수는 실측 개체수로만 계산하며,
             IUCN 등급 기반 추정은 하지 않습니다.)
           </p>
+          <Link href="/methodology#coverage" className="mt-2 inline-block text-xs font-bold text-[#D81E05] underline">
+            점수 계산식과 산출 범위 보기 →
+          </Link>
         </section>
       )}
 

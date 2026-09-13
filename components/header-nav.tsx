@@ -51,6 +51,12 @@ export function HeaderNav() {
         분석
       </Link>
       <Link
+        href="/methodology"
+        className="rounded-full px-3 py-1.5 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
+      >
+        계산식
+      </Link>
+      <Link
         href="/favorites"
         className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
       >
