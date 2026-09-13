@@ -66,3 +66,7 @@ logs/
 # python
 __pycache__/
 data/iucn-population-fetch.json
+TASK.md
+
+# 예시 env — 실제 값을 넣지 말 것 (이미 추적 중인 파일이라 이 규칙은 새 복사본에만 적용)
+.env.local.example
