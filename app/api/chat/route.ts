@@ -5,6 +5,8 @@ import { inferPopulationWithSource } from "@/lib/tipping-point";
 import { buildLiteratureLines } from "@/lib/literature";
 import { buildPeerComparisonLines } from "@/lib/peer-comparison";
 import { floorBreakdown, floorStatusLine } from "@/lib/floor-transparency";
+import { splitThreats, threatPath } from "@/lib/threat-display";
+import type { ThreatRow } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -26,13 +28,7 @@ export async function POST(req: Request) {
     const species = getSpeciesById(speciesId);
     if (!species) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-    const threats = getThreats(speciesId) as {
-      threat_name: string;
-      threat_code: string | null;
-      threat_parent: string | null;
-      threat_category: string | null;
-      timing: string | null;
-    }[];
+    const threats = getThreats(speciesId) as ThreatRow[];
     const actions = getActions(speciesId) as { action_name: string }[];
     const habitats = getHabitats(speciesId) as { habitat_name: string }[];
     const tipping = getTippingPoint(speciesId);
@@ -131,35 +127,16 @@ export async function POST(req: Request) {
     if (isExtinct && species.extinction_cause)
       lines.push(`절멸 원인: ${species.extinction_cause}  [출처: species.extinction_cause]`);
     if (species.summary_ko) lines.push(`요약: ${species.summary_ko}  [출처: species.summary_ko]`);
-    // 수기 입력 위협(코드 없음)은 이름만, IUCN 위협(코드 있음)은 상위 분류 경로·코드를 붙여 시기별로 나눈다.
-    // IUCN 말단 이름은 여러 코드가 같이 쓴다("Named species" 가 8_1_2 외래 침입종 / 8_2_2 문제성 토착종 …).
-    const manualThreats = threats.filter((t) => !t.threat_code);
+    // 수기 입력 위협(코드 없음)은 이름만, IUCN 위협(코드 있음)은 상위 분류 경로·코드를 붙여 시기별로 나눈다
+    // (lib/threat-display.ts — 종·절멸 페이지와 공용).
+    const { manual: manualThreats, groups: threatGroups } = splitThreats(threats);
     if (manualThreats.length)
       lines.push(`주요 위협: ${manualThreats.map((t) => t.threat_name).join(", ")}  [출처: threats]`);
-    const iucnThreats = threats.filter((t) => t.threat_code);
-    const TIMING_GROUPS: [string | null, string][] = [
-      ["Ongoing", "IUCN 위협 — 진행 중(Ongoing)"],
-      ["Future", "IUCN 위협 — 앞으로 예상(Future)"],
-      ["Past, Likely to Return", "IUCN 과거 위협 — 현재 진행 중 아님, 재발 가능(Past, Likely to Return)"],
-      ["Past, Unlikely to Return", "IUCN 과거 위협 — 현재 진행 중 아님, 재발 가능성 낮음(Past, Unlikely to Return)"],
-      ["Unknown", "IUCN 위협 — 시기 미상(Unknown)"],
-      [null, "IUCN 위협 — 시기 기록 없음"],
-    ];
-    const threatPath = (t: (typeof threats)[number]) =>
-      [t.threat_category, t.threat_parent, t.threat_name]
-        .filter((v, i, a): v is string => !!v && a.indexOf(v) === i)
-        .join(" > ") + ` (${t.threat_code})`;
-    const knownTimings = new Set(TIMING_GROUPS.map(([k]) => k));
-    for (const [timing, label] of TIMING_GROUPS) {
-      const group = iucnThreats.filter((t) =>
-        timing === null ? t.timing === null || !knownTimings.has(t.timing) : t.timing === timing
+    for (const { group, threats: items } of threatGroups)
+      lines.push(
+        `${group.chatLabel}: ${items.map(threatPath).join("; ")}  ` +
+          `[출처: threats.threat_category > threat_parent > threat_name (threat_code), threats.timing]`
       );
-      if (group.length)
-        lines.push(
-          `${label}: ${group.map(threatPath).join("; ")}  ` +
-            `[출처: threats.threat_category > threat_parent > threat_name (threat_code), threats.timing]`
-        );
-    }
     if (actions.length)
       lines.push(`보전 활동: ${actions.map((a) => a.action_name).join(", ")}  [출처: conservation_actions]`);
     if (habitats.length)

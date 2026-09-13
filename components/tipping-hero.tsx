@@ -104,9 +104,12 @@ function PointCard({ num, label, date, rel, caption, color, ringColor, isUrgent,
 export function TippingHero({
   result,
   dark = false,
+  floorNote = null,
 }: {
   result: TippingPointResult;
   dark?: boolean;
+  /** 개체수 하한이 점수를 끌어올린 종의 설명 한 줄 (lib/floor-transparency.ts floorStatusLine, 챗봇과 같은 문구) */
+  floorNote?: string | null;
 }) {
   const tier = result.intervention_tier;
   const isExtinct = tier === "EX";
@@ -158,6 +161,16 @@ export function TippingHero({
           </span>
         </div>
       </div>
+
+      {floorNote && (
+        <p
+          className={`-mt-2 mb-5 rounded-xl border px-3 py-2 text-[11px] leading-relaxed ${
+            dark ? "border-zinc-800 bg-zinc-900 text-zinc-400" : "border-amber-200 bg-amber-50 text-amber-900"
+          }`}
+        >
+          {floorNote}
+        </p>
+      )}
 
       {/* 4 Big Cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

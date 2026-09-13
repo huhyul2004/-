@@ -189,6 +189,12 @@ export interface ThreatRow {
   threat_code: string | null;
   threat_name: string;
   severity: string | null;
+  /** IUCN 위협 코드의 바로 위 분류 이름 (수기 입력 행은 NULL) */
+  threat_parent: string | null;
+  /** IUCN 위협 코드의 대분류 이름 (수기 입력 행은 NULL) */
+  threat_category: string | null;
+  /** Ongoing · Future · Past, Likely to Return · Past, Unlikely to Return · Unknown (수기 입력 행은 NULL) */
+  timing: string | null;
 }
 
 export interface ConservationActionRow {

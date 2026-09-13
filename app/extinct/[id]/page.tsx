@@ -8,7 +8,9 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
 import { TippingHero } from "@/components/tipping-hero";
 import { CommentSection } from "@/components/comment-section";
+import { ThreatList } from "@/components/threat-list";
 import type { TippingPointResult } from "@/lib/tipping-point";
+import type { ThreatRow } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +20,7 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
   if (species.category !== "EX" && species.category !== "EW") {
     return notFound();
   }
-  const threats = getThreats(species.id) as { threat_name: string }[];
+  const threats = getThreats(species.id) as ThreatRow[];
   const tipping = getTippingPoint(species.id);
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
@@ -97,13 +99,7 @@ export default function ExtinctDetailPage({ params }: { params: { id: string } }
         {threats.length > 0 && (
           <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
             <p className="text-[10px] font-black tracking-wider text-[#D81E05]">위협 요인</p>
-            <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
-              {threats.map((t, i) => (
-                <li key={i} className="text-xs text-zinc-400">
-                  • {t.threat_name}
-                </li>
-              ))}
-            </ul>
+            <ThreatList threats={threats} dark />
           </section>
         )}
 

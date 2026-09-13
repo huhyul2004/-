@@ -8,8 +8,11 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { TippingTimeline } from "@/components/tipping-timeline";
 import { TippingHero } from "@/components/tipping-hero";
 import { CommentSection } from "@/components/comment-section";
+import { ThreatList } from "@/components/threat-list";
 import { inferPopulationWithSource, type PopulationSource } from "@/lib/tipping-point";
 import type { TippingPointResult } from "@/lib/tipping-point";
+import { floorBreakdown, floorStatusLine } from "@/lib/floor-transparency";
+import type { ThreatRow } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -39,11 +42,16 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
     return notFound();
   }
 
-  const threats = getThreats(species.id) as { threat_name: string; severity: string | null }[];
+  const threats = getThreats(species.id) as ThreatRow[];
   const actions = getActions(species.id) as { action_name: string }[];
   const habitats = getHabitats(species.id) as { habitat_name: string }[];
   const tipping = getTippingPoint(species.id);
   const pop = inferPopulationWithSource(species);
+  // 개체수 하한이 점수를 끌어올린 종만 하한 적용 전 점수를 함께 보인다 — 표시 전용, 점수는 DB 값 그대로.
+  const fb = tipping ? floorBreakdown(species, tipping.payload) : null;
+  const floorNote = fb?.bound ? floorStatusLine(fb) : null;
+  // IUCN 위협은 상위 분류 경로가 길어 세 칸 중 한 칸에 넣으면 좁다 — 있으면 한 줄 전체를 쓴다.
+  const hasIucnThreats = threats.some((t) => t.threat_code);
   const info = CATEGORY_INFO[species.category];
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
@@ -154,7 +162,9 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
 
       {!tipping && (
         <section className="mb-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-          <p className="text-xs font-bold text-zinc-800">ℹ️ IUCN 등급 정보만 제공</p>
+          <p className="text-xs font-bold text-zinc-800">
+            LastWatch 위험 점수: 개체수 데이터가 없어 산출되지 않음
+          </p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-600">
             이 종은 <b>실측 개체수 데이터가 없어</b> LastWatch 자체 위험 점수를 산출하지 않습니다.
             아래 IUCN 등급·분류 정보만 제공합니다. (v5: 위험 점수는 실측 개체수로만 계산하며,
@@ -210,19 +220,14 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
       )}
 
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <div
+          className={`rounded-2xl border border-zinc-200 bg-white p-4 ${hasIucnThreats ? "sm:col-span-3" : ""}`}
+        >
           <p className="text-[10px] font-black tracking-wider text-[#D81E05]">위협</p>
           {threats.length === 0 ? (
             <p className="mt-2 text-xs text-zinc-400">데이터 없음</p>
           ) : (
-            <ul className="mt-2 space-y-1.5">
-              {threats.map((t, i) => (
-                <li key={i} className="text-xs text-zinc-700">
-                  • {t.threat_name}
-                  {t.severity && <span className="ml-1 text-zinc-400">({t.severity})</span>}
-                </li>
-              ))}
-            </ul>
+            <ThreatList threats={threats} />
           )}
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-4">
@@ -257,7 +262,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
 
       {tipping && (
         <section className="mb-8">
-          <TippingHero result={tipping.payload as TippingPointResult} />
+          <TippingHero result={tipping.payload as TippingPointResult} floorNote={floorNote} />
         </section>
       )}
 
