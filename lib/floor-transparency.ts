@@ -4,16 +4,11 @@
 // 아래 식은 lib/tipping-point.ts evaluateTippingPoint 의 집계부
 // (가중치 · 합의 보정 · 신뢰도 압축 · 개체수 하한 · 추세 보정) 를 그대로 옮긴 것이다.
 // 엔진과 어긋나면 __tests__/floor-transparency.test.ts 가 실패한다 — 엔진을 바꾸면 여기도 같이 바꿀 것.
-import { inferPopulationWithSource } from "./tipping-point";
+import { inferPopulationWithSource, V5_SPEC } from "./tipping-point";
 import type { SpeciesRow } from "./db";
 
-/** lib/tipping-point.ts 의 Bottleneck floor 표 (605~618행) */
-const FLOOR_BANDS = [
-  { below: 50, floor: 90, label: "N0 < 50" },
-  { below: 100, floor: 78, label: "N0 < 100" },
-  { below: 250, floor: 70, label: "N0 < 250" },
-  { below: 500, floor: 60, label: "N0 < 500" },
-] as const;
+/** lib/tipping-point.ts 의 Bottleneck floor 표 — 엔진과 같은 상수(V5_SPEC.floorBands)를 읽는다 */
+const FLOOR_BANDS = V5_SPEC.floorBands.map((b) => ({ ...b, label: `N0 < ${b.below}` }));
 
 export const FLOOR_TAG = "[출처: LastWatch v5, 개체수 하한 규칙]";
 
@@ -46,9 +41,10 @@ const round1 = (x: number) => Math.round(x * 10) / 10;
 function trendAdjust(consensus: number, populationTrend: string | null): number {
   if (!populationTrend) return consensus;
   const t = populationTrend.toLowerCase();
-  if (t.includes("급감")) return Math.min(100, consensus + 8);
-  if (t.includes("증가") || t.includes("회복") || t.includes("increas")) return Math.max(0, consensus - 10);
-  if (t.includes("감소") || t.includes("decreas")) return Math.min(100, consensus + 4);
+  const ta = V5_SPEC.trendAdjust;
+  if (t.includes("급감")) return Math.min(100, consensus + ta.sharpDecline);
+  if (t.includes("증가") || t.includes("회복") || t.includes("increas")) return Math.max(0, consensus + ta.recovering);
+  if (t.includes("감소") || t.includes("decreas")) return Math.min(100, consensus + ta.decline);
   return consensus;
 }
 
@@ -70,11 +66,15 @@ export function floorBreakdown(
   const iucn = ls?.iucn?.score, iucnC = ls?.iucn?.confidence;
   if ([ews, ewsC, pva, iucn, iucnC].some((v) => typeof v !== "number")) return null;
 
-  const raw = 0.3 * ews! + 0.45 * pva! + 0.25 * iucn!;
-  const highAlerts = [ews! > 70, pva! > 50, iucn! > 60].filter(Boolean).length;
-  let consensus = highAlerts === 0 ? raw * 0.6 : highAlerts === 1 ? raw * 0.85 : raw;
-  const overallConf = 0.3 * ewsC! + 0.45 * 0.7 + 0.25 * iucnC!;
-  if (overallConf < 0.5) consensus = consensus * 0.9 + 10;
+  const w = V5_SPEC.weights;
+  const at = V5_SPEC.alertThresholds;
+  const cm = V5_SPEC.consensusMultiplier;
+  const lc = V5_SPEC.lowConfidence;
+  const raw = w.ews * ews! + w.pva * pva! + w.iucn * iucn!;
+  const highAlerts = [ews! > at.ews, pva! > at.pva, iucn! > at.iucn].filter(Boolean).length;
+  let consensus = highAlerts === 0 ? raw * cm.zero : highAlerts === 1 ? raw * cm.one : raw;
+  const overallConf = w.ews * ewsC! + w.pva * V5_SPEC.pva.confidence + w.iucn * iucnC!;
+  if (overallConf < lc.below) consensus = consensus * lc.scale + lc.add;
 
   const b = FLOOR_BANDS.find((x) => N0 < x.below);
   const floor = b?.floor ?? 0;

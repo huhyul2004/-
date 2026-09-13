@@ -13,6 +13,51 @@
 
 import type { SpeciesRow } from "./db";
 
+// ===== v5 계산 상수 =====
+// 엔진이 실제로 쓰는 값 그대로다. /methodology 페이지와 lib/floor-transparency.ts 가 여기서 읽는다.
+// 값을 바꾸면 v5 점수가 바뀐다 (2026-09-20 식 안의 숫자를 이름 붙인 상수로 옮김 — 값·연산 순서 무변경,
+// 전 종 재계산 대조로 확인).
+export const V5_SPEC = {
+  /** 종합 가중치 — 점수₀ = Σ w·레이어 점수 */
+  weights: { ews: 0.3, pva: 0.45, iucn: 0.25 },
+  /** 다수결 — 레이어 점수가 이 값을 넘으면 경보 1표 */
+  alertThresholds: { ews: 70, pva: 50, iucn: 60 },
+  /** 경보 표 수에 따른 배율 (2표 이상은 그대로) */
+  consensusMultiplier: { zero: 0.6, one: 0.85 },
+  /** 신뢰도 압축 — Σ w·레이어 신뢰도 가 below 미만이면 점수·scale + add */
+  lowConfidence: { below: 0.5, scale: 0.9, add: 10 },
+  /** 개체수 하한 — N0 가 below 미만인 첫 구간의 floor 까지 점수를 끌어올린다 (특허 명세서 미기재 자체 규칙) */
+  floorBands: [
+    { below: 50, floor: 90 },
+    { below: 100, floor: 78 },
+    { below: 250, floor: 70 },
+    { below: 500, floor: 60 },
+  ],
+  /** 추세 보정 — species.population_trend (한글 문자열) 기준 */
+  trendAdjust: { sharpDecline: 8, recovering: -10, decline: 4 },
+  /** Layer 1 EWS — 시계열이 없어 추세의 r 로 τ 를 추정 */
+  ews: { tauScale: 0.06, tauWeights: { ar1: 0.5, variance: 0.3, skew: 0.2 }, gain: 2, confidence: 0.25 },
+  /** Layer 2 PVA */
+  pva: {
+    nSim: 1500,
+    years: 100,
+    horizons: { short: 50, long: 100 },
+    weights: { pExtShort: 0.45, pExtLong: 0.35, deficit: 0.2 },
+    safeKFraction: 0.1,
+    safeMinN: 50,
+    confidence: 0.7,
+  },
+  /** Layer 3 유효개체군 — Ne = round(N0·ne_nc), Ne 가 below 미만인 첫 구간의 점수 (없으면 neSafe) */
+  neBands: [
+    { below: 50, score: 95, status: "CRITICAL" },
+    { below: 100, score: 80, status: "ENDANGERED" },
+    { below: 500, score: 55, status: "VULNERABLE" },
+    { below: 1000, score: 30, status: "NEAR_THREAT" },
+  ],
+  neSafe: { score: 10, status: "SAFE" },
+  neConfidence: 0.85,
+} as const;
+
 // ===== 분류군별 기본 생활사 파라미터 (학명→기본값 추정용) =====
 // generation_time, growth_rate 추정 — 정확치 데이터 없을 때 사용
 // 출처: IUCN PVA workshop defaults + Cole 1954 + Stearns 1992
@@ -76,6 +121,11 @@ const DEFAULT_LIFE: { generation_time: number; r_max: number; ne_nc: number } =
 function lifeFor(className: string | null) {
   if (!className) return DEFAULT_LIFE;
   return LIFE_HISTORY[className] ?? DEFAULT_LIFE;
+}
+
+/** 분류군 전용 생활사 값(ne_nc 등)이 있는가 — 없으면 DEFAULT_LIFE. /methodology 커버리지 표시용 */
+export function hasClassLifeHistory(className: string | null): boolean {
+  return !!className && className in LIFE_HISTORY;
 }
 
 // ===== population_trend 문자열 → λ_mean / λ_sd =====
@@ -296,8 +346,8 @@ function runPva(p: PvaParams): PvaResult {
     if (alleeAt !== null) alleeTimes.push(alleeAt);
   }
 
-  const extCount50 = extTimes.filter((t) => t <= 50).length;
-  const extCount100 = extTimes.filter((t) => t <= 100).length;
+  const extCount50 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.short).length;
+  const extCount100 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.long).length;
   const extCountT = extTimes.filter((t) => t <= T).length;
   const P_ext_50 = extCount50 / n_sim;
   const P_ext_100 = extCount100 / n_sim;
@@ -345,9 +395,10 @@ function runPva(p: PvaParams): PvaResult {
   }
 
   // PVA score
-  const N_safe = Math.max(K * 0.1, 50);
+  const { weights: pw, safeKFraction, safeMinN } = V5_SPEC.pva;
+  const N_safe = Math.max(K * safeKFraction, safeMinN);
   const ratio = Math.min(1, N0 / N_safe);
-  const pvaRaw = 0.45 * P_ext_50 + 0.35 * P_ext_100 + 0.20 * (1 - ratio);
+  const pvaRaw = pw.pExtShort * P_ext_50 + pw.pExtLong * P_ext_100 + pw.deficit * (1 - ratio);
   const pvaScore = Math.max(0, Math.min(100, pvaRaw * 100));
 
   return {
@@ -433,13 +484,9 @@ interface IucnResult {
 function evaluateIucn(N: number, category: string, ne_nc: number): IucnResult {
   const Ne = Math.round(N * ne_nc);
 
-  let genetic_status: IucnResult["genetic_status"];
-  let genetic_score: number;
-  if (Ne < 50)        { genetic_status = "CRITICAL";    genetic_score = 95; }
-  else if (Ne < 100)  { genetic_status = "ENDANGERED";  genetic_score = 80; }
-  else if (Ne < 500)  { genetic_status = "VULNERABLE";  genetic_score = 55; }
-  else if (Ne < 1000) { genetic_status = "NEAR_THREAT"; genetic_score = 30; }
-  else                { genetic_status = "SAFE";        genetic_score = 10; }
+  const neBand = V5_SPEC.neBands.find((b) => Ne < b.below);
+  const genetic_status: IucnResult["genetic_status"] = neBand?.status ?? V5_SPEC.neSafe.status;
+  const genetic_score: number = neBand?.score ?? V5_SPEC.neSafe.score;
 
   // Criterion D — absolute thresholds
   let criterion_D_score: number;
@@ -453,7 +500,7 @@ function evaluateIucn(N: number, category: string, ne_nc: number): IucnResult {
   //   (순환논증 방지: 우리 점수가 IUCN 등급을 되풀이하지 않도록).
   const category_score = 0; // 미사용 (payload 호환용 자리)
   const iucn_score = genetic_score;
-  const confidence = N > 0 ? 0.85 : 0.4;
+  const confidence = N > 0 ? V5_SPEC.neConfidence : 0.4;
 
   return { Ne, genetic_status, genetic_score, criterion_D_score, category_score, iucn_score, confidence };
 }
@@ -471,16 +518,17 @@ function evaluateEws(trend: string | null, r: number): EwsResult {
   // 단, r 부호로 약한 추정 신호 부여 (감소 추세면 양의 τ 가정)
   const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
   // r 가 음수일수록 τ 가 양수 (CSD 신호) — r ≈ -0.06 → τ ≈ 1.0
-  const tauEstimate = Math.max(-1, Math.min(1, -r / 0.06));
+  const { tauScale, tauWeights, gain, confidence } = V5_SPEC.ews;
+  const tauEstimate = Math.max(-1, Math.min(1, -r / tauScale));
   // 시계열 없으니 AR1/Var/Skew 모두 동일 추정값 사용
-  const composite = 0.5 * tauEstimate + 0.3 * tauEstimate + 0.2 * tauEstimate;
-  const score = sigmoid(2 * composite) * 100; // 2 배 곱해 sigmoid 민감도↑
+  const composite = tauWeights.ar1 * tauEstimate + tauWeights.variance * tauEstimate + tauWeights.skew * tauEstimate;
+  const score = sigmoid(gain * composite) * 100; // gain 배 곱해 sigmoid 민감도↑
   const interp = score > 70
     ? "강한 critical slowing down 신호"
     : score > 50
       ? "약한 감소 추세 신호"
       : "시계열 부재 — 중간값";
-  return { composite_score: score, confidence: 0.25, interpretation: interp };
+  return { composite_score: score, confidence, interpretation: interp };
 }
 
 // ===== Aggregator =====
@@ -553,8 +601,8 @@ export function evaluateTippingPoint(
   species: SpeciesRow,
   opts: { n_sim?: number; T?: number; seed?: number } = {}
 ): TippingPointResult | null {
-  const T = opts.T ?? 100;
-  const n_sim = opts.n_sim ?? 1500;
+  const T = opts.T ?? V5_SPEC.pva.years;
+  const n_sim = opts.n_sim ?? V5_SPEC.pva.nSim;
 
   const life = lifeFor(species.class_name);
   // v4 Phase 1: IUCN 공식 trend 우선(Decreasing/Stable/Increasing), Unknown/null 이면 한글 fallback
@@ -588,19 +636,21 @@ export function evaluateTippingPoint(
 
   // ===== Aggregator (스펙 v3 가중치) =====
   // score = 0.30·EWS + 0.45·PVA + 0.25·IUCN
-  const w = { ews: 0.30, pva: 0.45, iucn: 0.25 };
+  const w = V5_SPEC.weights;
   const raw = w.ews * ews.composite_score + w.pva * pva.pva_score + w.iucn * iucn.iucn_score;
 
   // Consensus filter
-  const highAlerts = [ews.composite_score > 70, pva.pva_score > 50, iucn.iucn_score > 60].filter(Boolean).length;
+  const at = V5_SPEC.alertThresholds;
+  const highAlerts = [ews.composite_score > at.ews, pva.pva_score > at.pva, iucn.iucn_score > at.iucn].filter(Boolean).length;
   let consensus = raw;
-  if (highAlerts === 0) consensus = raw * 0.6;
-  else if (highAlerts === 1) consensus = raw * 0.85;
+  if (highAlerts === 0) consensus = raw * V5_SPEC.consensusMultiplier.zero;
+  else if (highAlerts === 1) consensus = raw * V5_SPEC.consensusMultiplier.one;
   // ≥2 → 그대로 (다중 신호 신뢰)
 
   // Confidence-weighted compression
-  const overall_conf = w.ews * ews.confidence + w.pva * 0.7 + w.iucn * iucn.confidence;
-  if (overall_conf < 0.5) consensus = consensus * 0.9 + 10;
+  const lc = V5_SPEC.lowConfidence;
+  const overall_conf = w.ews * ews.confidence + w.pva * V5_SPEC.pva.confidence + w.iucn * iucn.confidence;
+  if (overall_conf < lc.below) consensus = consensus * lc.scale + lc.add;
 
   // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
   //
@@ -620,24 +670,22 @@ export function evaluateTippingPoint(
   // IUCN Criterion D + Frankham 50/500 + 단일 멸종사건 취약성 반영
   {
     // v5: 카테고리(CR/EN/VU) 기반 floor 전부 제거 — 순수 개체수 임계만 (Frankham 50/500·Criterion D 절대수).
+    // 구간: V5_SPEC.floorBands — T4 골든타임 / T3 후반 / T3 중반 (자바코뿔소 76) / T3 진입
     const N = N0;
-    let floor = 0;
-    if (N < 50)       floor = 90;  // T4 골든타임
-    else if (N < 100) floor = 78;  // T3 후반
-    else if (N < 250) floor = 70;  // T3 중반 (자바코뿔소 76)
-    else if (N < 500) floor = 60;  // T3 진입
+    const floor = V5_SPEC.floorBands.find((b) => N < b.below)?.floor ?? 0;
     consensus = Math.max(consensus, floor);
   }
 
   // 추세 보정 — 급감/감소/증가 모두 반영 (P1-2 fix)
   if (species.population_trend) {
     const trend = species.population_trend.toLowerCase();
-    if (trend.includes("급감")) consensus = Math.min(100, consensus + 8);
+    const ta = V5_SPEC.trendAdjust;
+    if (trend.includes("급감")) consensus = Math.min(100, consensus + ta.sharpDecline);
     else if (trend.includes("증가") || trend.includes("회복") || trend.includes("increas")) {
       // 회복 중 종은 점수 하향 (반달가슴곰 같은 재도입 성공 사례 보호)
-      consensus = Math.max(0, consensus - 10);
+      consensus = Math.max(0, consensus + ta.recovering);
     } else if (trend.includes("감소") || trend.includes("decreas")) {
-      consensus = Math.min(100, consensus + 4); // v5: 카테고리 조건 제거
+      consensus = Math.min(100, consensus + ta.decline); // v5: 카테고리 조건 제거
     }
   }
 
@@ -726,7 +774,7 @@ export function evaluateTippingPoint(
         P_ext_50yr: pva.P_ext_50yr,
         P_ext_100yr: pva.P_ext_100yr,
         median_T_ext: pva.median_T_ext,
-        confidence: 0.7,
+        confidence: V5_SPEC.pva.confidence,
       },
       iucn: { score: iucn.iucn_score, Ne: iucn.Ne, genetic_status: iucn.genetic_status, confidence: iucn.confidence },
     },

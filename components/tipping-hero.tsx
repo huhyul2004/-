@@ -1,5 +1,6 @@
 // 4-Tuple Hero — 발명 핵심: 4개 임계점 일자를 prominent 하게 표시
 // 종 상세 페이지 최상단에 배치
+import Link from "next/link";
 import type { TippingPointResult } from "@/lib/tipping-point";
 
 const MONTHS_KO = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
@@ -148,7 +149,19 @@ export function TippingHero({
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className={`text-[10px] font-black tracking-wider ${headLabel}`}>SCORE</p>
+            <p className={`inline-flex items-center gap-1 text-[10px] font-black tracking-wider ${headLabel}`}>
+              SCORE
+              <Link
+                href="/methodology"
+                title="이 점수는 어떻게 계산되나"
+                aria-label="점수 계산식 설명"
+                className={`inline-flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-black normal-case transition ${
+                  dark ? "border-zinc-600 text-zinc-400 hover:text-zinc-100" : "border-zinc-300 text-zinc-500 hover:text-zinc-900"
+                }`}
+              >
+                ?
+              </Link>
+            </p>
             <p className={`text-3xl font-black tabular-nums leading-none ${headTitle}`}>
               {result.consensus_score.toFixed(0)}
               <span className="text-sm font-bold text-zinc-400">/100</span>

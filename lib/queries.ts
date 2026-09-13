@@ -303,10 +303,10 @@ export function getStats() {
   return { byCategory, byClassRisk, extinctByYear };
 }
 
-// v5: 큐레이션 종의 점수 산출 상태 3갈래 (실측 계산 / 절멸 확정 / 데이터 부족)
-export function getScoreCoverage() {
+// v5: 점수 산출 상태 3갈래 (실측 계산 / 절멸 확정 / 데이터 부족) — 기본은 큐레이션 종, false 면 전체
+export function getScoreCoverage(curatedOnly = true) {
   const db = getDb();
-  const scope = hasCuratedColumn() ? "WHERE s.is_curated = 1" : "";
+  const scope = curatedOnly && hasCuratedColumn() ? "WHERE s.is_curated = 1" : "";
   const row = db
     .prepare(
       `SELECT

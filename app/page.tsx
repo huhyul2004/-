@@ -5,6 +5,7 @@ import {
   threatCategoryNames,
   countScope,
   countByClass,
+  getScoreCoverage,
   PAGE_SIZE,
   NONE,
   TREND_VALUES,
@@ -136,6 +137,7 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
   const threatNames = threatCategoryNames();
   const totalAtRisk = countScope(curatedOnly); // 현재 모드(큐레이션 ~4,230 / 전체)의 총 종 수
   const totalAllSpecies = countScope(false); // 토글 라벨용 전체 수
+  const coverage = getScoreCoverage(curatedOnly); // 목록 상단 "점수가 산출되는 종" 한 줄
   const countWithoutCategory = countSpecies(filters, "category");
   const countWithoutClass = countSpecies(filters, "class");
 
@@ -466,6 +468,16 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
         </p>
         <AllSpeciesToggle totalAll={totalAllSpecies} />
       </div>
+
+      <p className="mb-4 text-[12px] leading-relaxed text-zinc-600">
+        LastWatch 위험 점수는 개체수 자료가 있는 <b className="text-zinc-900">{coverage.computed.toLocaleString()}종</b>에만
+        계산됩니다. 절멸·야생절멸 {coverage.extinct.toLocaleString()}종은 계산 없이 최고점으로 표시하고, 나머지{" "}
+        {coverage.insufficient.toLocaleString()}종은 개체수 자료가 없어 점수가 없습니다
+        {curatedOnly ? " (이 목록 기준)" : " (전체 기준)"}.{" "}
+        <Link href="/methodology" className="font-bold text-[#D81E05] underline">
+          계산식 보기 →
+        </Link>
+      </p>
 
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-zinc-700">
