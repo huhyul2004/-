@@ -481,9 +481,21 @@ interface IucnResult {
   confidence: number;
 }
 
+// [흐름 3/3] Layer 3 — 유효개체군(Ne) 단독 평가.
+//   ① Ne = round(Nc · ne_nc)  ← ne_nc 는 LIFE_HISTORY 의 분류군 값 (포유류 0.15)
+//   ② Ne 를 neBands 에 넣어 점수/등급 결정 (Frankham 50/500 규칙의 구간화)
+//   ③ iucn_score = genetic_score — 즉 이 레이어는 사실상 "Ne 점수" 다.
+// 주의: 함수명과 category 인자는 v4 잔재다. v5 에서 IUCN 등급은 점수에 안 쓰인다.
 function evaluateIucn(N: number, category: string, ne_nc: number): IucnResult {
+  // (6) Ne/Nc 적용 — Nc(총 개체수) → Ne(유효개체군).
+  //   포유류 0.15: N=76(자바코뿔소) → Ne = round(76 × 0.15) = 11.
+  //   명세서 PKA-1551 C-1 은 포유류 0.2 로 적어 Ne ≈ 15 를 제시한다 —
+  //   코드와 값이 다르다 (docs/pka-1551-discrepancies.md 표 5번 항목).
+  //   0.15 자체의 출처도 저장소에서 확인되지 않았다 (Frankham 1995 일반값 0.10~0.11 보다 높음).
   const Ne = Math.round(N * ne_nc);
 
+  // 50/500 규칙 구간 — Ne 가 below 미만인 "첫" 구간이 적용된다 (배열 순서 = 위험 높은 순).
+  //   Ne<50 CRITICAL 95 / <100 ENDANGERED 80 / <500 VULNERABLE 55 / <1000 NEAR_THREAT 30 / 그 외 SAFE 10
   const neBand = V5_SPEC.neBands.find((b) => Ne < b.below);
   const genetic_status: IucnResult["genetic_status"] = neBand?.status ?? V5_SPEC.neSafe.status;
   const genetic_score: number = neBand?.score ?? V5_SPEC.neSafe.score;
@@ -630,29 +642,63 @@ export function evaluateTippingPoint(
 
   // 종 ID 로 시드를 만들어 결정적이지만 종마다 다른 결과
   const seed = opts.seed ?? hashSeed(species.id);
+
+  // ===== (1) 3레이어 점수 산출 =====
+  // 세 레이어는 서로 독립이다. 같은 N0 를 보지만 보는 각도가 다르다.
+  //   L2 PVA  — 1500회 몬테카를로로 "50/100년 내 멸종확률" → 0~100
+  //   L3 IUCN — Ne 임계값 하나로 "유전적 소멸 위험" → 0~100 (등급 미사용)
+  //   L1 EWS  — 시계열이 없어 추세 r 만 sigmoid 에 통과시킨 약한 신호 → 0~100
   const pva = runPva({ N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed });
   const iucn = evaluateIucn(N0, species.category, life.ne_nc);
   const ews = evaluateEws(species.population_trend, r);
 
-  // ===== Aggregator (스펙 v3 가중치) =====
-  // score = 0.30·EWS + 0.45·PVA + 0.25·IUCN
+  // ===== (2) 가중치 계산 — S_weighted =====
+  // 고정 가중치다. 명세서가 말하는 "신뢰도 동적 가중치"는 구현돼 있지 않다.
+  //   레이어 신뢰도(0.25 / 0.7 / 0.85)는 가중치에 안 들어가고,
+  //   아래 (3-b) 저신뢰 압축에서 한 번만 쓰인다.
+  // raw = 0.30·EWS + 0.45·PVA + 0.25·IUCN
   const w = V5_SPEC.weights;
   const raw = w.ews * ews.composite_score + w.pva * pva.pva_score + w.iucn * iucn.iucn_score;
 
-  // Consensus filter
+  // ===== (3) 합의점수 C 산출 =====
+  // (3-a) 다수결 투표 — 각 레이어가 자기 임계값을 넘으면 경보 1표.
+  //   임계값이 레이어마다 다르다: EWS>70, PVA>50, IUCN>60.
+  //   명세서(full_spec §5.3 / PKA-1551 B-2)는 공통 H=60 으로 m 을 세라고 한다 → 코드와 불일치.
   const at = V5_SPEC.alertThresholds;
   const highAlerts = [ews.composite_score > at.ews, pva.pva_score > at.pva, iucn.iucn_score > at.iucn].filter(Boolean).length;
+
+  // ===== (4) m 기반 감쇠 (명세서 표기 α, β, γ) =====
+  // highAlerts 가 명세서의 m 이다. 코드에는 α/β/γ 라는 이름이 없고
+  // V5_SPEC.consensusMultiplier 에 숫자로만 들어 있다. 대응 관계:
+  //
+  //   m ≥ 2  명세서: S = α·S_weighted + (1−α)·max(s1,s2,s3),  α = 0.6
+  //          코드:   S = S_weighted           ← max 블렌딩 미구현. 감쇠도 승격도 안 한다.
+  //   m = 1  명세서: S = S_weighted × β,  β = 0.85
+  //          코드:   S = raw × consensusMultiplier.one  = 0.85  ← 일치
+  //   m = 0  명세서: S = S_weighted × γ,  γ = 0.70
+  //          코드:   S = raw × consensusMultiplier.zero = 0.60  ← 값 불일치 (0.70 vs 0.60)
+  //
+  // 즉 세 분기 중 β 하나만 명세서와 같다. (docs/layer-score-spec-vs-code.md,
+  // docs/pka-1551-discrepancies.md §1 — 자바코뿔소 실시예가 여기서 어긋난다.)
   let consensus = raw;
   if (highAlerts === 0) consensus = raw * V5_SPEC.consensusMultiplier.zero;
   else if (highAlerts === 1) consensus = raw * V5_SPEC.consensusMultiplier.one;
   // ≥2 → 그대로 (다중 신호 신뢰)
 
-  // Confidence-weighted compression
+  // (3-b) 저신뢰 압축 — 레이어 신뢰도의 가중평균이 0.5 미만이면 점수를 중앙으로 민다.
+  //   ×0.9 는 극단값을 눌러 과신을 줄이고, +10 은 바닥을 올려 과소평가를 막는 방향.
+  //   EWS 신뢰도가 0.25 로 낮아 실무상 자주 걸린다.
   const lc = V5_SPEC.lowConfidence;
   const overall_conf = w.ews * ews.confidence + w.pva * V5_SPEC.pva.confidence + w.iucn * iucn.confidence;
   if (overall_conf < lc.below) consensus = consensus * lc.scale + lc.add;
 
-  // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
+  // ===== (5) 개체수 하한(floor) — 절대 개체수 기반 강제 보정 =====
+  //
+  // 위에서 계산한 합의점수를 "덮어쓴다". Math.max 라서 하한보다 낮으면 무조건 끌어올린다.
+  // 이 한 줄이 소형 개체군에서는 (1)~(4) 전체보다 강하게 작동한다 —
+  // 예: 자바코뿔소 N0=76 → 레이어 50/35.8/95, m=1 감쇠 후 46.65,
+  //     그러나 floorBands 의 N<100 → 78 이 적용돼 최종 78 이 된다. 46.65 는 버려진다.
+  // 감사 보고서가 지적한 지점이 여기다 (아래 근거·기재 현황 참고).
   //
   // [근거와 기재 현황 — 2026-09-12 조사, docs/population-floor-audit.md]
   //   도입: 커밋 d5525e0 (2026-05-04). 커밋 메시지에 적힌 근거 3항목:
