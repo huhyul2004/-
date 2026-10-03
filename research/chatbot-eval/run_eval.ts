@@ -57,7 +57,8 @@ const PROVENANCE_RE =
 const NOT_IN_DATA =
   /(LastWatch\s*)?데이터(베이스)?(에는|에)\s*(이 항목[이은]\s*)?없|기록(이|은)?\s*없|정보(가|는)?\s*없|포함되어 있지 않|확인되지 않/;
 /** 이 답이 점수 값을 말하는가 — "점수 … 78", "78/100", "78점" */
-const SCORE_VALUE = /(위험도|LastWatch)[^\n]{0,12}점수[^\n]{0,30}?\d|\d+(\.\d+)?\s*\/\s*100|\d+(\.\d+)?\s*점/;
+// "v5 점수" 의 "5 점" 처럼 영문자·숫자에 붙은 숫자와 "점수" 는 점수 값이 아니다
+const SCORE_VALUE = /(위험도|LastWatch)[^\n]{0,12}점수[^\n]{0,30}?(?<![A-Za-z])\d|(?<![A-Za-z\d.])\d+(\.\d+)?\s*\/\s*100|(?<![A-Za-z\d.])\d+(\.\d+)?\s*점(?!수)/;
 
 const REQUIRES: Record<string, (reply: string, item: Item) => boolean> = {
   not_in_data: (r) => NOT_IN_DATA.test(r),

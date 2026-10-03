@@ -118,8 +118,12 @@ describe("plainMath — LaTeX 를 일반 글자로", () => {
     expect(plainMath("$N_{e} / N_{c}$ 와 $P_{ext}$")).toBe("Ne / Nc 와 P_ext");
     expect(plainMath("$\\frac{N_e}{N}$ $\\le 0.2$")).toBe("Ne/N ≤ 0.2");
   });
-  it("수식 표기가 없는 $ 는 그대로 (금액 등)", () => {
+  it("LaTeX 명령 없는 수식은 $ 만 벗긴다", () => {
+    expect(plainMath("비율($Ne/N=0.1$)을 적용한 $Ne$ 는")).toBe("비율(Ne/N=0.1)을 적용한 Ne 는");
+  });
+  it("금액처럼 보이는 $ 는 그대로 (Pandoc 규칙)", () => {
     expect(plainMath("비용 $5 와 $10")).toBe("비용 $5 와 $10");
+    expect(plainMath("$ 표시만 있는 줄 $")).toBe("$ 표시만 있는 줄 $");
   });
   it("finalizeReply 도 변환한다", () => {
     const ctx = buildChatContext("rhinoceros-sondaicus")!;

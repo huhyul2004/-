@@ -357,11 +357,15 @@ const LATEX_SYMBOLS: [RegExp, string][] = [
   [/\\[,;:! ]/g, " "],
 ];
 
-/** $…$ · $$…$$ 안의 LaTeX 를 일반 글자로. 안에 \ _ ^ { } 가 없으면 수식이 아니라고 보고 그대로 둔다 (금액 등) */
+/**
+ * $…$ · $$…$$ 수식을 일반 글자로. 인라인 $…$ 은 Pandoc 규칙으로만 수식으로 본다 — 여는 $ 바로 뒤와 닫는 $ 바로 앞이
+ * 공백이 아니고, 닫는 $ 바로 뒤가 숫자가 아닐 때 ("$5 와 $10" 같은 금액은 해당하지 않는다).
+ * LaTeX 명령이 없는 수식($Ne/N=0.1$)은 $ 만 벗긴다.
+ */
 export function plainMath(text: string): string {
-  return text.replace(/\$\$([^$]+)\$\$|\$([^$\n]+)\$/g, (whole: string, block?: string, inline?: string) => {
+  return text.replace(/\$\$([^$]+)\$\$|\$(?!\s)([^$\n]*?[^\s$])\$(?!\d)/g, (whole: string, block?: string, inline?: string) => {
     const body = block ?? inline ?? "";
-    if (!/[\\_^{}]/.test(body)) return whole;
+    if (!/[\\_^{}]/.test(body)) return body.trim();
     let m = body
       .replace(/\\(?:text|mathrm|mathit|operatorname)\{([^{}]*)\}/g, "$1")
       .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, "$1/$2");
