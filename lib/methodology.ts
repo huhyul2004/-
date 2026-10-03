@@ -1,5 +1,7 @@
-// /methodology 페이지용 — 저장된 점수를 V5_SPEC 로 한 단계씩 되짚고, 커버리지를 DB 에서 센다.
+// /methodology 페이지용 — 저장된 점수를 한 단계씩 되짚고, 커버리지를 DB 에서 센다.
 // 표시 전용. 점수 계산(lib/tipping-point.ts)에는 관여하지 않는다.
+// 종합 단계 값은 엔진이 남긴 집계 추적(payload.aggregation)을 읽는다 — 추적이 없는 예전 payload 는
+// 같은 집계 함수(aggregateConsensus)로 다시 계산한다 (lib/floor-transparency.ts aggregationOf).
 import { getDb, type SpeciesRow } from "./db";
 import {
   V5_SPEC,
@@ -7,8 +9,10 @@ import {
   inferPopulationWithSource,
   trendToLambdaV4,
   hasClassLifeHistory,
+  type MajorityBranch,
   type PopulationSource,
 } from "./tipping-point";
+import { aggregationOf } from "./floor-transparency";
 
 type Layer = "ews" | "pva" | "iucn";
 export const LAYERS: Layer[] = ["ews", "pva", "iucn"];
@@ -31,7 +35,14 @@ export interface ScoreTrace {
   /** 가중합 */
   raw: number;
   alerts: number;
-  multiplier: number;
+  /** blend: 2표 이상(α 블렌딩) · single: 1표 · none: 0표 */
+  branch: MajorityBranch;
+  /** 0표·1표 배율. 2표 이상이면 null */
+  multiplier: number | null;
+  /** 2표 이상일 때 α. 아니면 null */
+  blendAlpha: number | null;
+  /** 세 레이어 점수 중 최댓값 — 2표 이상 블렌딩 입력 */
+  maxLayer: number;
   afterConsensus: number;
   overallConfidence: number;
   compressed: boolean;
@@ -61,8 +72,6 @@ function trendDeltaFor(trend: string | null): number {
   return 0;
 }
 
-const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
-
 /** 저장된 payload 의 레이어 점수로 종합 단계를 되짚는다. EX/EW·개체수 없음·payload 불완전이면 null. */
 export function traceScore(
   species: SpeciesRow,
@@ -80,22 +89,9 @@ export function traceScore(
     if (typeof score !== "number" || typeof confidence !== "number") return null;
     layers[k] = { score, confidence, alert: score > V5_SPEC.alertThresholds[k] };
   }
-  const w = V5_SPEC.weights;
-  const raw = w.ews * layers.ews.score + w.pva * layers.pva.score + w.iucn * layers.iucn.score;
-  const alerts = LAYERS.filter((k) => layers[k].alert).length;
-  const cm = V5_SPEC.consensusMultiplier;
-  const multiplier = alerts === 0 ? cm.zero : alerts === 1 ? cm.one : 1;
-  const afterConsensus = alerts >= 2 ? raw : raw * multiplier;
-  const lc = V5_SPEC.lowConfidence;
-  const overallConfidence = w.ews * layers.ews.confidence + w.pva * V5_SPEC.pva.confidence + w.iucn * layers.iucn.confidence;
-  const compressed = overallConfidence < lc.below;
-  const afterConfidence = compressed ? afterConsensus * lc.scale + lc.add : afterConsensus;
-  const band = V5_SPEC.floorBands.find((b) => pop.value! < b.below);
-  const floor = band?.floor ?? 0;
-  const afterFloor = Math.max(afterConfidence, floor);
-  const trendDelta = trendDeltaFor(species.population_trend);
-  const afterTrend = trendDelta === 0 ? afterFloor : clamp(afterFloor + trendDelta, 0, 100);
-  const display = Math.round(afterTrend * 10) / 10;
+  const agg = aggregationOf(species, pop.value, payload);
+  if (!agg) return null;
+  const display = agg.score;
   const s2 = Math.round(display * 100) / 100;
   const tier = TIERS.find((t) => s2 >= t.min && s2 < t.max);
   return {
@@ -105,20 +101,23 @@ export function traceScore(
     Ne: ls?.iucn?.Ne ?? null,
     pExtShort: ls?.pva?.P_ext_50yr ?? null,
     pExtLong: ls?.pva?.P_ext_100yr ?? null,
-    raw,
-    alerts,
-    multiplier,
-    afterConsensus,
-    overallConfidence,
-    compressed,
-    afterConfidence,
-    floor,
-    floorBand: band?.below ?? null,
-    afterFloor,
-    floorBound: floor > afterConfidence,
+    raw: agg.weighted,
+    alerts: agg.m,
+    branch: agg.branch,
+    multiplier: agg.majorityFactor,
+    blendAlpha: agg.blendAlpha,
+    maxLayer: agg.maxLayer,
+    afterConsensus: agg.afterMajority,
+    overallConfidence: agg.confidence.overall,
+    compressed: agg.compressionApplied,
+    afterConfidence: agg.afterCompression,
+    floor: agg.floor.value,
+    floorBand: agg.floor.below,
+    afterFloor: agg.afterFloor,
+    floorBound: agg.floor.applied,
     trendText: species.population_trend,
-    trendDelta,
-    afterTrend,
+    trendDelta: trendDeltaFor(species.population_trend),
+    afterTrend: agg.final,
     display,
     tier,
     stored: { score: stored.consensus_score, tier: stored.intervention_tier },

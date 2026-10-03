@@ -81,6 +81,12 @@ async function main() {
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   console.log(`\n✓ 점수 산출 ${done}종 · 데이터 부족 ${insufficient}종 / 전체 ${rows.length} (${elapsed}s)`);
 
+  // DB 버전 = 마지막 재계산 날짜(KST, YYYYMMDD). 챗봇 답변 끝 "LastWatch DB v…" 가 PRAGMA user_version 을 읽는다.
+  // (스키마 마이그레이션도 같은 값을 남긴다 — scripts/migrate-habitat-area.ts)
+  const kst = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, "");
+  db.pragma(`user_version = ${Number(kst)}`);
+  console.log(`DB 버전(user_version): ${kst}`);
+
   // Tier 분포
   const dist = db
     .prepare("SELECT intervention_tier, COUNT(*) as n FROM tipping_points GROUP BY intervention_tier ORDER BY intervention_tier")

@@ -9,10 +9,9 @@
 //
 // 정본(source of truth): lib/tipping-point.ts 의 evaluateTippingPoint() 인라인 로직.
 // (구 engine/consensus.ts 는 프로덕션 미사용으로 2026-07-23 폐기 → engine/_deprecated/)
-import fs from "fs";
 import Database from "better-sqlite3";
 import { describe, it, expect, afterAll } from "vitest";
-import { evaluateTippingPoint, trendToLambdaV4 } from "../lib/tipping-point";
+import { evaluateTippingPoint, trendToLambdaV4, V5_SPEC } from "../lib/tipping-point";
 import type { SpeciesRow } from "../lib/db";
 import { buildRecommendation } from "../engine/recommendation";
 import { fallbackEstimate, TAXON_DEFAULTS, IUCN_POPULATION_MEDIAN } from "../engine/fallback";
@@ -66,17 +65,19 @@ describe("Claim 3: v4 Phase 1 current (iucn_population_trend priority)", () => {
     const cases = [
       { name: "Phocoena sinus", label: "바키타", score: 100.0, tol: 0.5, tier: "T4" }, // v3 98 → +2.0 (자연어 파싱 버그 회피)
       { name: "Rhinoceros sondaicus", label: "자바코뿔소", score: 78.0, tol: 5.0, tier: "T3" }, // v3 동일 (회귀 안정성)
-      { name: "Panthera tigris altaica", label: "시베리아호랑이", score: 66.5, tol: 3.0, tier: "T3" }, // v3 50 → +16.5 (IUCN Decreasing)
+      // v3 50 → v4 66.5 (IUCN Decreasing) → 엔진 5.1.0 75.2 (2026-10-03 결정 6: 경보 2표 이상 max 블렌딩,
+      // 레이어 88.1·PVA·Ne 80 중 두 레이어가 경보 → 0.6·가중합 + 0.4·최댓값. docs/max-blending-impact-2026-10-03.md)
+      { name: "Panthera tigris altaica", label: "시베리아호랑이", score: 75.2, tol: 3.0, tier: "T3" },
     ];
     const measured: string[] = [];
     for (const c of cases) {
-      const r = evaluateTippingPoint(loadSpecies(c.name), OPTS);
+      const r = evaluateTippingPoint(loadSpecies(c.name), OPTS)!;
       measured.push(`${c.label}: ${r.consensus_score}/${r.intervention_tier} (기대 ${c.score}±${c.tol}/${c.tier})`);
     }
     console.log("\n[v4 Phase 1 current 실측]\n  " + measured.join("\n  "));
 
     for (const c of cases) {
-      const r = evaluateTippingPoint(loadSpecies(c.name), OPTS);
+      const r = evaluateTippingPoint(loadSpecies(c.name), OPTS)!;
       expect(
         Math.abs(r.consensus_score - c.score),
         `${c.label}: consensus=${r.consensus_score} (기대 ${c.score}±${c.tol}), tier=${r.intervention_tier}`
@@ -93,7 +94,7 @@ describe("Claim 3: v4 Phase 1 improvement over v3", () => {
     // v3: EWS 50.0 (한글 "안정" 오판) → T2 / v4: EWS 88.1 (IUCN 반영) → T3
     const row = loadSpecies("Panthera tigris altaica");
     expect(row.iucn_population_trend, "IUCN 공식 trend").toBe("Decreasing");
-    const r = evaluateTippingPoint(row, OPTS);
+    const r = evaluateTippingPoint(row, OPTS)!;
     expect(r.intervention_tier, "tier").toBe("T3");
     expect(r.layer_scores.ews.score, "EWS should rise well above v3=50").toBeGreaterThan(60);
   });
@@ -103,7 +104,7 @@ describe("Claim 3: v4 Phase 1 improvement over v3", () => {
     const row = loadSpecies("Rhinoceros sondaicus");
     expect(row.population_trend ?? "", "한글 trend").toContain("안정");
     expect(row.iucn_population_trend, "IUCN trend").toBe("Stable");
-    const r = evaluateTippingPoint(row, OPTS);
+    const r = evaluateTippingPoint(row, OPTS)!;
     expect(Math.abs(r.consensus_score - 78.0), `consensus=${r.consensus_score}`).toBeLessThanOrEqual(5.0);
   });
 
@@ -113,7 +114,7 @@ describe("Claim 3: v4 Phase 1 improvement over v3", () => {
     const td = trendToLambdaV4(row.iucn_population_trend ?? null, row.population_trend, row.category);
     expect(td.source, "폴백 source").toBe("default");
     const v3 = storedV3(row.id);
-    const r = evaluateTippingPoint(row, OPTS);
+    const r = evaluateTippingPoint(row, OPTS)!;
     expect(
       Math.abs(r.consensus_score - v3.consensus_score),
       `v4=${r.consensus_score} vs v3=${v3.consensus_score}`
@@ -122,18 +123,16 @@ describe("Claim 3: v4 Phase 1 improvement over v3", () => {
 });
 
 // ===== 미러 테스트: 정본 가중치 소스 검증 (기존 유지) =====
+// 2026-09-13 숫자를 V5_SPEC 상수로 옮긴 뒤로 소스 문자열("ews: 0.30", "raw * 0.6")을 찾던 예전 검사는 계속 실패했다.
+// 엔진이 실제로 읽는 상수 값을 직접 검사한다.
 describe("Claim 3: consensus weights (source of truth)", () => {
-  it("lib/tipping-point.ts uses v3 weights 0.30/0.45/0.25", () => {
-    const src = fs.readFileSync("lib/tipping-point.ts", "utf8");
-    expect(src).toContain("ews: 0.30");
-    expect(src).toContain("pva: 0.45");
-    expect(src).toContain("iucn: 0.25");
+  it("V5_SPEC 가중치 0.30/0.45/0.25", () => {
+    expect(V5_SPEC.weights).toEqual({ ews: 0.3, pva: 0.45, iucn: 0.25 });
   });
 
-  it("high-alert scaling factors unchanged", () => {
-    const src = fs.readFileSync("lib/tipping-point.ts", "utf8");
-    expect(src).toContain("raw * 0.6");   // 0 alerts
-    expect(src).toContain("raw * 0.85");  // 1 alert
+  it("다수결: 0표 ×0.6 · 1표 ×0.85 · 2표 이상 α=0.6 max 블렌딩 (결정 6, 2026-10-03)", () => {
+    expect(V5_SPEC.consensusMultiplier).toEqual({ zero: 0.6, one: 0.85 });
+    expect(V5_SPEC.majorityBlend).toEqual({ alpha: 0.6 });
   });
 });
 
