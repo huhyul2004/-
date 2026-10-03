@@ -20,9 +20,10 @@ export const LAYERS: Layer[] = ["ews", "pva", "iucn"];
 interface LayerPayload {
   layer_scores?: {
     ews?: { score?: number; confidence?: number };
-    pva?: { score?: number; confidence?: number; P_ext_50yr?: number; P_ext_100yr?: number };
+    pva?: { score?: number; confidence?: number; P_ext_50yr?: number; P_ext_100yr?: number; n_invalid?: number };
     iucn?: { score?: number; confidence?: number; Ne?: number; genetic_status?: string };
   };
+  inputs?: { K_source?: string };
 }
 
 export interface ScoreTrace {
@@ -153,6 +154,10 @@ export interface MethodologyCoverage {
   traceMismatches: number;
   /** 계산 종의 EWS 점수 고유값 — 값마다 종 수와 그 값을 만든 추세 입력 */
   ewsValues: { score: number; count: number; inputs: Record<string, number> }[];
+  /** PVA 에서 Infinity·NaN 이 되어 집계에서 뺀 궤적 (결정 8) — 종 수 · 궤적 수 */
+  pvaInvalid: { species: number; trajectories: number };
+  /** 수용력 K 를 정한 식별 종 수 — damuth · fallback · fallback_declining (payload.inputs.K_source) */
+  kSource: Record<string, number>;
 }
 
 // EWS 의 r 을 정한 추세 입력 — trendToLambdaV4 의 우선순위(IUCN → 한글 칸 → 기본값)
@@ -214,12 +219,21 @@ export function getMethodologyCoverage(): MethodologyCoverage {
   let compressed = 0;
   let trendAdjusted = 0;
   let traceMismatches = 0;
+  const pvaInvalid = { species: 0, trajectories: 0 };
+  const kSource: Record<string, number> = {};
   const ews = new Map<number, { score: number; count: number; inputs: Record<string, number> }>();
   for (const r of rows) {
+    const parsed = JSON.parse(r.payload_json) as LayerPayload;
+    const nInvalid = parsed.layer_scores?.pva?.n_invalid ?? 0;
+    if (nInvalid > 0) {
+      pvaInvalid.species++;
+      pvaInvalid.trajectories += nInvalid;
+    }
+    inc(kSource, parsed.inputs?.K_source ?? "unrecorded");
     inc(popSource, inferPopulationWithSource(r).source);
     const trendSrc = trendToLambdaV4(r.iucn_population_trend ?? null, r.population_trend, r.category).source;
     inc(trendSource, trendSrc);
-    const ewsScore = (JSON.parse(r.payload_json) as LayerPayload).layer_scores?.ews?.score;
+    const ewsScore = parsed.layer_scores?.ews?.score;
     if (typeof ewsScore === "number") {
       const key = Math.round(ewsScore * 1e6) / 1e6;
       const g = ews.get(key) ?? { score: ewsScore, count: 0, inputs: {} };
@@ -230,7 +244,7 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     if (hasClassLifeHistory(r.class_name)) classLife.own++;
     else classLife.fallback++;
     inc(tiers, r.intervention_tier);
-    const tr = traceScore(r, JSON.parse(r.payload_json), r);
+    const tr = traceScore(r, parsed, r);
     if (!tr) {
       traceMismatches++;
       continue;
@@ -270,5 +284,7 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     tiers,
     traceMismatches,
     ewsValues: Array.from(ews.values()).sort((a, b) => b.score - a.score),
+    pvaInvalid,
+    kSource,
   };
 }

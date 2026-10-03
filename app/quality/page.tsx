@@ -169,8 +169,9 @@ export default function QualityPage({ searchParams }: { searchParams?: { issue?:
       </section>
 
       <p className="mt-8 text-[11px] text-zinc-400">
-        ※ 데이터 출처 한계: Wikidata 가 P171 (parent taxon) recursive walk timeout, IUCN API 토큰 미발급으로 일부 메타데이터 부재.
-        IUCN API 토큰 발급 후 enrichment 예정.
+        ※ 데이터 출처 한계: Wikidata 가 P171 (parent taxon) recursive walk timeout 으로 일부 상위 분류가 비어 있습니다.
+        IUCN API 토큰으로 평가 동기화(2026-07)와 위협·서식지·보전 활동 수집(2026-09-12)을 했고, IUCN 평가와 연결되지 않은
+        종(Wikidata 출처)은 IUCN 메타데이터가 없습니다.
       </p>
     </div>
   );
