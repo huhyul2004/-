@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
+import { PROVENANCE_PREFIX } from "@/lib/chat-format";
 
 interface Msg {
   role: "user" | "assistant";
@@ -8,11 +9,106 @@ interface Msg {
 }
 
 const SUGGESTED = [
-  "왜 멸종 위기에 처했나요?",
-  "이 종이 사라지면 어떤 일이 생기나요?",
-  "지금 우리가 도울 수 있는 방법은?",
-  "이 종의 가장 흥미로운 사실은?",
+  "위험도 점수는 어떻게 계산됐나요?",
+  "개체수와 추세는 어디서 나온 값인가요?",
+  "주요 위협은 무엇인가요?",
+  "같은 등급·분류군 종과 비교하면?",
 ];
+
+// 답변 안의 **굵게** · 외부 URL · 사이트 내부 경로(/species/…, /methodology…)를 React 노드로 바꾼다.
+// HTML 을 그대로 꽂지 않는다 (dangerouslySetInnerHTML 금지) — 모델 출력은 신뢰하지 않는 입력이다.
+const INLINE = /(\*\*[^*\n]+\*\*|https?:\/\/[^\s<>()[\]"']+|\/(?:species|methodology|extinct)(?:\/[A-Za-z0-9%._~-]+)*(?:#[A-Za-z0-9_-]+)?)/g;
+
+function renderInline(text: string, linkCls: string): ReactNode[] {
+  const out: ReactNode[] = [];
+  let last = 0;
+  INLINE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = INLINE.exec(text)) !== null) {
+    const tok = m[0];
+    const at = m.index;
+    if (at > last) out.push(text.slice(last, at));
+    if (tok.startsWith("**")) {
+      out.push(<strong key={at}>{tok.slice(2, -2)}</strong>);
+    } else if (tok.startsWith("/") && at > 0 && /[A-Za-z0-9가-힣_.]/.test(text[at - 1])) {
+      // "IUCN/species" 처럼 단어에 붙은 경로는 링크가 아니다 (lookbehind 는 구형 Safari 에서 문법 오류라 쓰지 않는다)
+      out.push(tok);
+    } else {
+      // 문장 끝 마침표·쉼표는 링크에서 뺀다
+      const trail = tok.match(/[.,;:]+$/)?.[0] ?? "";
+      const href = trail ? tok.slice(0, -trail.length) : tok;
+      const external = href.startsWith("http");
+      out.push(
+        <a
+          key={at}
+          href={href}
+          className={linkCls}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          {href}
+        </a>
+      );
+      if (trail) out.push(trail);
+    }
+    last = at + tok.length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
+/** 줄 단위 렌더링 — 빈 줄은 문단 간격, "- "·"* "·"• " 줄은 목록, "#" 머리줄은 굵게, 출처 줄은 맨 아래 따로 */
+function AssistantText({ content, dark }: { content: string; dark: boolean }) {
+  const linkCls = dark ? "break-all text-[#FC7F3F] underline" : "break-all text-[#D81E05] underline";
+  const lines = content.split("\n");
+  const footer = lines.filter((l) => l.trim().startsWith(PROVENANCE_PREFIX));
+  const body = lines.filter((l) => !l.trim().startsWith(PROVENANCE_PREFIX));
+  const blocks: ReactNode[] = [];
+  let list: ReactNode[] = [];
+  const flush = (key: number) => {
+    if (list.length) {
+      blocks.push(
+        <ul key={`ul-${key}`} className="ml-4 list-disc space-y-0.5">
+          {list}
+        </ul>
+      );
+      list = [];
+    }
+  };
+  body.forEach((raw, i) => {
+    const line = raw.trimEnd();
+    const bullet = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+    if (bullet) {
+      list.push(<li key={i}>{renderInline(bullet[1], linkCls)}</li>);
+      return;
+    }
+    flush(i);
+    if (!line.trim()) {
+      blocks.push(<div key={i} className="h-2" aria-hidden />);
+      return;
+    }
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    blocks.push(
+      <p key={i} className={heading ? "font-bold" : undefined}>
+        {renderInline(heading ? heading[1] : line, linkCls)}
+      </p>
+    );
+  });
+  flush(body.length);
+  return (
+    <>
+      <div className="break-words">{blocks}</div>
+      {footer.length > 0 && (
+        <p
+          className={`mt-2 border-t pt-1.5 text-[11px] leading-snug ${
+            dark ? "border-zinc-700 text-zinc-400" : "border-zinc-300 text-zinc-500"
+          }`}
+        >
+          {footer.join(" ")}
+        </p>
+      )}
+    </>
+  );
+}
 
 export function AIChat({ speciesId, dark = false }: { speciesId: string; dark?: boolean }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -92,10 +188,10 @@ export function AIChat({ speciesId, dark = false }: { speciesId: string; dark?: 
           <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
             <div
               className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
-                m.role === "user" ? userBubble : aiBubble
+                m.role === "user" ? `whitespace-pre-wrap break-words ${userBubble}` : aiBubble
               }`}
             >
-              {m.content}
+              {m.role === "assistant" ? <AssistantText content={m.content} dark={dark} /> : m.content}
             </div>
           </div>
         ))}

@@ -238,11 +238,13 @@ export function getTippingPoint(speciesId: string): {
   deadline_days: number;
   extinction_days: number | null;
   payload: unknown;
+  /** 계산 시각 — SQLite CURRENT_TIMESTAMP (UTC, 시간대 표기 없음) */
+  computed_at: string | null;
 } | null {
   const db = getDb();
   const row = db
     .prepare(
-      `SELECT consensus_score, intervention_tier, deadline_days, extinction_days, payload_json
+      `SELECT consensus_score, intervention_tier, deadline_days, extinction_days, payload_json, computed_at
        FROM tipping_points WHERE species_id = ?`
     )
     .get(speciesId) as
@@ -252,6 +254,7 @@ export function getTippingPoint(speciesId: string): {
         deadline_days: number;
         extinction_days: number | null;
         payload_json: string;
+        computed_at: string | null;
       }
     | undefined;
   if (!row) return null;
@@ -261,6 +264,7 @@ export function getTippingPoint(speciesId: string): {
     deadline_days: row.deadline_days,
     extinction_days: row.extinction_days,
     payload: JSON.parse(row.payload_json),
+    computed_at: row.computed_at,
   };
 }
 

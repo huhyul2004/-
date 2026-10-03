@@ -189,6 +189,8 @@ export interface SpeciesRow {
   mass_g_external_source?: string | null;
   /** 서식 면적(km²) — Damuth K 입력. scripts/migrate-habitat-area.ts 로 추가, 자료가 없으면 NULL */
   habitat_area_km2?: number | null;
+  /** IUCN 위협·서식지·보전 활동 조회 시각(UTC ISO). scripts/migrate-iucn-details-synced-at.ts 로 추가, 조회 안 한 종은 NULL */
+  iucn_details_synced_at?: string | null;
 }
 
 export interface ThreatRow {
