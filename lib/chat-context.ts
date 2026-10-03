@@ -8,7 +8,7 @@
 //   - 사이트 표시 등급과 IUCN API 동기화 등급이 다르면 그 사실.
 //   - 절멸·야생절멸 종 점수 100 은 계산값이 아니라 고정값이라는 사실.
 import { getSpeciesById, getThreats, getActions, getHabitats, getTippingPoint } from "./queries";
-import { inferPopulationWithSource, type AggregationTrace } from "./tipping-point";
+import { inferPopulationWithSource, V5_SPEC, type AggregationTrace } from "./tipping-point";
 import { buildLiteratureLines } from "./literature";
 import { buildPeerComparisonLines } from "./peer-comparison";
 import {
@@ -20,6 +20,8 @@ import {
 } from "./floor-transparency";
 import { splitThreats, threatPath } from "./threat-display";
 import { provenanceLine, kstDate, PROVENANCE_PREFIX } from "./provenance";
+import { isProvenanceLine } from "./chat-format";
+import { iucnRecordNote, iucnValueQualifier } from "./iucn-record";
 import type { ConservationActionRow, HabitatRow, SpeciesRow, ThreatRow } from "./db";
 
 export interface ChatMessage {
@@ -58,22 +60,38 @@ const BRANCH_TEXT = {
     `경보 ${a.m}표 → ${a.blendAlpha}·가중합 + ${(1 - (a.blendAlpha ?? 0)).toFixed(1)}·최댓값 ${a.maxLayer.toFixed(2)} = ${a.afterMajority.toFixed(2)}`,
 } as const;
 
+const TREND_RULE = {
+  sharp_decline: V5_SPEC.trendAdjust.sharpDecline,
+  recovering: V5_SPEC.trendAdjust.recovering,
+  decline: V5_SPEC.trendAdjust.decline,
+} as const;
+const signed = (d: number) => `${d > 0 ? "+" : ""}${d}`;
+
+/** 추세 보정 표기 — 0.1 단위 반올림, 0~100 에서 잘려 규칙 값과 다르면 규칙 값과 실제 값을 함께 */
+export function trendAdjustText(t: AggregationTrace["trend"]): string {
+  const d = Math.round(t.delta * 10) / 10;
+  const rule = t.kind ? TREND_RULE[t.kind] : 0;
+  if (t.kind && Math.abs(d - rule) >= 0.05)
+    return `추세 보정 ${signed(rule)} ("${t.input}", 0~100 범위에서 잘려 실제 ${signed(d)})`;
+  return `추세 보정 ${signed(d)} ("${t.input}")`;
+}
+
 /** 점수 계산 과정 한 줄 — 가중합 → 다수결 분기 → 신뢰도 압축 → 개체수 하한 → 추세 보정 */
 export function aggregationLine(a: AggregationTrace, engineVersion: string | null): string {
   const L = a.layers;
   const steps = [
-    `레이어 EWS ${L.ews.toFixed(2)}(추세 기반 추정값) · PVA ${L.pva.toFixed(2)} · Ne ${L.iucn.toFixed(2)}`,
+    `레이어 EWS ${L.ews.toFixed(2)}(추세 기반 추정값) · PVA ${L.pva.toFixed(2)} · Ne 점수 ${L.iucn.toFixed(2)}`,
     `가중합(${a.weights.ews.toFixed(2)}·${a.weights.pva.toFixed(2)}·${a.weights.iucn.toFixed(2)}) ${a.weighted.toFixed(2)}`,
     BRANCH_TEXT[a.branch](a),
   ];
   if (a.compressionApplied) steps.push(`신뢰도 ${a.confidence.overall.toFixed(2)} < 0.5 → 압축 ${a.afterCompression.toFixed(2)}`);
   if (a.floor.applied) steps.push(`${FLOOR_APPLIED_LABEL}(N0 < ${a.floor.below} → ${a.floor.value}) → ${a.afterFloor.toFixed(2)}`);
   else if (a.floor.below != null) steps.push(`개체수 하한 ${a.floor.value}(N0 < ${a.floor.below}) — 점수가 더 높아 미적용`);
-  if (a.trend.delta !== 0) steps.push(`추세 보정 ${a.trend.delta > 0 ? "+" : ""}${a.trend.delta} ("${a.trend.input}")`);
+  if (a.trend.delta !== 0) steps.push(trendAdjustText(a.trend));
   steps.push(`최종 ${a.score.toFixed(1)}`);
   return (
     `점수 계산 과정${engineVersion ? ` (엔진 ${engineVersion})` : ""}: ${steps.join(" → ")}  ` +
-    `[출처: tipping_points.payload_json.aggregation, 경보 문턱 EWS>${a.thresholds.ews}·PVA>${a.thresholds.pva}·Ne>${a.thresholds.iucn}]`
+    `[출처: tipping_points.payload_json.aggregation, 경보 문턱 EWS>${a.thresholds.ews}·PVA>${a.thresholds.pva}·Ne 점수>${a.thresholds.iucn}]`
   );
 }
 
@@ -107,7 +125,8 @@ export function contradictionLines(
   const iucnDir = species.iucn_population_trend ? TREND_DIR_IUCN[species.iucn_population_trend] : undefined;
   const koDir = koreanTrendDir(species.population_trend);
   if (iucnDir && koDir && iucnDir !== koDir && species.category !== "EX" && species.category !== "EW") {
-    const delta = (payload as { aggregation?: { trend?: { delta?: number } } } | undefined)?.aggregation?.trend?.delta ?? 0;
+    const raw = (payload as { aggregation?: { trend?: { delta?: number } } } | undefined)?.aggregation?.trend?.delta ?? 0;
+    const delta = Math.round(raw * 10) / 10;
     out.push(
       `데이터 모순: IUCN 개체수 추세('${TREND_KO[species.iucn_population_trend!] ?? species.iucn_population_trend}')와 ` +
         `한글 추세 칸('${species.population_trend}')의 방향이 다름. 성장률 r 은 IUCN 추세를 쓰고, ` +
@@ -134,18 +153,43 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   // 값이 없는 줄은 아예 넣지 않는다 — "데이터 없음" 문자열도, 빈 줄도 만들지 않는다.
   const lines: string[] = [];
   lines.push(`종: ${name} (${species.scientific_name})`);
-  // 사이트 표시 등급이 IUCN 동기화 등급과 같을 때만 평가 연도를 붙인다 (다르면 아래 모순 줄이 설명한다).
-  const sameAsIucn = !!species.iucn_synced_at && (!species.iucn_category || species.iucn_category === species.category);
+  // 이 종에 연결된 IUCN 평가가 지역 평가(유럽 등)이거나 아종이 종 단위 평가에 연결된 경우 그 사실을 먼저 적는다.
+  // 동기화 스크립트가 평가 범위·대상을 확인하지 않고 저장한 기록이다 (lib/iucn-record.ts, 결정 대기 항목 12).
+  const rec = iucnRecordNote(species);
+  const recQ = iucnValueQualifier(rec);
+  const iucnQualifier = recQ ? `, ${recQ}` : "";
+  const pop = inferPopulationWithSource(species);
+  const n0FromIucn = !isExtinct && pop.source === "iucn_population_size";
+  // 사이트 표시 등급이 IUCN 동기화 등급과 같고 그 평가가 이 종의 전 지구 평가일 때만 평가 연도를 붙인다.
+  const sameAsIucn =
+    !!species.iucn_synced_at && !recQ && (!species.iucn_category || species.iucn_category === species.category);
   lines.push(
     `IUCN 등급: ${species.category}${isExtinct ? " - 이미 절멸" : ""}  [출처: species.category` +
       (sameAsIucn && species.iucn_assessment_year ? ` — IUCN ${species.iucn_assessment_year}년 평가 등급과 같음` : "") +
       `]`
   );
+  if (rec.regional)
+    lines.push(
+      `IUCN 기록 범위: 이 종에 연결된 IUCN 평가는 ` +
+        (rec.scope ? `${rec.scope} 지역 평가` : `지역 평가 (등급 ${species.iucn_category} 은 지역 평가에만 쓰는 등급)`) +
+        ` — 전 지구 평가가 아님. 아래 IUCN 동기화 등급·성숙 개체수·추세는 그 지역의 값` +
+        (n0FromIucn ? `이고, LastWatch 점수(v5)도 이 지역 개체수를 기준 개체수 N0 로 씀` : "") +
+        `  [출처: species.iucn_assessment_scope, species.iucn_category]`
+    );
+  if (rec.parentTaxon)
+    lines.push(
+      `IUCN 평가 대상: ${rec.parentTaxon} (종 전체) — 이 아종(${species.scientific_name})은 종 단위 평가에 연결됨. ` +
+        `아래 IUCN 동기화 등급·성숙 개체수·추세는 ${rec.parentTaxon} 종 전체의 값` +
+        (n0FromIucn ? `이고, LastWatch 점수(v5)도 이 종 전체 개체수를 기준 개체수 N0 로 씀 — 이 아종의 개체수가 아님` : "") +
+        `  [출처: species.iucn_assessed_taxon]`
+    );
+  if (rec.synonym)
+    lines.push(`IUCN 학명: ${rec.synonym} — 같은 종을 다른 학명(동의어)으로 평가한 기록  [출처: species.iucn_assessed_taxon]`);
   // 사이트 표시 등급(category)과 IUCN API 동기화 등급(iucn_category)이 다르면 감추지 않고 둘 다 적는다.
   if (species.iucn_category && species.iucn_category !== species.category) {
     const synced = kstDate(species.iucn_synced_at);
     lines.push(
-      `IUCN API 동기화 등급: ${species.iucn_category}${synced ? ` (${synced} 조회)` : ""} — ` +
+      `IUCN API 동기화 등급: ${species.iucn_category}${synced ? ` (${synced} 조회${iucnQualifier})` : iucnQualifier ? ` (${iucnQualifier.slice(2)})` : ""} — ` +
         `사이트 표시 등급 ${species.category} 와 다름. LastWatch 는 어느 쪽이 맞는지 판정하지 않았음  ` +
         `[출처: species.iucn_category, species.iucn_synced_at]`
     );
@@ -179,6 +223,7 @@ export function buildChatContext(speciesId: string): ChatContext | null {
       `성숙 개체수: ${species.iucn_population_size.toLocaleString()}마리  ` +
         `[출처: species.iucn_population_size` +
         (species.iucn_assessment_year ? `, IUCN ${species.iucn_assessment_year}년 평가` : "") +
+        iucnQualifier +
         `]`
     );
 
@@ -187,6 +232,7 @@ export function buildChatContext(speciesId: string): ChatContext | null {
       `개체수 추세: ${TREND_KO[species.iucn_population_trend] ?? species.iucn_population_trend}` +
         `  [출처: species.iucn_population_trend, ` +
         (species.iucn_assessment_year ? `IUCN ${species.iucn_assessment_year}년 평가` : "기준 연도 미상") +
+        iucnQualifier +
         `]`
     );
 
@@ -212,10 +258,9 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   if (floor) lines.push(floorStatusLine(floor));
 
   // 점수 계산 과정 — 엔진이 남긴 집계 추적을 그대로 읽는다 (없으면 같은 집계 함수로 다시 계산).
-  const pop = inferPopulationWithSource(species);
   const popYear =
     pop.source === "iucn_population_size" && species.iucn_assessment_year
-      ? `IUCN ${species.iucn_assessment_year}년 평가`
+      ? `IUCN ${species.iucn_assessment_year}년 평가${iucnQualifier}`
       : "기준 연도 미상";
   let calculationPath: string | null = null;
   if (tipping && !isExtinct && pop.value != null) {
@@ -230,7 +275,8 @@ export function buildChatContext(speciesId: string): ChatContext | null {
 
   // 문헌 대조 블록 — 개체수가 있는 종에만 붙인다.
   // v5 와 같은 기준 개체수를 쓰기 위해 inferPopulationWithSource 를 그대로 재사용한다.
-  if (pop.value != null) {
+  // 절멸·야생절멸 종은 개체수 비교가 의미 없고, 아종이 종 단위 IUCN 개체수에 연결된 경우 엉뚱한 N 이 들어간다 (한국늑대).
+  if (pop.value != null && !isExtinct) {
     const neLayer = (tipping?.payload as { layer_scores?: { iucn?: { Ne?: number; ne_nc?: number } } } | undefined)
       ?.layer_scores?.iucn;
     lines.push(
@@ -367,14 +413,16 @@ export const MAX_HISTORY = 20;
 /** 메시지 하나의 최대 길이 (자) — 사용자 질문 / 이전 답변 */
 export const MAX_USER_CHARS = 2000;
 export const MAX_ASSISTANT_CHARS = 8000;
+/** 모델에 넘기는 대화 전체의 최대 길이 (자) — 넘으면 오래된 메시지부터 버린다 */
+export const MAX_TOTAL_CHARS = 24000;
 
 /**
  * 클라이언트가 보낸 대화 기록을 모델에 넘길 수 있게 정리한다. 형식이 틀린 항목은 버린다.
  * - 역할은 user·assistant 만, 내용은 문자열만
  * - 화면에만 보이던 오류 말풍선("⚠ …")은 버린다
  * - 이전 답변 끝의 "데이터 출처:" 줄은 지운다 (모델이 따라 쓰지 않게)
- * - 첫 메시지는 user 로 시작하게 하고, 같은 역할이 이어지면 합친다
- * - 최근 MAX_HISTORY 개만, 너무 긴 내용은 자른다
+ * - 첫 메시지는 user 로 시작하게 하고, 같은 역할이 이어지면 합친다 (합친 뒤에도 메시지 하나의 길이 제한을 다시 건다)
+ * - 최근 MAX_HISTORY 개만, 전체 MAX_TOTAL_CHARS 자 안으로 (오래된 것부터 버린다)
  */
 export function sanitizeHistory(raw: unknown): ChatMessage[] {
   if (!Array.isArray(raw)) return [];
@@ -384,28 +432,31 @@ export function sanitizeHistory(raw: unknown): ChatMessage[] {
     const role = (m as { role?: unknown }).role;
     const content = (m as { content?: unknown }).content;
     if ((role !== "user" && role !== "assistant") || typeof content !== "string") continue;
-    let text = content.trim();
+    const limit = role === "user" ? MAX_USER_CHARS : MAX_ASSISTANT_CHARS;
+    // 큰 문자열을 다루기 전에 먼저 자른다
+    let text = content.slice(0, limit).trim();
     if (role === "assistant") {
       if (text.startsWith("⚠")) continue;
       text = stripProvenance(text);
     }
     if (!text) continue;
-    const limit = role === "user" ? MAX_USER_CHARS : MAX_ASSISTANT_CHARS;
-    if (text.length > limit) text = text.slice(0, limit);
     const prev = cleaned[cleaned.length - 1];
-    if (prev && prev.role === role) prev.content = `${prev.content}\n\n${text}`;
+    // 같은 역할을 합치면 최근 내용을 남기고 다시 자른다
+    if (prev && prev.role === role) prev.content = `${prev.content}\n\n${text}`.slice(-limit);
     else cleaned.push({ role, content: text });
   }
   const recent = cleaned.slice(-MAX_HISTORY);
+  let total = recent.reduce((a, m) => a + m.content.length, 0);
+  while (recent.length > 1 && total > MAX_TOTAL_CHARS) total -= recent.shift()!.content.length;
   while (recent.length && recent[0].role !== "user") recent.shift();
   return recent;
 }
 
-/** "데이터 출처:" 로 시작하는 줄을 지운다 */
+/** 서버 출처 줄처럼 생긴 줄("데이터 출처: LastWatch DB …", 목록 기호가 붙은 것 포함)을 지운다. 본문 인용 줄은 남긴다 */
 export function stripProvenance(text: string): string {
   return text
     .split("\n")
-    .filter((l) => !l.trim().replace(/^[*_>\s]+/, "").startsWith(PROVENANCE_PREFIX))
+    .filter((l) => !isProvenanceLine(l))
     .join("\n")
     .trim();
 }
@@ -435,7 +486,11 @@ const LATEX_SYMBOLS: [RegExp, string][] = [
 export function plainMath(text: string): string {
   return text.replace(/\$\$([^$]+)\$\$|\$(?!\s)([^$\n]*?[^\s$])\$(?!\d)/g, (whole: string, block?: string, inline?: string) => {
     const body = block ?? inline ?? "";
-    if (!/[\\_^{}]/.test(body)) return body.trim();
+    if (!/[\\_^{}]/.test(body)) {
+      // LaTeX 기호가 없는 구간은 금액일 수 있다 — 숫자로 시작하거나($60,000 …) 통화 접두어(US$·HK$ …)로 끝나면 그대로
+      if (inline !== undefined && (/^\d/.test(body) || /(?:US|HK|NT|NZ|A|C|S|R)$/.test(body))) return whole;
+      return body.trim();
+    }
     let m = body
       .replace(/\\(?:text|mathrm|mathit|operatorname)\{([^{}]*)\}/g, "$1")
       .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, "$1/$2");
@@ -451,11 +506,15 @@ export function plainMath(text: string): string {
   });
 }
 
-/** 답변이 이 종의 최종 점수 값을 말하는가 ("78점", "78.0점", "78/100") — 하한 문구 보강 여부 판단용.
+/** 답변이 이 종의 최종 점수 값을 말하는가 ("78점", "**78**점", "78.00/100", "위험도 점수는 78 …") — 하한 문구 보강 여부 판단용.
  *  "위험도 점수" 라는 낱말만 나오는 답(범위 밖 안내, 점수가 계산에 쓰이지 않는다는 설명 등)에는 붙이지 않는다. */
 export function mentionsScoreValue(body: string, score: number): boolean {
-  const v = Number.isInteger(score) ? `${score}(?:\\.0)?` : score.toFixed(1).replace(".", "\\.");
-  return new RegExp(`(?<![\\d.])${v}\\s*(?:점|/\\s*100)`).test(body);
+  const plain = body.replace(/[*_]/g, "");
+  const v = Number.isInteger(score) ? `${score}(?:\\.0+)?` : `${score.toFixed(1).replace(".", "\\.")}0*`;
+  return (
+    new RegExp(`(?<![\\d.])${v}\\s*(?:점|/\\s*100)`).test(plain) ||
+    new RegExp(`(?:위험도|LastWatch)[^\\n]{0,15}점수[^\\n]{0,20}?(?<![\\d.])${v}(?!\\d)(?!\\.\\d)`).test(plain)
+  );
 }
 
 /**

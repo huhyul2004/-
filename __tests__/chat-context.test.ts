@@ -7,10 +7,14 @@ import {
   stripProvenance,
   mentionsScoreValue,
   plainMath,
+  trendAdjustText,
+  MAX_TOTAL_CHARS,
   MAX_HISTORY,
   MAX_USER_CHARS,
 } from "../lib/chat-context";
-import { FLOOR_APPLIED_LABEL } from "../lib/floor-transparency";
+import { FLOOR_APPLIED_LABEL, floorBreakdown, floorStatusLine } from "../lib/floor-transparency";
+import { getSpeciesById, getTippingPoint } from "../lib/queries";
+import { POST } from "../app/api/chat/route";
 import { formatDbVersion, iucnQueriedLabel, kstDate, PROVENANCE_PREFIX } from "../lib/provenance";
 
 const PROVENANCE_RE =
@@ -154,6 +158,60 @@ describe("plainMath — LaTeX 를 일반 글자로", () => {
   });
 });
 
+describe("2026-10-03 적대적 검토 반영", () => {
+  it("하한 미적용 문구는 하한 직전 점수와 비교하고, 이후 추세 보정을 적는다 (반달가슴곰 87.85 → −10 → 77.9)", () => {
+    const sp = getSpeciesById("ursus-thibetanus-ussuricus")!;
+    const fb = floorBreakdown(sp, getTippingPoint(sp.id)!.payload)!;
+    const line = floorStatusLine(fb);
+    expect(line).toContain("하한 직전 점수 87.85점이 하한보다 높아");
+    expect(line).toContain("이후 추세 보정 -10 → 최종 77.9점");
+    expect(line).not.toContain("이미 하한보다");
+  });
+  it("추세 보정이 0~100 에서 잘리면 규칙 값과 실제 값을 함께, 소수는 0.1 단위", () => {
+    expect(trendAdjustText({ kind: "sharp_decline", delta: 5.575652596398115, input: "급감" })).toBe(
+      '추세 보정 +8 ("급감", 0~100 범위에서 잘려 실제 +5.6)'
+    );
+    expect(trendAdjustText({ kind: "decline", delta: 4, input: "감소" })).toBe('추세 보정 +4 ("감소")');
+    expect(buildChatContext("phocoena-sinus")!.context).not.toMatch(/\d\.\d{4,}\s*\("급감/);
+  });
+  it("점수 언급 감지 — 굵게·소수 자리·'점수는 78' 꼴", () => {
+    expect(mentionsScoreValue("**78**점", 78)).toBe(true);
+    expect(mentionsScoreValue("78.00/100", 78)).toBe(true);
+    expect(mentionsScoreValue("위험도 점수는 78입니다", 78)).toBe(true);
+    expect(mentionsScoreValue("LastWatch 위험도 점수는 78.", 78)).toBe(true);
+    expect(mentionsScoreValue("점수 계산 과정을 설명합니다", 78)).toBe(false);
+    expect(mentionsScoreValue("위험도 점수는 78.5점", 78)).toBe(false);
+  });
+  it("금액 $ 는 지우지 않는다", () => {
+    expect(plainMath("예산 $60,000 과 US$ 표기")).toBe("예산 $60,000 과 US$ 표기");
+  });
+  it("가짜 출처 줄은 목록 기호가 붙어도 지우고, 본문 인용 줄은 남긴다", () => {
+    expect(stripProvenance("본문\n- 데이터 출처: LastWatch DB v9, IUCN API 조회일 2001-01-01")).toBe("본문");
+    expect(stripProvenance("본문\n1. 데이터 출처 : LastWatch DB v9")).toBe("본문");
+    expect(stripProvenance("데이터 출처: species.mature_individuals\n끝")).toBe("데이터 출처: species.mature_individuals\n끝");
+  });
+  it("대화 기록 — 합친 메시지도 길이 제한, 전체 길이 상한", () => {
+    const merged = sanitizeHistory([
+      { role: "user", content: "가".repeat(MAX_USER_CHARS) },
+      { role: "user", content: "나".repeat(MAX_USER_CHARS) },
+    ]);
+    expect(merged[0].content.length).toBeLessThanOrEqual(MAX_USER_CHARS);
+    expect(merged[0].content.endsWith("나")).toBe(true);
+    const many = sanitizeHistory(
+      Array.from({ length: 20 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: String(i).repeat(i % 2 ? 8000 : 2000) }))
+    );
+    expect(many.reduce((a, m) => a + m.content.length, 0)).toBeLessThanOrEqual(MAX_TOTAL_CHARS);
+    expect(many[0].role).toBe("user");
+  });
+  it("절멸 종에는 문헌 블록을 붙이지 않는다 (한국늑대)", () => {
+    expect(buildChatContext("canis-lupus-coreanus")!.context).not.toContain("[문헌 대조");
+  });
+  it("JSON 본문이 null 이면 400", async () => {
+    const res = await POST(new Request("http://x/api/chat", { method: "POST", body: "null", headers: { "Content-Type": "application/json" } }));
+    expect(res.status).toBe(400);
+  });
+});
+
 describe("sanitizeHistory", () => {
   it("오류 말풍선·출처 줄·잘못된 항목을 버리고, user 로 시작·같은 역할은 합친다", () => {
     const out = sanitizeHistory([
@@ -190,6 +248,6 @@ describe("sanitizeHistory", () => {
     expect(odd[odd.length - 1]).toEqual({ role: "user", content: `m${MAX_HISTORY}` });
   });
   it("stripProvenance — 출처 줄만 지운다", () => {
-    expect(stripProvenance(`본문\n${PROVENANCE_PREFIX} x\n끝`)).toBe("본문\n끝");
+    expect(stripProvenance(`본문\n${PROVENANCE_PREFIX} LastWatch DB v2026.10.03, 계산일 2026-10-03\n끝`)).toBe("본문\n끝");
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type ReactNode } from "react";
-import { PROVENANCE_PREFIX } from "@/lib/chat-format";
+import { isProvenanceLine } from "@/lib/chat-format";
 
 interface Msg {
   role: "user" | "assistant";
@@ -17,7 +17,8 @@ const SUGGESTED = [
 
 // 답변 안의 **굵게** · 외부 URL · 사이트 내부 경로(/species/…, /methodology…)를 React 노드로 바꾼다.
 // HTML 을 그대로 꽂지 않는다 (dangerouslySetInnerHTML 금지) — 모델 출력은 신뢰하지 않는 입력이다.
-const INLINE = /(\*\*[^*\n]+\*\*|https?:\/\/[^\s<>()[\]"']+|\/(?:species|methodology|extinct)(?:\/[A-Za-z0-9%._~-]+)*(?:#[A-Za-z0-9_-]+)?)/g;
+// URL 은 ASCII URL 문자까지만 — 바로 뒤에 붙은 한글 조사·백틱은 링크에 넣지 않는다
+const INLINE = /(\*\*[^*\n]+\*\*|https?:\/\/[A-Za-z0-9\-._~:/?#@!$&*+,;=%]+|\/(?:species|methodology|extinct)(?:\/[A-Za-z0-9%._~-]+)*(?:#[A-Za-z0-9_-]+)?)/g;
 
 function renderInline(text: string, linkCls: string): ReactNode[] {
   const out: ReactNode[] = [];
@@ -29,7 +30,8 @@ function renderInline(text: string, linkCls: string): ReactNode[] {
     const at = m.index;
     if (at > last) out.push(text.slice(last, at));
     if (tok.startsWith("**")) {
-      out.push(<strong key={at}>{tok.slice(2, -2)}</strong>);
+      // 굵은 글씨 안의 링크도 링크로
+      out.push(<strong key={at}>{renderInline(tok.slice(2, -2), linkCls)}</strong>);
     } else if (tok.startsWith("/") && at > 0 && /[A-Za-z0-9가-힣_.]/.test(text[at - 1])) {
       // "IUCN/species" 처럼 단어에 붙은 경로는 링크가 아니다 (lookbehind 는 구형 Safari 에서 문법 오류라 쓰지 않는다)
       out.push(tok);
@@ -56,29 +58,44 @@ function renderInline(text: string, linkCls: string): ReactNode[] {
   return out;
 }
 
-/** 줄 단위 렌더링 — 빈 줄은 문단 간격, "- "·"* "·"• " 줄은 목록, "#" 머리줄은 굵게, 출처 줄은 맨 아래 따로 */
+/** 줄 단위 렌더링 — 빈 줄은 문단 간격, "- "·"* "·"• " 줄은 글머리 목록, "1. " 줄은 번호 목록, "#" 머리줄은 굵게, 출처 줄은 맨 아래 따로 */
 function AssistantText({ content, dark }: { content: string; dark: boolean }) {
   const linkCls = dark ? "break-all text-[#FC7F3F] underline" : "break-all text-[#D81E05] underline";
   const lines = content.split("\n");
-  const footer = lines.filter((l) => l.trim().startsWith(PROVENANCE_PREFIX));
-  const body = lines.filter((l) => !l.trim().startsWith(PROVENANCE_PREFIX));
+  const footer = lines.filter(isProvenanceLine);
+  const body = lines.filter((l) => !isProvenanceLine(l));
   const blocks: ReactNode[] = [];
   let list: ReactNode[] = [];
+  let listKind: "ul" | "ol" = "ul";
+  let listStart = 1;
   const flush = (key: number) => {
     if (list.length) {
       blocks.push(
-        <ul key={`ul-${key}`} className="ml-4 list-disc space-y-0.5">
-          {list}
-        </ul>
+        listKind === "ol" ? (
+          <ol key={`ol-${key}`} start={listStart} className="ml-5 list-decimal space-y-0.5">
+            {list}
+          </ol>
+        ) : (
+          <ul key={`ul-${key}`} className="ml-4 list-disc space-y-0.5">
+            {list}
+          </ul>
+        )
       );
       list = [];
     }
   };
   body.forEach((raw, i) => {
     const line = raw.trimEnd();
-    const bullet = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
-    if (bullet) {
-      list.push(<li key={i}>{renderInline(bullet[1], linkCls)}</li>);
+    const numbered = line.match(/^\s*(\d+)[.)]\s+(.*)$/);
+    const bullet = numbered ? null : line.match(/^\s*[-*•]\s+(.*)$/);
+    if (numbered || bullet) {
+      const kind = numbered ? "ol" : "ul";
+      if (list.length && kind !== listKind) flush(i);
+      if (!list.length) {
+        listKind = kind;
+        listStart = numbered ? Number(numbered[1]) : 1;
+      }
+      list.push(<li key={i}>{renderInline(numbered ? numbered[2] : bullet![1], linkCls)}</li>);
       return;
     }
     flush(i);

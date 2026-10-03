@@ -28,14 +28,6 @@ function loadSpecies(name: string): SpeciesRow & { id: string } {
   if (!row) throw new Error(`species not found in db: ${name}`);
   return row;
 }
-// tipping_points 에 캐시된 v3 값 (2026-05-07 계산, 6-B-2 재계산 전까지 = v3 정본)
-function storedV3(id: string): { consensus_score: number; intervention_tier: string } {
-  const tp = db
-    .prepare("SELECT consensus_score, intervention_tier FROM tipping_points WHERE species_id=?")
-    .get(id) as { consensus_score: number; intervention_tier: string } | undefined;
-  if (!tp) throw new Error(`tipping_points not found: ${id}`);
-  return tp;
-}
 const OPTS = { n_sim: 1500, T: 100 } as const;
 
 // ===== 블록 1: v3 baseline (이력 보존) =====
@@ -113,12 +105,10 @@ describe("Claim 3: v4 Phase 1 improvement over v3", () => {
     const row = loadSpecies("Holoaden bradei"); // CR, iucn_population_trend = "Unknown", 한글 trend 없음
     const td = trendToLambdaV4(row.iucn_population_trend ?? null, row.population_trend, row.category);
     expect(td.source, "폴백 source").toBe("default");
-    const v3 = storedV3(row.id);
+    // DB 저장값과 비교하면 같은 엔진 결과끼리 비교하게 된다 — 고정값으로 확인한다 (N0 24 → 하한 90)
     const r = evaluateTippingPoint(row, OPTS)!;
-    expect(
-      Math.abs(r.consensus_score - v3.consensus_score),
-      `v4=${r.consensus_score} vs v3=${v3.consensus_score}`
-    ).toBeLessThanOrEqual(0.5);
+    expect(r.consensus_score).toBe(90);
+    expect(r.aggregation!.floor.applied).toBe(true);
   });
 });
 

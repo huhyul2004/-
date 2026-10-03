@@ -668,7 +668,8 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
           </dl>
           <p className="mt-3 text-[11px] text-zinc-500">
             EWS 레이어에는 개체수 시계열이 한 종도 들어가 있지 않습니다 — 모든 종이 추세로 추정한 값입니다.
-            이 페이지가 저장값을 되짚은 결과, 계산 {n(cov.computed)}종 중 저장값과 다른 종은 {n(cov.traceMismatches)}종입니다.{" "}
+            저장된 레이어 점수를 지금 코드의 집계식으로 다시 집계한 결과, 계산 {n(cov.computed)}종 중 저장 점수와 다른 종은{" "}
+            {n(cov.traceMismatches)}종, 계산 뒤 개체수·추세 입력이 바뀐 종은 {n(cov.inputDrift)}종입니다 (0 이 아니면 재계산이 필요).{" "}
             <Link href="/stats" className="font-bold text-zinc-700 underline">
               통계 페이지
             </Link>
@@ -724,7 +725,8 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
             </table>
           </div>
           <p className="mt-2 text-[11px] text-zinc-500">
-            결정 대기 목록에는 개체수 하한(1)·수용력 K(2)·Ne/Nc(3)·EWS(7)·신뢰도(8)·다수결 문턱(9)이 올라 있습니다.
+            결정 대기 목록에는 개체수 하한(1, 유지 + 표시로 결정)·수용력 K(2)·Ne/Nc(3, 코드 값 유지로 결정)·하한의 LC/VU 예외(4)·
+            EWS(7)·신뢰도(8)·다수결 문턱(9)·Ricker 폭주(10)·다수결 0표 배율(11)·IUCN 기록 범위(12)가 올라 있습니다.
             2026-10-03 에 다수결 2표 이상 블렌딩과 Damuth K 분기를 명세서대로 코드에 반영했습니다.
           </p>
         </Card>

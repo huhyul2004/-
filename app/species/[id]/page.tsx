@@ -13,6 +13,7 @@ import { inferPopulationWithSource, type PopulationSource } from "@/lib/tipping-
 import type { TippingPointResult } from "@/lib/tipping-point";
 import { floorBreakdown, floorStatusLine } from "@/lib/floor-transparency";
 import type { ThreatRow } from "@/lib/db";
+import { iucnRecordNote, iucnValueQualifier } from "@/lib/iucn-record";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,11 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
   // IUCN 위협은 상위 분류 경로가 길어 세 칸 중 한 칸에 넣으면 좁다 — 있으면 한 줄 전체를 쓴다.
   const hasIucnThreats = threats.some((t) => t.threat_code);
   const info = CATEGORY_INFO[species.category];
+  // 수기 전체 개체수와 IUCN 성숙 개체수는 범위·시점이 다를 수 있다 — 모순이면 알리고, IUCN 기록이 지역·상위 분류군 평가면 밝힌다
+  const iucnNote = iucnValueQualifier(iucnRecordNote(species)) || null;
+  const popContradiction =
+    species.mature_individuals != null && species.mature_individuals > 0 &&
+    species.iucn_population_size != null && species.iucn_population_size > species.mature_individuals;
   const displayName =
     species.common_name_ko ?? species.common_name_en ?? species.scientific_name;
 
@@ -141,7 +147,7 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             )}
             {species.iucn_population_size != null && species.iucn_population_size > 0 && (
               <div>
-                <dt className="text-zinc-400">성숙 개체수 (IUCN)</dt>
+                <dt className="text-zinc-400">성숙 개체수 (IUCN{iucnNote ? ` · ${iucnNote}` : ""})</dt>
                 <dd className="font-medium text-zinc-900">
                   {species.iucn_population_size.toLocaleString()}마리
                 </dd>
@@ -166,6 +172,13 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
               </div>
             )}
           </dl>
+          {popContradiction && (
+            <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900">
+              성숙 개체수({species.iucn_population_size!.toLocaleString()})가 전체 개체수({species.mature_individuals!.toLocaleString()})보다
+              많습니다 — 두 값은 출처·범위·시점이 달라 같은 개체군의 값으로 읽으면 안 됩니다
+              {iucnNote ? ` (IUCN 값은 ${iucnNote}의 값)` : ""}.
+            </p>
+          )}
         </div>
       </header>
 

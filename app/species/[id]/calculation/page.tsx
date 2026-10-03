@@ -15,7 +15,10 @@ import {
   type TippingInputs,
   type AggregationTrace,
 } from "@/lib/tipping-point";
-import { aggregationOf } from "@/lib/floor-transparency";
+import { aggregationOf, floorBreakdown, floorStatusLine, FLOOR_APPLIED_LABEL } from "@/lib/floor-transparency";
+import { trendAdjustText } from "@/lib/chat-context";
+import { FormulaTip } from "@/components/formula-tip";
+import { iucnRecordNote, iucnValueQualifier } from "@/lib/iucn-record";
 import { DAMUTH_CONSTANTS, DAMUTH_SKIP_LABEL, type DamuthSkipReason } from "@/lib/damuth-k";
 import { dbUserVersion, formatDbVersion, iucnQueriedLabel, kstDate } from "@/lib/provenance";
 
@@ -35,29 +38,6 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 const f = (x: number | null | undefined, d = 2) => (x == null || !Number.isFinite(x) ? "—" : x.toFixed(d));
 const n0 = (x: number | null | undefined) => (x == null ? "—" : x.toLocaleString());
 
-/** 식 설명 툴팁 — 마우스를 올리거나(hover) 키보드·터치로 초점을 주면(focus) 열린다. JS 없이 동작 */
-function Tip({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <span className="group relative ml-1 inline-flex align-middle">
-      <button
-        type="button"
-        aria-describedby={`tip-${id}`}
-        aria-label="식 설명 보기"
-        className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border border-zinc-300 bg-white text-[10px] font-bold leading-none text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FC7F3F]"
-      >
-        ?
-      </button>
-      <span
-        role="tooltip"
-        id={`tip-${id}`}
-        className="absolute left-0 top-full z-30 mt-1 hidden w-[min(20rem,calc(100vw-3rem))] whitespace-normal rounded-lg bg-zinc-900 px-3 py-2 text-left text-[11px] font-normal leading-relaxed text-white shadow-lg group-focus-within:block group-hover:block"
-      >
-        {children}
-      </span>
-    </span>
-  );
-}
-
 interface RowProps {
   id: string;
   label: ReactNode;
@@ -67,17 +47,17 @@ interface RowProps {
   strong?: boolean;
 }
 
-/** 한 줄 = 항목 · 값 · 출처. 좁은 화면에서는 세 칸이 위아래로 쌓인다 (가로 스크롤 없음 — 툴팁이 잘리지 않게) */
+/** 한 줄 = 항목 · 값 · 출처. 좁은 화면에서는 세 칸이 위아래로 쌓이고, 툴팁은 줄 너비에 맞춰 펼친다 (relative) */
 function Row({ id, label, value, source, tip, strong }: RowProps) {
   return (
     <div
-      className={`grid gap-x-4 gap-y-0.5 border-t border-zinc-100 py-2 first:border-t-0 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1.1fr)] ${
+      className={`relative grid gap-x-4 gap-y-0.5 border-t border-zinc-100 py-2 first:border-t-0 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1.1fr)] ${
         strong ? "bg-zinc-50/80 -mx-2 px-2 rounded-lg" : ""
       }`}
     >
       <div className="text-[13px] text-zinc-700">
         {label}
-        {tip && <Tip id={id}>{tip}</Tip>}
+        {tip && <FormulaTip id={id}>{tip}</FormulaTip>}
       </div>
       <div className={`font-mono text-[13px] tabular-nums ${strong ? "font-bold text-zinc-900" : "text-zinc-900"}`}>{value}</div>
       <div className="break-words font-mono text-[11px] leading-snug text-zinc-500">{source}</div>
@@ -111,11 +91,13 @@ function Section({ id, label, title, note, children }: { id: string; label: stri
   );
 }
 
-function Shell({ name, scientific, id, children }: { name: string; scientific: string; id: string; children: ReactNode }) {
+function Shell({ name, scientific, id, extinct = false, children }: { name: string; scientific: string; id: string; extinct?: boolean; children: ReactNode }) {
+  // 절멸·야생절멸 종의 상세는 /extinct/[id] 에 있다 (/species/[id] 는 404)
+  const back = extinct ? `/extinct/${encodeURIComponent(id)}` : `/species/${encodeURIComponent(id)}`;
   return (
     <div className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
-      <Link href={`/species/${encodeURIComponent(id)}`} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-900">
-        ← {name} 상세
+      <Link href={back} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-900">
+        ← {name} {extinct ? "절멸 종 페이지" : "상세"}
       </Link>
       <p className="text-xs font-black tracking-wider text-[#D81E05]">CALCULATION</p>
       <h1 className="mt-1 text-2xl font-black leading-tight tracking-tight text-zinc-900 sm:text-3xl">{name} — 위험 점수 계산 근거</h1>
@@ -133,8 +115,10 @@ const TREND_SOURCE: Record<string, string> = {
 const K_SOURCE: Record<string, string> = {
   damuth: "Damuth 식 (체중·서식 면적)",
   fallback: "기존 식 (r ≥ 0)",
-  fallback_declining: "기존 식 (감소 추세 r < 0)",
+  fallback_declining: "기존 식 (r < 0 — 감소 추세)",
 };
+// r < 0 이 추세 미상 기본값(−0.02)에서 온 경우 — "감소 추세" 라고 부르지 않는다
+const K_SOURCE_DEFAULT_TREND = "기존 식 (r < 0 — 추세 미상 기본값 −0.02)";
 const BRANCH_LABEL: Record<string, string> = {
   none: "경보 0표 → 배율",
   single: "경보 1표 → 배율",
@@ -167,7 +151,7 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
 
   if (isExtinct) {
     return (
-      <Shell name={name} scientific={species.scientific_name} id={species.id}>
+      <Shell name={name} scientific={species.scientific_name} id={species.id} extinct>
         <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 text-sm leading-relaxed text-zinc-700">
           <p className="font-bold text-zinc-900">절멸·야생절멸 종은 위험 점수를 계산하지 않습니다.</p>
           <p className="mt-2">
@@ -185,7 +169,7 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
 
   const payload = tipping?.payload as (TippingPointResult & { engine_version?: string; inputs?: TippingInputs; aggregation?: AggregationTrace }) | undefined;
   const pop = inferPopulationWithSource(species);
-  if (!tipping || !payload || pop.value == null) {
+  if (!tipping || !payload || (payload.inputs?.N0 ?? pop.value) == null) {
     return (
       <Shell name={name} scientific={species.scientific_name} id={species.id}>
         <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-5 text-sm leading-relaxed text-zinc-700">
@@ -204,7 +188,18 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
   }
 
   const inp = payload.inputs;
-  const agg = aggregationOf(species, pop.value, payload)!;
+  // 계산 당시 입력을 보여준다 — 그 뒤 species 행이 바뀌었으면 경고한다
+  const N0 = (inp?.N0 ?? pop.value) as number; // 위에서 둘 다 없으면 이미 "산출 안 됨" 으로 돌아갔다
+  const N0Source = inp?.N0_source ?? pop.source;
+  const inputChanged = inp != null && (inp.N0 !== pop.value || (payload.aggregation && payload.aggregation.trend.input !== species.population_trend));
+  const agg = aggregationOf(species, N0, payload)!;
+  const fb = floorBreakdown(species, payload);
+  // IUCN 기록 범위 — 지역 평가(NA·RE 등급 포함)·아종의 종 단위 평가에 연결된 경우 (lib/iucn-record.ts, 결정 대기 항목 12)
+  const rec = iucnRecordNote(species);
+  const recQ = iucnValueQualifier(rec);
+  const iucnNote = recQ ? ` — ${recQ}의 값` : "";
+  const total = species.mature_individuals, mature = species.iucn_population_size;
+  const popContradiction = total != null && total > 0 && mature != null && mature > total;
   const ews = payload.layer_scores.ews;
   const pva = payload.layer_scores.pva;
   const ne = payload.layer_scores.iucn;
@@ -243,12 +238,23 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
           </p>
           {agg.floor.applied ? (
             <p className="mt-2 rounded-lg bg-[#FC7F3F]/10 px-2.5 py-1.5 text-[#9a3d0b]">
-              <b>개체수 하한 규칙 적용됨</b> — 하한 적용 전 점수 <b>{agg.scoreWithoutFloor.toFixed(1)}</b>, 최종{" "}
-              {agg.score.toFixed(1)} 은 N0 &lt; {agg.floor.below} 구간의 하한 {agg.floor.value} 이 정한 값입니다 (LastWatch 자체 규칙, 특허 명세서 미기재).
+              <b>{FLOOR_APPLIED_LABEL}</b> — 하한 적용 전 점수 <b>{agg.scoreWithoutFloor.toFixed(1)}</b>. 하한 직전 점수{" "}
+              {agg.afterCompression.toFixed(2)} 를 N0 &lt; {agg.floor.below} 구간의 하한 {agg.floor.value} 까지 끌어올렸고
+              {fb && fb.trendDelta !== 0 ? `, 이후 ${trendAdjustText(agg.trend)} → 최종 ${agg.score.toFixed(1)}` : `, 최종 ${agg.score.toFixed(1)} 은 이 규칙이 정한 값`}
+              입니다 (LastWatch 자체 규칙, 특허 명세서 미기재).
             </p>
           ) : (
-            <p className="mt-2">
-              개체수 하한: {agg.floor.below != null ? `N0 < ${agg.floor.below} 구간(하한 ${agg.floor.value})이지만 점수가 더 높아 미적용` : "N0 ≥ 500 이라 해당 없음"}.
+            <p className="mt-2">개체수 하한: {fb ? floorStatusLine(fb).replace(/\s+\[출처:[^\]]*\]$/, "") : "해당 없음"}</p>
+          )}
+          {recQ && N0Source === "iucn_population_size" && (
+            <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-amber-900">
+              기준 개체수 N0 는 이 종에 연결된 IUCN 평가({recQ})의 성숙 개체수입니다
+              {rec.parentTaxon ? " — 이 아종이 아니라 종 전체의 값" : " — 전 지구 값이 아님"}. 평가를 바로잡는 일은 결정 대기 항목입니다.
+            </p>
+          )}
+          {inputChanged && (
+            <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-amber-900">
+              계산 뒤 이 종의 개체수·추세 자료가 바뀌었습니다 (계산 당시 N0 {n0(inp?.N0)} · 지금 {n0(pop.value)}). 아래는 계산 당시 값이며, 재계산하면 점수가 바뀔 수 있습니다.
             </p>
           )}
           <p className="mt-2 text-zinc-400">
@@ -280,8 +286,8 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
           <Row
             id="n0"
             label="기준 개체수 N0"
-            value={`${n0(pop.value)} 마리`}
-            source={`species.${pop.source}`}
+            value={`${n0(N0)} 마리`}
+            source={`species.${N0Source}${N0Source === "iucn_population_size" ? iucnNote : ""} (payload.inputs.N0)`}
             strong
             tip={
               <>
@@ -290,13 +296,24 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
               </>
             }
           />
-          <Row id="total" label="전체 개체수" value={species.mature_individuals != null ? `${n0(species.mature_individuals)} 마리` : "자료 없음"} source="species.mature_individuals" />
+          <Row
+            id="total"
+            label="전체 개체수 (수기 입력)"
+            value={total != null ? `${n0(total)} 마리` : "자료 없음"}
+            source="species.mature_individuals (기준 연도 미상)"
+          />
           <Row
             id="mature"
-            label="성숙 개체수"
-            value={species.iucn_population_size != null ? `${n0(species.iucn_population_size)} 마리` : "자료 없음"}
-            source={`species.iucn_population_size${species.iucn_assessment_year ? ` (IUCN ${species.iucn_assessment_year}년 평가)` : ""}`}
+            label="성숙 개체수 (IUCN)"
+            value={mature != null ? `${n0(mature)} 마리` : "자료 없음"}
+            source={`species.iucn_population_size${species.iucn_assessment_year ? ` (IUCN ${species.iucn_assessment_year}년 평가${iucnNote})` : iucnNote}`}
           />
+          {popContradiction && (
+            <p className="border-t border-zinc-100 py-2 text-[12px] leading-relaxed text-amber-800">
+              데이터 모순: 성숙 개체수({n0(mature)})가 전체 개체수({n0(total)})보다 많습니다. 성숙 개체는 전체의 일부라 두 값은 같은
+              시점·같은 범위의 값일 수 없습니다{iucnNote ? ` (IUCN 값${iucnNote})` : ""}. 점수는 전체 개체수를 N0 로 씁니다.
+            </p>
+          )}
           <Row
             id="trend"
             label="개체수 추세"
@@ -326,11 +343,15 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
             id="k"
             label="환경 수용력 K"
             value={f(inp?.K, 1)}
-            source={inp ? `${K_SOURCE[inp.K_source] ?? inp.K_source}${skip ? ` — Damuth 미사용: ${DAMUTH_SKIP_LABEL[skip] ?? skip}` : ""}` : "—"}
+            source={
+              inp
+                ? `${inp.K_source === "fallback_declining" && inp.r_source === "default" ? K_SOURCE_DEFAULT_TREND : K_SOURCE[inp.K_source] ?? inp.K_source}${skip ? ` — Damuth 미사용: ${DAMUTH_SKIP_LABEL[skip] ?? skip}` : ""}`
+                : "—"
+            }
             tip={
               <>
                 서식 면적·체중·검증된 Damuth 상수가 모두 있으면 K = d · W<sup>−0.75</sup> · A (Damuth 1981; 포유류 d = {mammalD ?? "—"} /km²·kg<sup>0.75</sup>, W 체중 kg, A 서식 면적 km²).
-                하나라도 없으면 기존 식: r &lt; 0 이면 max(1.5·N0, N0 + 100), 아니면 max(1.2·N0, N0 + 50).
+                하나라도 없거나 Damuth K 가 max(1.2·N0, N0 + 50) 보다 작으면 기존 식: r &lt; 0 이면 max(1.5·N0, N0 + 100), 아니면 max(1.2·N0, N0 + 50).
               </>
             }
           />
@@ -455,8 +476,8 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
             id="nenc"
             label="Ne/Nc 비율"
             value={f(ne.ne_nc ?? inp?.life.ne_nc, 2)}
-            source={`LIFE_HISTORY["${species.class_name ?? "기본값"}"].ne_nc`}
-            tip={<>분류군별 고정 비율. 문헌(Frankham 1995, Palstra & Ruzzante 2008)과의 차이는 /methodology 에 정리돼 있다.</>}
+            source={inp?.life_from_class ? `LIFE_HISTORY["${inp.class_name}"].ne_nc` : "DEFAULT_LIFE.ne_nc (분류군 전용값 없음)"}
+            tip={<>분류군별 고정 비율 (lib/tipping-point.ts). 특허 명세서 값과 다른 분류군이 있다 — /methodology &lsquo;명세서와 구현이 다른 지점&rsquo; 의 Ne/Nc 행.</>}
           />
           <Row id="nevalue" label="유효개체군 Ne" value={n0(ne.Ne)} source="layer_scores.iucn.Ne" tip={<>Ne = round(N0 × Ne/Nc)</>} />
           <Row
@@ -543,7 +564,7 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
           <Row
             id="trendadj"
             label="추세 보정"
-            value={agg.trend.kind ? `${TREND_KIND_LABEL[agg.trend.kind]} ${agg.trend.delta > 0 ? "+" : ""}${agg.trend.delta}` : "없음 (0)"}
+            value={agg.trend.kind ? `${TREND_KIND_LABEL[agg.trend.kind]} — ${trendAdjustText(agg.trend)}` : "없음 (0)"}
             source={`species.population_trend = "${agg.trend.input ?? "—"}"`}
             tip={
               <>
@@ -558,7 +579,7 @@ export default function CalculationPage({ params }: { params: { id: string } }) 
             value={`${agg.score.toFixed(1)} → ${tipping.intervention_tier}`}
             source="tipping_points.consensus_score · intervention_tier"
             strong
-            tip={<>소수 첫째 자리 반올림. 티어: {TIERS.map((t) => `${t.tier} ${t.min}~${Math.min(t.max, 100)}`).join(" · ")}</>}
+            tip={<>소수 첫째 자리 반올림. 티어: {TIERS.map((t) => (t.max > 100 ? `${t.tier} ${t.min} 이상` : `${t.tier} ${t.min} 이상 ${t.max} 미만`)).join(" · ")}</>}
           />
           <Row
             id="nofloor"

@@ -318,6 +318,8 @@ function runPva(p: PvaParams): PvaResult {
   //   Infinity − Infinity = NaN 이 된다. 그 궤적의 멸종 판정 frac = (prevN−2)/(prevN−N) 는 Inf/Inf = NaN 이고
   //   Math.min(1, NaN) = NaN 이 멸종 시각을 NaN 으로 만든다 — NaN 시각은 t <= 50 비교에서 빠져 P_ext 를 낮추고
   //   중앙값 정렬을 흐트러뜨린다. 그래서 그런 궤적을 "무효" 로 표시하고 확률·분위수·평균의 분모에서 뺀다.
+  //   한계: 폭주한 궤적이 넘치기 전에 r_t > 0 인 해를 만나면 exp 가 0 으로 떨어져 N = 0 → 유효한 "멸종" 으로 센다
+  //   (N > 1000·K 를 거친 궤적 1,022개 중 396개가 100년 안 멸종으로 세어짐 — docs/decisions-pending.md 항목 10).
   //
   //   무효로 표시해도 시뮬레이션은 끝까지 예전과 똑같이 돌린다 (중간에 break 하지 않는다).
   //   중간에 멈추면 그 sim 이 남은 해에 쓰던 난수를 건너뛰어 다음 sim 부터 난수열이 밀린다 —
@@ -921,11 +923,15 @@ export function evaluateTippingPoint(
   //   결정 7 (2026-10-03): 서식 면적 · 체중 · 검증된 Damuth 상수가 모두 있으면 Damuth K (lib/damuth-k.ts),
   //   하나라도 없으면 기존 식 — N0 가 감소 추세면 과거 K 가 더 컸다고 가정.
   //   지금 DB 에는 서식 면적이 있는 종이 없어 전 종이 기존 식을 탄다.
+  //   Damuth K 가 기존 식의 최소값 max(1.2·N0, N0+50) 보다 작으면 쓰지 않는다 — 출발점부터 N > K 이면 음의 r_t 해에
+  //   Ricker 식이 폭주해 무효 궤적이 급증하고 PVA 가 K 에 대해 단조롭지 않게 된다 (2026-10-03 적대적 검토 engine-2,
+  //   결정 대기 항목 10). 기존 식은 늘 K ≥ 1.2·N0 이다.
   const massG = species.mass_g && species.mass_g > 0 ? species.mass_g : species.mass_g_external ?? null;
   const damuth = damuthK({ massG, className: species.class_name, habitatAreaKm2: species.habitat_area_km2 ?? null });
+  const damuthUsable = damuth.ok && damuth.K >= Math.max(N0 * 1.2, N0 + 50);
   let K: number;
   let K_source: KSource;
-  if (damuth.ok) {
+  if (damuth.ok && damuthUsable) {
     K = damuth.K;
     K_source = "damuth";
   } else if (r < 0) {
@@ -1114,7 +1120,7 @@ export function evaluateTippingPoint(
       lambda_sd,
       K,
       K_source,
-      K_damuth_skip: damuth.ok ? null : damuth.reason,
+      K_damuth_skip: damuth.ok ? (damuthUsable ? null : "below_n0_bound") : damuth.reason,
       mass_g_used: massG,
       habitat_area_km2: species.habitat_area_km2 ?? null,
       N_allee,

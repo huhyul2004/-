@@ -48,7 +48,13 @@ export const DAMUTH_CONSTANTS: Record<string, DamuthConstant> = {
   },
 };
 
-export type DamuthSkipReason = "no_mass" | "no_habitat_area" | "no_constant" | "unverified_constant";
+export type DamuthSkipReason =
+  | "no_mass"
+  | "no_habitat_area"
+  | "no_constant"
+  | "unverified_constant"
+  /** 엔진이 정한다 — Damuth K 가 기존 식의 최소값 max(1.2·N0, N0+50) 보다 작다 */
+  | "below_n0_bound";
 
 export type DamuthKResult =
   | {
@@ -68,6 +74,7 @@ export const DAMUTH_SKIP_LABEL: Record<DamuthSkipReason, string> = {
   no_habitat_area: "서식 면적 자료 없음",
   no_constant: "이 분류군의 Damuth 상수 없음",
   unverified_constant: "이 분류군의 Damuth 상수 출처·단위 미검증",
+  below_n0_bound: "Damuth K 가 N0 기반 최소값보다 작음 — N > K 에서 Ricker 식이 폭주해 기존 식 사용 (결정 대기 항목 10)",
 };
 
 /** 밀도(개체/km²). 분류군 상수가 없으면 null (검증 여부와 무관하게 표의 상수로 계산한다) */

@@ -14,6 +14,9 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json({ error: "JSON body required" }, { status: 400 });
     }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "JSON object body required" }, { status: 400 });
+    }
     const speciesId = typeof body.speciesId === "string" ? body.speciesId.trim() : "";
     if (!speciesId) return NextResponse.json({ error: "speciesId required" }, { status: 400 });
 

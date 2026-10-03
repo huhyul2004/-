@@ -57,7 +57,19 @@ describe("결정 6 — 경보 2표 이상 max 블렌딩", () => {
     expect(aggregateConsensus({ ...base, layers: { ...layers, pva: 65 } }, { alertThresholds: { ews: 60, pva: 60, iucn: 60 } }).m).toBe(2);
   });
 
-  it("개체수 하한은 블렌딩 뒤에 적용되고, 하한 전 점수를 함께 남긴다", () => {
+  it("2표 이상: 블렌딩이 먼저, 하한은 그 뒤 — 블렌딩 점수가 하한을 넘으면 하한 미적용", () => {
+    // N0 76 (하한 78), 레이어 88.08 · 60 · 95 → 경보 3표. 가중합 77.174 → 블렌딩 84.30 > 78
+    const a = aggregateConsensus({ ...base, N0: 76, layers: { ews: 88.08, pva: 60, iucn: 95 } });
+    expect(a.m).toBe(3);
+    expect(a.score).toBe(84.3);
+    expect(a.floor.applied).toBe(false);
+    // 블렌딩이 없다면(α=1) 가중합 77.17 < 78 → 하한 78
+    const noBlend = aggregateConsensus({ ...base, N0: 76, layers: { ews: 88.08, pva: 60, iucn: 95 } }, { blendAlpha: 1 });
+    expect(noBlend.score).toBe(78);
+    expect(noBlend.floor.applied).toBe(true);
+  });
+
+  it("개체수 하한은 다수결 단계 뒤에 적용되고, 하한 전 점수를 함께 남긴다 (1표)", () => {
     const a = aggregateConsensus({ ...base, N0: 76, layers: { ews: 50, pva: 37, iucn: 95 } });
     expect(a.floor.value).toBe(78);
     expect(a.floor.applied).toBe(true);
@@ -89,6 +101,14 @@ describe("결정 7 — Damuth K 분기", () => {
     const without = evaluateTippingPoint(base, OPTS)!;
     expect(without.inputs!.K_source).toBe("fallback");
     expect(without.inputs!.K).toBe(Math.max(76 * 1.2, 76 + 50));
+  });
+
+  it("Damuth K 가 기존 식의 최소값 max(1.2·N0, N0+50) 보다 작으면 쓰지 않는다", () => {
+    const base = row("rhinoceros-sondaicus"); // N0 76 → 최소값 126
+    const small = evaluateTippingPoint({ ...base, mass_g: 2_000_000, habitat_area_km2: 50 }, OPTS)!; // Damuth K ≈ 15.2
+    expect(small.inputs!.K_source).toBe("fallback");
+    expect(small.inputs!.K_damuth_skip).toBe("below_n0_bound");
+    expect(small.inputs!.K).toBe(126);
   });
 
   it("출처 미검증 분류군(조류)은 서식 면적이 있어도 기존 식", () => {

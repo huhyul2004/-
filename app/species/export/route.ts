@@ -1,7 +1,7 @@
 // GET /species/export[?scope=curated|scored|all] — 종 데이터 CSV 내려받기 (결정 13, 2026-10-03)
 // 열 설명은 lib/species-export.ts 와 /methodology#export. 정적 세그먼트라 /species/[id] 보다 먼저 잡힌다.
 import { gzipSync } from "node:zlib";
-import { buildExportRows, toCsv, EXPORT_SCOPES, type ExportScope } from "@/lib/species-export";
+import { buildExportRows, toCsv, acceptsGzip, EXPORT_SCOPES, type ExportScope } from "@/lib/species-export";
 import { dbUserVersion } from "@/lib/provenance";
 
 export const runtime = "nodejs";
@@ -32,7 +32,7 @@ export function GET(req: Request) {
     Vary: "Accept-Encoding",
   };
   if (body.length > GZIP_OVER_BYTES) {
-    if (!/\bgzip\b/.test(req.headers.get("accept-encoding") ?? "")) {
+    if (!acceptsGzip(req.headers.get("accept-encoding"))) {
       return new Response("이 범위는 gzip 을 받을 수 있는 클라이언트로만 내려받을 수 있습니다 (예: curl --compressed).\n", {
         status: 406,
         headers: { "Content-Type": "text/plain; charset=utf-8" },

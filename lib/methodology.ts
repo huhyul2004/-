@@ -12,7 +12,7 @@ import {
   type MajorityBranch,
   type PopulationSource,
 } from "./tipping-point";
-import { aggregationOf } from "./floor-transparency";
+import { aggregationOf, reaggregate } from "./floor-transparency";
 
 type Layer = "ews" | "pva" | "iucn";
 export const LAYERS: Layer[] = ["ews", "pva", "iucn"];
@@ -59,19 +59,14 @@ export interface ScoreTrace {
   display: number;
   tier: (typeof TIERS)[number] | undefined;
   stored: { score: number; tier: string };
+  /** 저장된 레이어 점수를 지금 코드의 집계식으로 다시 집계한 점수·티어가 저장값과 같은가 */
   matches: boolean;
+  /** 다시 집계한 점수 */
+  recomputed: number | null;
+  /** 계산 뒤 species 행의 개체수·한글 추세가 바뀌었는가 (재계산 필요) */
+  inputDrift: boolean;
 }
 
-function trendDeltaFor(trend: string | null): number {
-  if (!trend) return 0;
-  const t = trend.toLowerCase();
-  const ta = V5_SPEC.trendAdjust;
-  // lib/tipping-point.ts 추세 보정과 같은 문자열 규칙
-  if (t.includes("급감")) return ta.sharpDecline;
-  if (t.includes("증가") || t.includes("회복") || t.includes("increas")) return ta.recovering;
-  if (t.includes("감소") || t.includes("decreas")) return ta.decline;
-  return 0;
-}
 
 /** 저장된 payload 의 레이어 점수로 종합 단계를 되짚는다. EX/EW·개체수 없음·payload 불완전이면 null. */
 export function traceScore(
@@ -80,7 +75,10 @@ export function traceScore(
   stored: { consensus_score: number; intervention_tier: string }
 ): ScoreTrace | null {
   if (species.category === "EX" || species.category === "EW") return null;
-  const pop = inferPopulationWithSource(species);
+  const live = inferPopulationWithSource(species);
+  // 표시는 계산 당시 입력(payload.inputs)을 쓴다 — 그 뒤 species 행이 바뀌면 inputDrift 로 따로 알린다
+  const inputs = (payload as { inputs?: { N0?: number; N0_source?: PopulationSource } } | null)?.inputs;
+  const pop = { value: inputs?.N0 ?? live.value, source: inputs?.N0_source ?? live.source };
   if (pop.value == null) return null;
   const ls = (payload as LayerPayload | null)?.layer_scores;
   const layers = {} as ScoreTrace["layers"];
@@ -93,8 +91,11 @@ export function traceScore(
   const agg = aggregationOf(species, pop.value, payload);
   if (!agg) return null;
   const display = agg.score;
-  const s2 = Math.round(display * 100) / 100;
-  const tier = TIERS.find((t) => s2 >= t.min && s2 < t.max);
+  const tierOf = (x: number) => TIERS.find((t) => Math.round(x * 100) / 100 >= t.min && Math.round(x * 100) / 100 < t.max);
+  const tier = tierOf(display);
+  // 검사는 저장된 추적이 아니라 "지금 코드로 다시 집계한 값" 과 저장값을 비교한다 (같은 값끼리 비교하지 않게).
+  const re = reaggregate(species, pop.value, payload);
+  const inputDrift = live.value !== pop.value || agg.trend.input !== species.population_trend;
   return {
     N0: pop.value,
     popSource: pop.source,
@@ -116,13 +117,15 @@ export function traceScore(
     floorBand: agg.floor.below,
     afterFloor: agg.afterFloor,
     floorBound: agg.floor.applied,
-    trendText: species.population_trend,
-    trendDelta: trendDeltaFor(species.population_trend),
+    trendText: agg.trend.input,
+    trendDelta: Math.round(agg.trend.delta * 10) / 10,
     afterTrend: agg.final,
     display,
     tier,
     stored: { score: stored.consensus_score, tier: stored.intervention_tier },
-    matches: display === stored.consensus_score && tier?.tier === stored.intervention_tier,
+    matches: re != null && re.score === stored.consensus_score && tierOf(re.score)?.tier === stored.intervention_tier,
+    recomputed: re?.score ?? null,
+    inputDrift,
   };
 }
 
@@ -151,7 +154,10 @@ export interface MethodologyCoverage {
   floor: { bound: number; inBandNotBound: number; outside: number };
   trendAdjusted: number;
   tiers: Record<string, number>;
+  /** 저장된 레이어 점수를 지금 코드로 다시 집계한 점수가 저장값과 다른 종 */
   traceMismatches: number;
+  /** 계산 뒤 species 행의 개체수·한글 추세가 바뀐 종 (재계산하면 점수가 바뀔 수 있다) */
+  inputDrift: number;
   /** 계산 종의 EWS 점수 고유값 — 값마다 종 수와 그 값을 만든 추세 입력 */
   ewsValues: { score: number; count: number; inputs: Record<string, number> }[];
   /** PVA 에서 Infinity·NaN 이 되어 집계에서 뺀 궤적 (결정 8) — 종 수 · 궤적 수 */
@@ -219,6 +225,7 @@ export function getMethodologyCoverage(): MethodologyCoverage {
   let compressed = 0;
   let trendAdjusted = 0;
   let traceMismatches = 0;
+  let inputDrift = 0;
   const pvaInvalid = { species: 0, trajectories: 0 };
   const kSource: Record<string, number> = {};
   const ews = new Map<number, { score: number; count: number; inputs: Record<string, number> }>();
@@ -250,6 +257,7 @@ export function getMethodologyCoverage(): MethodologyCoverage {
       continue;
     }
     if (!tr.matches) traceMismatches++;
+    if (tr.inputDrift) inputDrift++;
     inc(alerts, String(Math.min(tr.alerts, 2)));
     confs.add(Math.round(tr.overallConfidence * 10000) / 10000);
     if (tr.compressed) compressed++;
@@ -283,6 +291,7 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     trendAdjusted,
     tiers,
     traceMismatches,
+    inputDrift,
     ewsValues: Array.from(ews.values()).sort((a, b) => b.score - a.score),
     pvaInvalid,
     kSource,

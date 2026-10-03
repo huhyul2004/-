@@ -52,6 +52,8 @@ export const EXPORT_COLUMNS = [
   "iucn_assessment_id",
   "iucn_assessment_year",
   "iucn_url",
+  "iucn_assessment_scope",
+  "iucn_assessed_taxon",
   "iucn_synced_kst",
   "iucn_details_synced_kst",
   "computed_kst",
@@ -111,8 +113,9 @@ export function buildExportRows(scope: ExportScope = "curated"): ExportRow[] {
       iucn_family: s.iucn_family ?? null,
       population_total: s.mature_individuals ?? null,
       population_mature: s.iucn_population_size ?? null,
-      n0_used: pop.value,
-      n0_source: pop.value != null ? pop.source : null,
+      // 절멸·야생절멸·미산출 행은 N0 를 쓰지 않았다 — 비운다
+      n0_used: computed ? pop.value : null,
+      n0_source: computed && pop.value != null ? pop.source : null,
       population_trend_iucn: s.iucn_population_trend ?? null,
       population_trend_ko: s.population_trend ?? null,
       lastwatch_score: s.tp_score,
@@ -133,6 +136,8 @@ export function buildExportRows(scope: ExportScope = "curated"): ExportRow[] {
       iucn_assessment_id: s.iucn_assessment_id ?? null,
       iucn_assessment_year: s.iucn_assessment_year ?? null,
       iucn_url: s.iucn_url ?? null,
+      iucn_assessment_scope: s.iucn_assessment_scope ?? null,
+      iucn_assessed_taxon: s.iucn_assessed_taxon ?? null,
       iucn_synced_kst: kstDate(s.iucn_synced_at),
       iucn_details_synced_kst: kstDate(s.iucn_details_synced_at),
       computed_kst: kstDate(s.tp_computed_at),
@@ -159,4 +164,20 @@ export function toCsv(rows: ExportRow[]): string {
   const lines = [EXPORT_COLUMNS.join(",")];
   for (const r of rows) lines.push(EXPORT_COLUMNS.map((c) => csvCell(r[c])).join(","));
   return lines.join("\r\n") + "\r\n";
+}
+
+/** Accept-Encoding 이 gzip 을 받는가 — q 값·대소문자·* 를 따른다 (RFC 9110 §12.5.3) */
+export function acceptsGzip(header: string | null): boolean {
+  if (!header) return false;
+  const q = new Map<string, number>();
+  for (const part of header.split(",")) {
+    const [name, ...params] = part.trim().toLowerCase().split(";");
+    if (!name) continue;
+    const qp = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+    const v = qp ? Number(qp.slice(2)) : 1;
+    q.set(name.trim(), Number.isFinite(v) ? v : 0);
+  }
+  const explicit = q.get("gzip") ?? q.get("x-gzip");
+  if (explicit !== undefined) return explicit > 0;
+  return (q.get("*") ?? 0) > 0;
 }
