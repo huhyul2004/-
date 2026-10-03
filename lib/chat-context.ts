@@ -77,6 +77,47 @@ export function aggregationLine(a: AggregationTrace, engineVersion: string | nul
   );
 }
 
+const TREND_DIR_IUCN: Record<string, "down" | "stable" | "up"> = { Decreasing: "down", Stable: "stable", Increasing: "up" };
+function koreanTrendDir(t: string | null): "down" | "stable" | "up" | null {
+  if (!t) return null;
+  if (t.includes("급감") || t.includes("감소")) return "down";
+  if (t.includes("증가") || t.includes("회복")) return "up";
+  if (t.includes("안정")) return "stable";
+  return null;
+}
+
+/**
+ * 데이터 모순 줄 (2026-10-03). 챗봇 평가에서 모델이 아래 모순을 스스로 짚지 못해 서버가 적는다.
+ *   1) 성숙 개체수(iucn_population_size) > 전체 개체수(mature_individuals) — 성숙 개체는 전체의 일부다
+ *   2) IUCN 추세와 한글 추세 칸의 방향이 다름 — r 은 IUCN 추세를, 점수의 추세 보정은 한글 칸을 쓴다
+ */
+export function contradictionLines(
+  species: Pick<SpeciesRow, "mature_individuals" | "iucn_population_size" | "iucn_population_trend" | "population_trend" | "category">,
+  payload: unknown
+): string[] {
+  const out: string[] = [];
+  const total = species.mature_individuals;
+  const mature = species.iucn_population_size;
+  if (total != null && total > 0 && mature != null && mature > total)
+    out.push(
+      `데이터 모순: 성숙 개체수(${mature.toLocaleString()})가 전체 개체수(${total.toLocaleString()})보다 많음 — 성숙 개체는 전체의 ` +
+        `일부라 같은 시점·같은 기준의 값일 수 없음. LastWatch 점수(v5)는 기준 개체수 N0 로 전체 개체수(${total.toLocaleString()})를 씀  ` +
+        `[출처: species.mature_individuals, species.iucn_population_size]`
+    );
+  const iucnDir = species.iucn_population_trend ? TREND_DIR_IUCN[species.iucn_population_trend] : undefined;
+  const koDir = koreanTrendDir(species.population_trend);
+  if (iucnDir && koDir && iucnDir !== koDir && species.category !== "EX" && species.category !== "EW") {
+    const delta = (payload as { aggregation?: { trend?: { delta?: number } } } | undefined)?.aggregation?.trend?.delta ?? 0;
+    out.push(
+      `데이터 모순: IUCN 개체수 추세('${TREND_KO[species.iucn_population_trend!] ?? species.iucn_population_trend}')와 ` +
+        `한글 추세 칸('${species.population_trend}')의 방향이 다름. 성장률 r 은 IUCN 추세를 쓰고, ` +
+        `점수의 추세 보정${delta !== 0 ? `(${delta > 0 ? "+" : ""}${delta})` : ""}은 한글 추세 칸을 씀  ` +
+        `[출처: species.iucn_population_trend, species.population_trend]`
+    );
+  }
+  return out;
+}
+
 /** 종 하나의 챗봇 컨텍스트. 종이 없으면 null */
 export function buildChatContext(speciesId: string): ChatContext | null {
   const species = getSpeciesById(speciesId);
@@ -93,7 +134,13 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   // 값이 없는 줄은 아예 넣지 않는다 — "데이터 없음" 문자열도, 빈 줄도 만들지 않는다.
   const lines: string[] = [];
   lines.push(`종: ${name} (${species.scientific_name})`);
-  lines.push(`IUCN 등급: ${species.category}${isExtinct ? " - 이미 절멸" : ""}  [출처: species.category]`);
+  // 사이트 표시 등급이 IUCN 동기화 등급과 같을 때만 평가 연도를 붙인다 (다르면 아래 모순 줄이 설명한다).
+  const sameAsIucn = !!species.iucn_synced_at && (!species.iucn_category || species.iucn_category === species.category);
+  lines.push(
+    `IUCN 등급: ${species.category}${isExtinct ? " - 이미 절멸" : ""}  [출처: species.category` +
+      (sameAsIucn && species.iucn_assessment_year ? ` — IUCN ${species.iucn_assessment_year}년 평가 등급과 같음` : "") +
+      `]`
+  );
   // 사이트 표시 등급(category)과 IUCN API 동기화 등급(iucn_category)이 다르면 감추지 않고 둘 다 적는다.
   if (species.iucn_category && species.iucn_category !== species.category) {
     const synced = kstDate(species.iucn_synced_at);
@@ -124,7 +171,9 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   //   iucn_population_size → 실제로는 '성숙 개체수'
   // DB 는 건드리지 않고 프롬프트 라벨만 내용에 맞춰 붙인다.
   if (species.mature_individuals != null)
-    lines.push(`전체 개체수: ${species.mature_individuals.toLocaleString()}마리  [출처: species.mature_individuals]`);
+    lines.push(
+      `전체 개체수: ${species.mature_individuals.toLocaleString()}마리  [출처: species.mature_individuals, 기준 연도 미상]`
+    );
   if (species.iucn_population_size != null)
     lines.push(
       `성숙 개체수: ${species.iucn_population_size.toLocaleString()}마리  ` +
@@ -136,8 +185,13 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   if (species.iucn_population_trend)
     lines.push(
       `개체수 추세: ${TREND_KO[species.iucn_population_trend] ?? species.iucn_population_trend}` +
-        `  [출처: species.iucn_population_trend]`
+        `  [출처: species.iucn_population_trend, ` +
+        (species.iucn_assessment_year ? `IUCN ${species.iucn_assessment_year}년 평가` : "기준 연도 미상") +
+        `]`
     );
+
+  // 데이터끼리 어긋나는 곳은 서버가 찾아 적는다 — 모델이 스스로 알아채기를 기대하지 않는다.
+  lines.push(...contradictionLines(species, tipping?.payload));
 
   const payload = tipping?.payload as { tier_label?: string; engine_version?: string } | undefined;
   if (tipping && isExtinct) {
@@ -159,6 +213,10 @@ export function buildChatContext(speciesId: string): ChatContext | null {
 
   // 점수 계산 과정 — 엔진이 남긴 집계 추적을 그대로 읽는다 (없으면 같은 집계 함수로 다시 계산).
   const pop = inferPopulationWithSource(species);
+  const popYear =
+    pop.source === "iucn_population_size" && species.iucn_assessment_year
+      ? `IUCN ${species.iucn_assessment_year}년 평가`
+      : "기준 연도 미상";
   let calculationPath: string | null = null;
   if (tipping && !isExtinct && pop.value != null) {
     const agg = aggregationOf(species, pop.value, tipping.payload);
@@ -173,13 +231,15 @@ export function buildChatContext(speciesId: string): ChatContext | null {
   // 문헌 대조 블록 — 개체수가 있는 종에만 붙인다.
   // v5 와 같은 기준 개체수를 쓰기 위해 inferPopulationWithSource 를 그대로 재사용한다.
   if (pop.value != null) {
-    const neV5 =
-      (tipping?.payload as { layer_scores?: { iucn?: { Ne?: number } } } | undefined)?.layer_scores?.iucn?.Ne ?? null;
+    const neLayer = (tipping?.payload as { layer_scores?: { iucn?: { Ne?: number; ne_nc?: number } } } | undefined)
+      ?.layer_scores?.iucn;
     lines.push(
       ...buildLiteratureLines({
         N: pop.value,
         populationSource: `species.${pop.source}`,
-        neV5,
+        populationYear: popYear,
+        neV5: neLayer?.Ne ?? null,
+        neNcV5: isExtinct ? null : neLayer?.ne_nc ?? null,
         className: species.class_name,
       })
     );
@@ -203,21 +263,30 @@ export function buildChatContext(speciesId: string): ChatContext | null {
       `${group.chatLabel}: ${items.map(threatPath).join("; ")}  ` +
         `[출처: threats.threat_category > threat_parent > threat_name (threat_code), threats.timing]`
     );
-  if (actions.length)
-    lines.push(`보전 활동: ${actions.map((a) => a.action_name).join(", ")}  [출처: conservation_actions]`);
+  // 수기 입력 보전 활동(코드 없음)과 IUCN 보전 조치 분류(코드 있음)를 나눈다. IUCN 분류는 조치 종류만 담고
+  // 시행 중인지는 담지 않는다 — 모델이 "진행 중" 이라고 서술하지 않게 적어 둔다.
+  const manualActions = actions.filter((a) => !a.action_code);
+  const iucnActions = actions.filter((a) => a.action_code);
+  if (manualActions.length)
+    lines.push(`보전 활동: ${manualActions.map((a) => a.action_name).join(", ")}  [출처: conservation_actions (수기 입력)]`);
+  if (iucnActions.length)
+    lines.push(
+      `IUCN 보전 조치 분류: ${iucnActions.map((a) => `${a.action_name} (${a.action_code})`).join("; ")} — ` +
+        `조치의 종류만 기록됨, 시행 중인지 여부는 LastWatch 데이터에 없음  [출처: conservation_actions.action_name (action_code), IUCN 평가]`
+    );
   if (habitats.length) lines.push(`서식지: ${habitats.map((h) => h.habitat_name).join(", ")}  [출처: habitats]`);
 
   // 위협·보전 활동·서식지가 비어 있으면 비어 있다고 적는다 — 모델이 등급·분류군 일반론으로 채우지 않게.
   const missing = [
-    threats.length ? null : "주요 위협",
-    actions.length ? null : "보전 활동",
-    habitats.length ? null : "서식지",
-  ].filter(Boolean);
+    threats.length ? null : { label: "주요 위협", table: "threats" },
+    actions.length ? null : { label: "보전 활동", table: "conservation_actions" },
+    habitats.length ? null : { label: "서식지", table: "habitats" },
+  ].filter((m): m is { label: string; table: string } => m !== null);
   if (missing.length)
     lines.push(
-      `${missing.join("·")}: LastWatch 데이터에 없음` +
+      `${missing.map((m) => m.label).join("·")}: LastWatch 데이터에 없음` +
         (iucnLink ? ` — IUCN Red List 평가 원문(${iucnLink})에서 확인 가능` : "") +
-        `  [출처: threats·conservation_actions·habitats 테이블에 이 종의 행 없음]`
+        `  [출처: ${missing.map((m) => m.table).join("·")} 테이블에 이 종의 행 없음]`
     );
 
   const context = lines.join("\n");
@@ -255,6 +324,7 @@ export function buildSystemPrompt(name: string, context: string): string {
 숫자를 말할 때는 반드시 (1) 출처와 (2) 기준 연도를 함께 밝힙니다. 컨텍스트에 연도가 없으면 "기준 연도 미상"이라고 명시합니다.
 컨텍스트의 값을 임의로 반올림·환산·합산하지 않고 그대로 인용합니다.
 연도·출처는 같은 줄 대괄호에 적힌 것만 인용합니다. 다른 줄의 연도를 끌어다 붙이지 않습니다.
+숫자를 인용할 때는 그 숫자가 적힌 줄의 대괄호를 그대로 옮겨 적습니다 — 연도나 "기준 연도 미상"까지 포함합니다.
 LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), IUCN 공식 지표 아님"을 함께 밝힙니다.
 단, 절멸·야생절멸 종의 점수 100 은 계산값이 아닙니다 — "LastWatch 규칙에 따른 고정값(계산값 아님), IUCN 공식 지표 아님"으로 밝히고 "자체 계산"이라고 부르지 않습니다.
 전체 개체수와 성숙 개체수는 서로 다른 값입니다. 섞어 쓰거나 한쪽을 다른 쪽으로 대신하지 않습니다.
@@ -272,7 +342,7 @@ LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), 
 데이터에 없는 항목을 답할 때는 IUCN Red List 링크가 있으면 함께 안내합니다. 다만 등급이나 분류군의 일반적 경향으로 그 종의 위협을 추측해 서술하지 않습니다.
 데이터 밖의 내용을 참고로 덧붙일 때는 문장 앞에 "LastWatch 데이터 밖·미검증"이라고 먼저 표시합니다.
 추정·해석·추론은 "추정:"으로 시작해 사실과 분리하고, 어느 데이터에서 어떻게 추정했는지 한 줄로 밝힙니다.
-데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다.
+데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다. 컨텍스트에 "데이터 모순" 줄이 있으면 관련된 값(개체수·추세·점수)을 말할 때 그 모순도 함께 밝힙니다.
 
 [위협]
 IUCN 위협은 "대분류 > 중분류 > 항목 (코드)" 경로로 적혀 있습니다. 항목 이름만 떼어 쓰지 말고 상위 분류와 함께 씁니다.

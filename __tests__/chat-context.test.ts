@@ -66,6 +66,29 @@ describe("buildChatContext", () => {
   it("없는 종은 null", () => {
     expect(buildChatContext("no-such-species")).toBeNull();
   });
+  it("연도 근거 — 등급 줄은 IUCN 등급과 같을 때만 평가 연도, 전체 개체수는 '기준 연도 미상'", () => {
+    const c = buildChatContext("rhinoceros-sondaicus")!.context;
+    expect(c).toContain("IUCN 등급: CR  [출처: species.category — IUCN 2020년 평가 등급과 같음]");
+    expect(c).toContain("전체 개체수: 76마리  [출처: species.mature_individuals, 기준 연도 미상]");
+    expect(c).toContain("개체수 추세: 안정  [출처: species.iucn_population_trend, IUCN 2020년 평가]");
+    expect(c).toMatch(/유효개체군 Ne \(LastWatch v5 적용값\): 11 = round\(N 76 × Ne\/N 0\.15\)/);
+    // 사이트 표시 등급과 IUCN 등급이 다른 종(북극고래 LC/VU)은 연도를 붙이지 않는다
+    expect(buildChatContext("phy-balaena-mysticetus")!.context).toContain("IUCN 등급: LC  [출처: species.category]");
+  });
+  it("데이터 모순 — 성숙 > 전체(바키타), IUCN 추세 ↔ 한글 추세(북극곰)", () => {
+    const vaquita = buildChatContext("phocoena-sinus")!.context;
+    expect(vaquita).toContain("데이터 모순: 성숙 개체수(18)가 전체 개체수(10)보다 많음");
+    const bear = buildChatContext("ursus-maritimus")!.context;
+    expect(bear).toContain("데이터 모순: IUCN 개체수 추세('안정')와 한글 추세 칸('감소')의 방향이 다름");
+    expect(bear).toContain("점수의 추세 보정(+4)은 한글 추세 칸을 씀");
+    expect(buildChatContext("rhinoceros-sondaicus")!.context).not.toContain("데이터 모순");
+  });
+  it("IUCN 보전 조치는 시행 여부가 없다고 적고, 결측 태그는 빠진 테이블만 적는다", () => {
+    const condor = buildChatContext("wd-q194314")!.context;
+    expect(condor).toMatch(/IUCN 보전 조치 분류: .*Species recovery \(3_2\).* 시행 중인지 여부는 LastWatch 데이터에 없음/);
+    const rat = buildChatContext("wd-q301130")!.context; // 붉은관나무쥐 — 위협·보전 활동 없음, 서식지 있음
+    expect(rat).toMatch(/주요 위협·보전 활동: LastWatch 데이터에 없음.*\[출처: threats·conservation_actions 테이블에 이 종의 행 없음\]/);
+  });
 });
 
 describe("finalizeReply", () => {

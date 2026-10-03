@@ -125,15 +125,19 @@ export interface LiteratureBlockInput {
   neV5: number | null;
   /** 조류면 Frankham 의 조류 전용 비율(0.21)도 함께 낸다 */
   className?: string | null;
+  /** 기준 개체수의 기준 연도 표기 — "IUCN 2020년 평가" 또는 "기준 연도 미상" (2026-10-03) */
+  populationYear?: string;
+  /** v5 가 이 종에 쓴 Ne/N 비율 (payload.layer_scores.iucn.ne_nc) */
+  neNcV5?: number | null;
 }
 
 /** Ne 가 50/500 기준의 어디에 있는지 한 줄로 */
 function positionAgainst50_500(ne: number): string {
   const a = FRANKLIN_1980.ne_inbreeding;
   const b = FRANKLIN_1980.ne_evolutionary;
-  if (ne < a) return `근친교배 문턱 ${a} 미달`;
-  if (ne < b) return `근친교배 문턱 ${a} 초과, 진화적 잠재력 문턱 ${b} 미달`;
-  return `진화적 잠재력 문턱 ${b} 초과`;
+  if (ne < a) return `단기 근친교배 문턱 ${a} 미달`;
+  if (ne < b) return `단기 근친교배 문턱 ${a} 초과, 장기 진화적 잠재력 문턱 ${b} 미달`;
+  return `장기 진화적 잠재력 문턱 ${b} 초과`;
 }
 
 /**
@@ -143,18 +147,21 @@ function positionAgainst50_500(ne: number): string {
  * 점수 계산에는 절대 쓰지 않는다. 프롬프트 컨텍스트 전용.
  */
 export function buildLiteratureLines(input: LiteratureBlockInput): string[] {
-  const { N, populationSource, neV5, className } = input;
+  const { N, populationSource, neV5, className, populationYear, neNcV5 } = input;
   const f = FRANKHAM_1995;
   const neFrankham = Math.round(N * f.neN_general.low);
 
   const out: string[] = [];
   out.push("[문헌 대조 — 유효개체군 Ne / 최소존속개체군 MVP]");
-  out.push(`기준 개체수 N: ${N.toLocaleString()}  [출처: ${populationSource}]`);
+  out.push(`기준 개체수 N: ${N.toLocaleString()}  [출처: ${populationSource}${populationYear ? `, ${populationYear}` : ""}]`);
 
   if (neV5 != null) {
     out.push(
-      `유효개체군 Ne (LastWatch v5 적용값): ${neV5.toLocaleString()}  ` +
-        `[LastWatch 자체 계산(v5), IUCN 공식 지표 아님, 출처: tipping_points.payload.layer_scores.iucn.Ne]`
+      `유효개체군 Ne (LastWatch v5 적용값): ${neV5.toLocaleString()}` +
+        (neNcV5 != null ? ` = round(N ${N.toLocaleString()} × Ne/N ${neNcV5})` : "") +
+        `  [LastWatch 자체 계산(v5), IUCN 공식 지표 아님, 출처: tipping_points.payload.layer_scores.iucn.Ne` +
+        (neNcV5 != null ? `·ne_nc` : "") +
+        `]`
     );
   }
   out.push(
@@ -198,7 +205,9 @@ export function buildLiteratureLines(input: LiteratureBlockInput): string[] {
 
   out.push(
     "비고: 이 블록의 문헌 값은 대조용이며 LastWatch v5 점수 계산에 들어가지 않습니다. " +
-      "v5 의 Ne/N 은 분류군별 0.05~0.20 으로 종마다 다릅니다."
+      "v5 의 Ne/N 은 분류군별 0.05~0.20 으로 종마다 다릅니다" +
+      (neNcV5 != null ? ` (이 종은 ${neNcV5}).` : ".") +
+      "  [출처: LastWatch 문헌 대조 블록 (lib/literature.ts)]"
   );
   return out;
 }
