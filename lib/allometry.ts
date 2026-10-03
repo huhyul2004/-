@@ -6,21 +6,14 @@
  * useAllometric=true 경로에서만 사용.
  */
 
+import { damuthDensityPerKm2, damuthK as damuthKResult } from "./damuth-k";
+
 export type ThermalClass = "homeotherm" | "poikilotherm";
 
 // 항온동물 = 포유류·조류. 그 외(어류/파충류/양서류/무척추/식물)는 변온으로 처리.
 export function thermalClass(className: string | null): ThermalClass {
   if (className === "포유류" || className === "조류") return "homeotherm";
   return "poikilotherm";
-}
-
-// Damuth 밀도 상수 (km^-2). 어류·무척추·식물은 전용값 없어 포유류 fallback.
-function damuthConstant(className: string | null): number {
-  if (className === "포유류") return 91.2;
-  if (className === "조류") return 55.0;
-  if (className === "파충류") return 12.0;
-  if (className === "양서류") return 200;
-  return 91.2; // 미확인 → 포유류 fallback
 }
 
 /**
@@ -42,23 +35,28 @@ export function mteGenTime(mass_g: number, className: string | null): number {
   return b * Math.pow(mass_g, 0.25);
 }
 
+// ===== Damuth — lib/damuth-k.ts 로 옮김 (2026-10-03) =====
+// 예전 이 파일의 Damuth 함수는 kg 기준 상수(포유류 91.2)에 그램을 넣어 K 가 1/177.8 로 작아졌고,
+// 상수가 없는 분류군을 포유류 값으로 대신했다 (docs/damuth-k-simulation.md §5, decisions-pending 6번).
+// 아래 두 함수는 기존 호출부(research/ 스크립트)를 위해 이름만 남긴 래퍼이며 lib/damuth-k.ts 로 위임한다.
+
 /**
- * Damuth 1981 (Nature 290:699): density = d × W^(-0.75)  [km^-2]
+ * @deprecated lib/damuth-k.ts 의 damuthDensityPerKm2 를 쓸 것.
+ * Damuth 밀도(개체/km²). mass_g 는 그램 — 내부에서 kg 으로 바꾼다. 분류군 상수가 없으면 NaN.
  */
 export function damuthDensity(mass_g: number, className: string | null): number {
-  const d = damuthConstant(className);
-  return d * Math.pow(mass_g, -0.75);
+  return damuthDensityPerKm2(mass_g / 1000, className) ?? Number.NaN;
 }
 
 /**
- * Damuth 환경수용력 K = density × habitat_area_km2.
- * habitat_area 없으면 null → 호출부에서 기존 fallback 사용.
+ * @deprecated lib/damuth-k.ts 의 damuthK 를 쓸 것.
+ * Damuth K. 체중·서식 면적·검증된 분류군 상수가 모두 있을 때만 값, 아니면 null.
  */
 export function damuthK(
   mass_g: number,
   className: string | null,
   habitat_area_km2: number | null | undefined
 ): number | null {
-  if (habitat_area_km2 == null || habitat_area_km2 <= 0) return null;
-  return damuthDensity(mass_g, className) * habitat_area_km2;
+  const r = damuthKResult({ massG: mass_g, className, habitatAreaKm2: habitat_area_km2 });
+  return r.ok ? r.K : null;
 }

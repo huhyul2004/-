@@ -12,6 +12,10 @@
 // population_trend 만 약한 신호로 활용. PVA 와 IUCN 이 주 기여.
 
 import type { SpeciesRow } from "./db";
+import { damuthK } from "./damuth-k";
+
+/** K 를 어떤 식으로 정했는가 — damuth: 체중·서식 면적 / fallback: 기존 식 (감소 추세면 _declining) */
+export type KSource = "damuth" | "fallback" | "fallback_declining";
 
 // ===== v5 계산 상수 =====
 // 엔진이 실제로 쓰는 값 그대로다. /methodology 페이지와 lib/floor-transparency.ts 가 여기서 읽는다.
@@ -666,10 +670,24 @@ export function evaluateTippingPoint(
   const N0 = inferPopulation(species);
   if (N0 === null) return null;
 
-  // K (환경 수용력) — N0 가 감소 추세면 과거 K 가 더 컸다고 가정
+  // K (환경 수용력)
+  //   결정 7 (2026-10-03): 서식 면적 · 체중 · 검증된 Damuth 상수가 모두 있으면 Damuth K (lib/damuth-k.ts),
+  //   하나라도 없으면 기존 식 — N0 가 감소 추세면 과거 K 가 더 컸다고 가정.
+  //   지금 DB 에는 서식 면적이 있는 종이 없어 전 종이 기존 식을 탄다.
+  const massG = species.mass_g && species.mass_g > 0 ? species.mass_g : species.mass_g_external ?? null;
+  const damuth = damuthK({ massG, className: species.class_name, habitatAreaKm2: species.habitat_area_km2 ?? null });
   let K: number;
-  if (r < 0) K = Math.max(N0 * 1.5, N0 + 100);  // 회복 가능한 환경
-  else K = Math.max(N0 * 1.2, N0 + 50);
+  let K_source: KSource;
+  if (damuth.ok) {
+    K = damuth.K;
+    K_source = "damuth";
+  } else if (r < 0) {
+    K = Math.max(N0 * 1.5, N0 + 100);  // 회복 가능한 환경
+    K_source = "fallback_declining";
+  } else {
+    K = Math.max(N0 * 1.2, N0 + 50);
+    K_source = "fallback";
+  }
   const N_qext = 2;
   const N_allee = Math.max(20, Math.round(N0 * 0.05));
 

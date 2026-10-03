@@ -181,6 +181,14 @@ export interface SpeciesRow {
   iucn_url?: string | null;
   iucn_sis_id?: number | null;
   iucn_assessment_id?: number | null;
+  /** IUCN 최신 평가의 등급 코드 — 사이트 표시 등급(category)과 다를 수 있다 */
+  iucn_category?: string | null;
+  iucn_class?: string | null;
+  /** 외부 체중(그램) — PHYLACINE 백필·AVONET. mass_g 가 없을 때 쓴다 */
+  mass_g_external?: number | null;
+  mass_g_external_source?: string | null;
+  /** 서식 면적(km²) — Damuth K 입력. scripts/migrate-habitat-area.ts 로 추가, 자료가 없으면 NULL */
+  habitat_area_km2?: number | null;
 }
 
 export interface ThreatRow {
