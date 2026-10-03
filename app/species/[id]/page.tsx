@@ -22,9 +22,10 @@ const CATEGORY_INFO: Record<string, { label: string; korean: string; description
   VU: { label: "취약", korean: "Vulnerable", description: "절멸 위험이 큰 상태" },
 };
 
+// 주의: mature_individuals 컬럼은 이름과 달리 '전체 개체수', iucn_population_size 가 IUCN 평가의 '성숙 개체수'다.
 const POP_SOURCE_LABEL: Record<PopulationSource, string> = {
-  mature_individuals: "실측 성숙 개체수 (큐레이션)",
-  iucn_population_size: "IUCN 명시 개체수",
+  mature_individuals: "실측 전체 개체수 (큐레이션)",
+  iucn_population_size: "IUCN 평가 성숙 개체수",
   data_insufficient: "데이터 부족",
 };
 
@@ -132,9 +133,17 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             )}
             {species.mature_individuals && (
               <div>
-                <dt className="text-zinc-400">성숙 개체</dt>
+                <dt className="text-zinc-400">전체 개체수</dt>
                 <dd className="font-medium text-zinc-900">
                   {species.mature_individuals.toLocaleString()}마리
+                </dd>
+              </div>
+            )}
+            {species.iucn_population_size != null && species.iucn_population_size > 0 && (
+              <div>
+                <dt className="text-zinc-400">성숙 개체수 (IUCN)</dt>
+                <dd className="font-medium text-zinc-900">
+                  {species.iucn_population_size.toLocaleString()}마리
                 </dd>
               </div>
             )}
@@ -212,6 +221,12 @@ export default function SpeciesDetailPage({ params }: { params: { id: string } }
             위기점수 = EWS · PVA · 유효개체군(Ne) 3-레이어 합의. 개체수 N₀는 <b>실측값(수기·IUCN 명시)만</b>
             사용하며, IUCN 등급/Criterion 기반 추정은 하지 않습니다(v5). 위 배지가 이 종의 실제 개체수 출처입니다.
           </p>
+          <Link
+            href={`/species/${encodeURIComponent(species.id)}/calculation`}
+            className="mt-2 inline-block text-xs font-bold text-[#D81E05] underline"
+          >
+            이 종의 계산 근거 — 모든 중간값과 출처 보기 →
+          </Link>
         </section>
       )}
 
