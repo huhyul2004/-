@@ -32,14 +32,16 @@ describe("Allometry: MTE T_gen = b·W^0.25", () => {
   });
 });
 
-describe("Allometry: Damuth density = d·W^-0.75", () => {
-  it("포유류 d=91.2", () => {
-    expect(damuthDensity(250_000, "포유류")).toBeCloseTo(91.2 * Math.pow(250_000, -0.75), 8);
+// Damuth 는 lib/damuth-k.ts 로 옮겼다 (2026-10-03). 아래는 남겨 둔 래퍼가 kg 단위로 위임하는지만 본다.
+// 상세 검증은 __tests__/damuth-k.test.ts.
+describe("Allometry: Damuth 래퍼 (lib/damuth-k.ts 위임)", () => {
+  it("포유류 d=91.2 — 그램 입력을 kg 으로 바꿔 계산", () => {
+    expect(damuthDensity(250_000, "포유류")).toBeCloseTo(91.2 * Math.pow(250, -0.75), 8);
   });
-  it("미확인 분류군 → 포유류 fallback", () => {
-    expect(damuthDensity(1000, "곤충")).toBeCloseTo(91.2 * Math.pow(1000, -0.75), 8);
+  it("상수가 없는 분류군은 포유류 값으로 대신하지 않는다 (NaN)", () => {
+    expect(Number.isNaN(damuthDensity(1000, "곤충"))).toBe(true);
   });
-  it("damuthK: habitat_area 없으면 null", () => {
+  it("damuthK: habitat_area 없으면 null, 있으면 density × 면적", () => {
     expect(damuthK(250_000, "포유류", null)).toBeNull();
     expect(damuthK(250_000, "포유류", 5000)).toBeCloseTo(damuthDensity(250_000, "포유류") * 5000, 6);
   });

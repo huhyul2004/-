@@ -12,6 +12,18 @@
 // population_trend 만 약한 신호로 활용. PVA 와 IUCN 이 주 기여.
 
 import type { SpeciesRow } from "./db";
+import { damuthK } from "./damuth-k";
+
+/**
+ * 엔진 버전 — payload.engine_version 에 기록된다.
+ *   5.0.0  v5 개체수 전용 점수 (2026-08-01)
+ *   5.1.0  2026-10-03 — m≥2 max 블렌딩(결정 6), NaN·Infinity 궤적 제외(결정 8), Damuth K 분기(결정 7),
+ *          계산 추적(payload.inputs · payload.aggregation) 기록
+ */
+export const ENGINE_VERSION = "5.1.0";
+
+/** K 를 어떤 식으로 정했는가 — damuth: 체중·서식 면적 / fallback: 기존 식 (감소 추세면 _declining) */
+export type KSource = "damuth" | "fallback" | "fallback_declining";
 
 // ===== v5 계산 상수 =====
 // 엔진이 실제로 쓰는 값 그대로다. /methodology 페이지와 lib/floor-transparency.ts 가 여기서 읽는다.
@@ -22,8 +34,13 @@ export const V5_SPEC = {
   weights: { ews: 0.3, pva: 0.45, iucn: 0.25 },
   /** 다수결 — 레이어 점수가 이 값을 넘으면 경보 1표 */
   alertThresholds: { ews: 70, pva: 50, iucn: 60 },
-  /** 경보 표 수에 따른 배율 (2표 이상은 그대로) */
+  /** 경보 표 수에 따른 배율 — 0표·1표 (2표 이상은 majorityBlend) */
   consensusMultiplier: { zero: 0.6, one: 0.85 },
+  /**
+   * 2표 이상 — 가중합과 최댓값을 섞는다: α·S_weighted + (1−α)·max(s_i).
+   * 결정 6 (2026-10-03): 명세서(full_spec §5.3, PKA-1551 B-2) 의 m ≥ 2 분기를 따른다. 그 전에는 가중합을 그대로 썼다.
+   */
+  majorityBlend: { alpha: 0.6 },
   /** 신뢰도 압축 — Σ w·레이어 신뢰도 가 below 미만이면 점수·scale + add */
   lowConfidence: { below: 0.5, scale: 0.9, add: 10 },
   /** 개체수 하한 — N0 가 below 미만인 첫 구간의 floor 까지 점수를 끌어올린다 (특허 명세서 미기재 자체 규칙) */
@@ -263,9 +280,18 @@ interface PvaResult {
   T_to_qext_p10: number | null;
   T_to_qext_median: number | null;
   // v2.0 명세 추가:
-  extinction_times: number[]; // 각 sim 의 멸종 연도 (분수년) — 멸종 안하면 미포함
-  allee_times: number[];      // 각 sim 의 Allee threshold 도달 연도 — 도달 안하면 미포함
-  trajectories: number[][];   // (n_sim, T+1) 모든 trajectory 보존 — score 시계열 변환용
+  extinction_times: number[]; // 각 유효 sim 의 멸종 연도 (분수년) — 멸종 안하면 미포함
+  allee_times: number[];      // 각 유효 sim 의 Allee threshold 도달 연도 — 도달 안하면 미포함
+  trajectories: number[][];   // (n_valid, T+1) 유효 trajectory 만 — score 시계열 변환용
+  /** 집계에 쓴 유효 궤적 수 (결정 8 — NaN·Infinity 궤적 제외) */
+  n_valid: number;
+  /** 값이 유한하지 않게 된 궤적 수 — 집계에서 뺐다 */
+  n_invalid: number;
+  /** 무효 궤적 중 멸종 판정에서 Math.min(1, NaN) = NaN 이 나온 궤적 수 */
+  n_ext_time_nan: number;
+  /** PVA 점수의 결손항 입력 — N_safe = max(K·safeKFraction, safeMinN), ratio = min(1, N0/N_safe) */
+  N_safe: number;
+  ratio: number;
 }
 
 function runPva(p: PvaParams): PvaResult {
@@ -284,21 +310,35 @@ function runPva(p: PvaParams): PvaResult {
   const finalNs: number[] = [];
   const extTimes: number[] = [];
   const alleeTimes: number[] = [];
-  const traj: number[][] = Array.from({ length: T + 1 }, () => new Array(n_sim).fill(0));
   // sim 별 trajectory (n_sim × T+1)
   const simTraj: number[][] = Array.from({ length: n_sim }, () => new Array(T + 1).fill(0));
+  // 결정 8 (2026-10-03) — 값이 유한하지 않게 된 궤적은 집계에서 뺀다.
+  //   Math.exp 는 손대지 않는다 (JS 의 exp 넘침 → Infinity 동작을 그대로 재현한다). 대신 그 결과를 검사한다:
+  //   N 이 K 보다 수백 배 커지면 exp(r_t·(1−N/K)) 가 Infinity 로 넘치고, poissonSample 의 정규 근사에서
+  //   Infinity − Infinity = NaN 이 된다. 그 궤적의 멸종 판정 frac = (prevN−2)/(prevN−N) 는 Inf/Inf = NaN 이고
+  //   Math.min(1, NaN) = NaN 이 멸종 시각을 NaN 으로 만든다 — NaN 시각은 t <= 50 비교에서 빠져 P_ext 를 낮추고
+  //   중앙값 정렬을 흐트러뜨린다. 그래서 그런 궤적을 "무효" 로 표시하고 확률·분위수·평균의 분모에서 뺀다.
+  //   한계: 폭주한 궤적이 넘치기 전에 r_t > 0 인 해를 만나면 exp 가 0 으로 떨어져 N = 0 → 유효한 "멸종" 으로 센다
+  //   (N > 1000·K 를 거친 궤적 1,022개 중 396개가 100년 안 멸종으로 세어짐 — docs/decisions-pending.md 항목 10).
+  //
+  //   무효로 표시해도 시뮬레이션은 끝까지 예전과 똑같이 돌린다 (중간에 break 하지 않는다).
+  //   중간에 멈추면 그 sim 이 남은 해에 쓰던 난수를 건너뛰어 다음 sim 부터 난수열이 밀린다 —
+  //   그러면 "무효 궤적을 뺀 효과" 에 "다른 표본을 뽑은 효과" 가 섞인다 (2026-10-03 첫 구현 6e41d4e 의 결함 —
+  //   점수 변동 45종 중 하락 14종이 이 재추출 잡음이었다. 고친 뒤에는 26종, 전부 상승).
+  //   그래서 유효 궤적은 결정 8 이전 엔진과 난수까지 같고, 바뀌는 것은 무효 궤적이 빠진 집계뿐이다.
+  const validSims: number[] = [];
+  let nExtTimeNaN = 0; // 멸종 판정에서 Math.min(1, NaN) = NaN 이 나온 궤적 수 (무효 궤적의 일부)
 
   for (let s = 0; s < n_sim; s++) {
     let N = N0;
     let prevN = N;
-    traj[0][s] = N;
     simTraj[s][0] = N;
     let extinctAt: number | null = null;
     let alleeAt: number | null = null;
+    let invalid = false;
 
     for (let t = 1; t <= T; t++) {
       if (N <= 0) {
-        traj[t][s] = 0;
         simTraj[s][t] = 0;
         continue;
       }
@@ -322,36 +362,48 @@ function runPva(p: PvaParams): PvaResult {
       // 인구 확률성 Poisson
       N = poissonSample(Math.max(expectedN, 0), rand);
       N = Math.max(0, Math.round(N));
-      traj[t][s] = N;
       simTraj[s][t] = N;
+
+      // Infinity·NaN 궤적 — 이 궤적은 무효. 난수 소비를 예전과 같게 두려고 루프는 그대로 계속한다
+      if (!Number.isFinite(N)) invalid = true;
 
       // 준멸종 (N<2)
       if (N < N_qext && extinctAt === null) {
         if (prevN > N) {
           const frac = (prevN - N_qext) / (prevN - N);
-          extinctAt = (t - 1) + Math.max(0, Math.min(1, frac));
+          const within = Math.max(0, Math.min(1, frac));
+          // Math.min(1, NaN) = NaN 을 명시적으로 검사한다 — prevN 이 Infinity 이던 궤적 (Inf/Inf = NaN).
+          // 이 궤적의 멸종 시각은 NaN 이라 P_ext·중앙값에 넣을 수 없다 → 무효
+          if (Number.isNaN(within)) {
+            invalid = true;
+            nExtTimeNaN++;
+          }
+          extinctAt = (t - 1) + within;
         } else {
           extinctAt = t;
         }
         // 멸종 후 0 유지
         for (let tt = t; tt <= T; tt++) {
-          traj[tt][s] = 0;
           simTraj[s][tt] = 0;
         }
         break;
       }
     }
+    if (invalid) continue;
+    validSims.push(s);
     finalNs.push(N);
     if (extinctAt !== null) extTimes.push(extinctAt);
     if (alleeAt !== null) alleeTimes.push(alleeAt);
   }
 
+  const nValid = validSims.length;
+  const nDenom = Math.max(nValid, 1); // 전부 무효면 확률 0 으로 둔다 (n_valid = 0 이 함께 기록된다)
   const extCount50 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.short).length;
   const extCount100 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.long).length;
   const extCountT = extTimes.filter((t) => t <= T).length;
-  const P_ext_50 = extCount50 / n_sim;
-  const P_ext_100 = extCount100 / n_sim;
-  const P_ext_T = extCountT / n_sim;
+  const P_ext_50 = extCount50 / nDenom;
+  const P_ext_100 = extCount100 / nDenom;
+  const P_ext_T = extCountT / nDenom;
 
   let median_T: number | null = null;
   if (extTimes.length > 0) {
@@ -367,15 +419,16 @@ function runPva(p: PvaParams): PvaResult {
   const survFinal = finalNs.filter((n) => n >= N_qext);
   const meanFinal = survFinal.length > 0 ? survFinal.reduce((a, b) => a + b, 0) / survFinal.length : 0;
 
-  // Trajectory percentiles per year
+  // Trajectory percentiles per year — 유효 궤적만, sim 순서 그대로 (무효가 없으면 예전과 같은 합산 순서)
   const trajMean: number[] = [];
   const trajP10: number[] = [];
   const trajP90: number[] = [];
   for (let t = 0; t <= T; t++) {
-    const sorted = [...traj[t]].sort((a, b) => a - b);
-    trajMean.push(traj[t].reduce((a, b) => a + b, 0) / n_sim);
-    trajP10.push(sorted[Math.floor(0.1 * n_sim)]);
-    trajP90.push(sorted[Math.floor(0.9 * n_sim)]);
+    const col = validSims.map((s) => simTraj[s][t]);
+    const sorted = [...col].sort((a, b) => a - b);
+    trajMean.push(col.reduce((a, b) => a + b, 0) / nDenom);
+    trajP10.push(sorted[Math.floor(0.1 * nValid)] ?? 0);
+    trajP90.push(sorted[Math.floor(0.9 * nValid)] ?? 0);
   }
 
   // Year when p10 trajectory hits N_qext — pessimistic 멸종 연도 (선형 보간)
@@ -415,7 +468,12 @@ function runPva(p: PvaParams): PvaResult {
     T_to_qext_median: median_T,
     extinction_times: extTimes,
     allee_times: alleeTimes,
-    trajectories: simTraj,
+    trajectories: validSims.map((s) => simTraj[s]),
+    n_valid: nValid,
+    n_invalid: n_sim - nValid,
+    n_ext_time_nan: nExtTimeNaN,
+    N_safe,
+    ratio,
   };
 }
 
@@ -481,9 +539,21 @@ interface IucnResult {
   confidence: number;
 }
 
+// [흐름 3/3] Layer 3 — 유효개체군(Ne) 단독 평가.
+//   ① Ne = round(Nc · ne_nc)  ← ne_nc 는 LIFE_HISTORY 의 분류군 값 (포유류 0.15)
+//   ② Ne 를 neBands 에 넣어 점수/등급 결정 (Frankham 50/500 규칙의 구간화)
+//   ③ iucn_score = genetic_score — 즉 이 레이어는 사실상 "Ne 점수" 다.
+// 주의: 함수명과 category 인자는 v4 잔재다. v5 에서 IUCN 등급은 점수에 안 쓰인다.
 function evaluateIucn(N: number, category: string, ne_nc: number): IucnResult {
+  // (6) Ne/Nc 적용 — Nc(총 개체수) → Ne(유효개체군).
+  //   포유류 0.15: N=76(자바코뿔소) → Ne = round(76 × 0.15) = 11.
+  //   명세서 PKA-1551 C-1 은 포유류 0.2 로 적어 Ne ≈ 15 를 제시한다 —
+  //   코드와 값이 다르다 (docs/pka-1551-discrepancies.md 표 5번 항목).
+  //   0.15 자체의 출처도 저장소에서 확인되지 않았다 (Frankham 1995 일반값 0.10~0.11 보다 높음).
   const Ne = Math.round(N * ne_nc);
 
+  // 50/500 규칙 구간 — Ne 가 below 미만인 "첫" 구간이 적용된다 (배열 순서 = 위험 높은 순).
+  //   Ne<50 CRITICAL 95 / <100 ENDANGERED 80 / <500 VULNERABLE 55 / <1000 NEAR_THREAT 30 / 그 외 SAFE 10
   const neBand = V5_SPEC.neBands.find((b) => Ne < b.below);
   const genetic_status: IucnResult["genetic_status"] = neBand?.status ?? V5_SPEC.neSafe.status;
   const genetic_score: number = neBand?.score ?? V5_SPEC.neSafe.score;
@@ -510,6 +580,11 @@ interface EwsResult {
   composite_score: number;
   confidence: number;
   interpretation: string;
+  /** τ 추정값 = clamp(−r / tauScale, −1, 1) 과 clamp 전 값 */
+  tau: number;
+  tau_raw: number;
+  /** τ 가중합 (AR1·분산·왜도 가중치 합 × τ) */
+  composite: number;
 }
 
 function evaluateEws(trend: string | null, r: number): EwsResult {
@@ -519,7 +594,8 @@ function evaluateEws(trend: string | null, r: number): EwsResult {
   const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
   // r 가 음수일수록 τ 가 양수 (CSD 신호) — r ≈ -0.06 → τ ≈ 1.0
   const { tauScale, tauWeights, gain, confidence } = V5_SPEC.ews;
-  const tauEstimate = Math.max(-1, Math.min(1, -r / tauScale));
+  const tauRaw = -r / tauScale;
+  const tauEstimate = Math.max(-1, Math.min(1, tauRaw));
   // 시계열 없으니 AR1/Var/Skew 모두 동일 추정값 사용
   const composite = tauWeights.ar1 * tauEstimate + tauWeights.variance * tauEstimate + tauWeights.skew * tauEstimate;
   const score = sigmoid(gain * composite) * 100; // gain 배 곱해 sigmoid 민감도↑
@@ -528,7 +604,7 @@ function evaluateEws(trend: string | null, r: number): EwsResult {
     : score > 50
       ? "약한 감소 추세 신호"
       : "시계열 부재 — 중간값";
-  return { composite_score: score, confidence, interpretation: interp };
+  return { composite_score: score, confidence, interpretation: interp, tau: tauEstimate, tau_raw: tauRaw, composite };
 }
 
 // ===== Aggregator =====
@@ -550,21 +626,211 @@ function tierForScore(score: number) {
   return TIERS[4];                   // T4
 }
 
+// ===== 종합 점수 집계 — 순수 함수 =====
+// 엔진(evaluateTippingPoint)·계산 근거 페이지·챗봇(lib/floor-transparency.ts)이 모두 이 함수 하나를 쓴다.
+// 예전에는 floor-transparency 가 이 단계를 따로 옮겨 적어 엔진과 어긋날 위험이 있었다.
+
+export type MajorityBranch = "blend" | "single" | "none";
+export type TrendAdjustKind = "sharp_decline" | "recovering" | "decline";
+
+export interface AggregationInput {
+  layers: { ews: number; pva: number; iucn: number };
+  /** 레이어 신뢰도 — PVA 는 상수(V5_SPEC.pva.confidence)라 받지 않는다 */
+  confidences: { ews: number; iucn: number };
+  N0: number;
+  /** species.population_trend (한글 문자열) — 추세 보정 입력 */
+  populationTrend: string | null;
+}
+
+export interface AggregationTrace {
+  weights: { ews: number; pva: number; iucn: number };
+  layers: { ews: number; pva: number; iucn: number };
+  /** S_weighted = Σ w·s */
+  weighted: number;
+  thresholds: { ews: number; pva: number; iucn: number };
+  alerts: { ews: boolean; pva: boolean; iucn: boolean };
+  /** 경보 표 수 (명세서의 m) */
+  m: number;
+  branch: MajorityBranch;
+  maxLayer: number;
+  /** m = 0·1 일 때 곱한 배율. blend 분기면 null */
+  majorityFactor: number | null;
+  /** m ≥ 2 일 때 α. 아니면 null */
+  blendAlpha: number | null;
+  afterMajority: number;
+  confidence: { ews: number; pva: number; iucn: number; overall: number };
+  compressionApplied: boolean;
+  /** 하한·추세 보정 전 합의점수 */
+  afterCompression: number;
+  floor: { value: number; below: number | null; applied: boolean };
+  afterFloor: number;
+  trend: { kind: TrendAdjustKind | null; delta: number; input: string | null };
+  /** 추세 보정까지 끝난 값 (반올림 전) */
+  final: number;
+  /** 1자리 반올림 — 저장되는 consensus_score */
+  score: number;
+  /** 같은 계산에서 개체수 하한만 뺀 점수 (1자리 반올림) */
+  scoreWithoutFloor: number;
+}
+
+function trendKindOf(populationTrend: string | null): TrendAdjustKind | null {
+  if (!populationTrend) return null;
+  const t = populationTrend.toLowerCase();
+  if (t.includes("급감")) return "sharp_decline";
+  if (t.includes("증가") || t.includes("회복") || t.includes("increas")) return "recovering";
+  if (t.includes("감소") || t.includes("decreas")) return "decline";
+  return null;
+}
+
+function applyTrend(consensus: number, kind: TrendAdjustKind | null): number {
+  const ta = V5_SPEC.trendAdjust;
+  if (kind === "sharp_decline") return Math.min(100, consensus + ta.sharpDecline);
+  // 회복 중 종은 점수 하향 (반달가슴곰 같은 재도입 성공 사례 보호)
+  if (kind === "recovering") return Math.max(0, consensus + ta.recovering);
+  if (kind === "decline") return Math.min(100, consensus + ta.decline); // v5: 카테고리 조건 제거
+  return consensus;
+}
+
+const round1 = (x: number) => Math.round(x * 10) / 10;
+
+/** 반사실 비교용 옵션 — 엔진(evaluateTippingPoint)은 넘기지 않는다. docs/decisions-pending.md 의 선택지 영향 집계에 쓴다 */
+export interface AggregationOptions {
+  /** m ≥ 2 분기의 α (블렌딩 전 점수 = 1) */
+  blendAlpha?: number;
+  /** m = 0 · m = 1 배율 (명세서 γ = 0.70 등) */
+  majorityFactors?: { zero?: number; one?: number };
+  /** 경보 문턱 (명세서 H = 60 한 값 등) */
+  alertThresholds?: { ews: number; pva: number; iucn: number };
+}
+
+/**
+ * @param opts 반사실 비교용 (AggregationOptions). 엔진은 넘기지 않는다.
+ */
+export function aggregateConsensus(input: AggregationInput, opts: AggregationOptions = {}): AggregationTrace {
+  // ===== (2) 가중치 계산 — S_weighted =====
+  // 고정 가중치다. 명세서가 말하는 "신뢰도 동적 가중치"는 구현돼 있지 않다.
+  //   레이어 신뢰도(0.25 / 0.7 / 0.85)는 가중치에 안 들어가고,
+  //   아래 (3-b) 저신뢰 압축에서 한 번만 쓰인다.
+  // raw = 0.30·EWS + 0.45·PVA + 0.25·IUCN
+  const w = V5_SPEC.weights;
+  const { ews, pva, iucn } = input.layers;
+  const weighted = w.ews * ews + w.pva * pva + w.iucn * iucn;
+
+  // ===== (3) 합의점수 C 산출 =====
+  // (3-a) 다수결 투표 — 각 레이어가 자기 임계값을 넘으면 경보 1표.
+  //   임계값이 레이어마다 다르다: EWS>70, PVA>50, IUCN>60.
+  //   명세서(full_spec §5.3 / PKA-1551 B-2)는 공통 H=60 으로 m 을 세라고 한다 → 코드와 불일치.
+  const at = opts.alertThresholds ?? V5_SPEC.alertThresholds;
+  const alerts = { ews: ews > at.ews, pva: pva > at.pva, iucn: iucn > at.iucn };
+  const m = [alerts.ews, alerts.pva, alerts.iucn].filter(Boolean).length;
+  const maxLayer = Math.max(ews, pva, iucn);
+
+  // ===== (4) m 기반 분기 (명세서 표기 α, β, γ) =====
+  //   m ≥ 2  명세서·코드: S = α·S_weighted + (1−α)·max(s1,s2,s3),  α = 0.6  ← 결정 6 (2026-10-03) 으로 구현
+  //   m = 1  명세서: S = S_weighted × β,  β = 0.85
+  //          코드:   S = raw × consensusMultiplier.one  = 0.85  ← 일치
+  //   m = 0  명세서: S = S_weighted × γ,  γ = 0.70
+  //          코드:   S = raw × consensusMultiplier.zero = 0.60  ← 값 불일치 (0.70 vs 0.60), 결정 대기
+  // 2026-10-03 전에는 m ≥ 2 에서 가중합을 그대로 썼다 (docs/max-blending-impact-2026-10-03.md).
+  let branch: MajorityBranch;
+  let majorityFactor: number | null = null;
+  let blendAlpha: number | null = null;
+  let afterMajority: number;
+  if (m === 0) {
+    branch = "none";
+    majorityFactor = opts.majorityFactors?.zero ?? V5_SPEC.consensusMultiplier.zero;
+    afterMajority = weighted * majorityFactor;
+  } else if (m === 1) {
+    branch = "single";
+    majorityFactor = opts.majorityFactors?.one ?? V5_SPEC.consensusMultiplier.one;
+    afterMajority = weighted * majorityFactor;
+  } else {
+    branch = "blend";
+    blendAlpha = opts.blendAlpha ?? V5_SPEC.majorityBlend.alpha;
+    afterMajority = blendAlpha * weighted + (1 - blendAlpha) * maxLayer;
+  }
+
+  // (3-b) 저신뢰 압축 — 레이어 신뢰도의 가중평균이 0.5 미만이면 점수를 중앙으로 민다.
+  //   ×0.9 는 극단값을 눌러 과신을 줄이고, +10 은 바닥을 올려 과소평가를 막는 방향.
+  const lc = V5_SPEC.lowConfidence;
+  const pvaConfidence = V5_SPEC.pva.confidence;
+  const overall = w.ews * input.confidences.ews + w.pva * pvaConfidence + w.iucn * input.confidences.iucn;
+  const compressionApplied = overall < lc.below;
+  const afterCompression = compressionApplied ? afterMajority * lc.scale + lc.add : afterMajority;
+
+  // ===== (5) 개체수 하한(floor) — 절대 개체수 기반 강제 보정 =====
+  // 위에서 계산한 합의점수를 "덮어쓴다". Math.max 라서 하한보다 낮으면 무조건 끌어올린다.
+  // 근거와 기재 현황은 evaluateTippingPoint 안의 floor 주석과 docs/population-floor-audit.md 참고.
+  const band = V5_SPEC.floorBands.find((b) => input.N0 < b.below);
+  const floorValue = band?.floor ?? 0;
+  const afterFloor = Math.max(afterCompression, floorValue);
+
+  // 추세 보정 — 급감/감소/증가 모두 반영 (P1-2 fix)
+  const kind = trendKindOf(input.populationTrend);
+  const final = applyTrend(afterFloor, kind);
+
+  return {
+    weights: { ...w },
+    layers: { ews, pva, iucn },
+    weighted,
+    thresholds: { ...at },
+    alerts,
+    m,
+    branch,
+    maxLayer,
+    majorityFactor,
+    blendAlpha,
+    afterMajority,
+    confidence: { ews: input.confidences.ews, pva: pvaConfidence, iucn: input.confidences.iucn, overall },
+    compressionApplied,
+    afterCompression,
+    floor: { value: floorValue, below: band?.below ?? null, applied: floorValue > afterCompression },
+    afterFloor,
+    trend: { kind, delta: final - afterFloor, input: input.populationTrend },
+    final,
+    score: round1(final),
+    scoreWithoutFloor: round1(applyTrend(afterCompression, kind)),
+  };
+}
+
 export interface TippingPointResult {
   consensus_score: number;
   intervention_tier: string;
   tier_label: string;
   tier_color: string;
   layer_scores: {
-    ews: { score: number; confidence: number; interpretation: string };
+    ews: {
+      score: number;
+      confidence: number;
+      interpretation: string;
+      /** 계산 추적 (5.1.0~). 절멸 종 결과에는 없다 */
+      tau?: number;
+      tau_raw?: number;
+      composite?: number;
+    };
     pva: {
       score: number;
       P_ext_50yr: number;
       P_ext_100yr: number;
       median_T_ext: number | null;
       confidence: number;
+      /** 집계에 쓴 유효 궤적 수 / 제외한 궤적 수 (결정 8). 절멸 종 결과에는 없다 */
+      n_valid?: number;
+      n_invalid?: number;
+      n_ext_time_nan?: number;
+      /** 결손항 입력 — N_safe = max(K·safeKFraction, safeMinN), ratio = min(1, N0/N_safe) */
+      N_safe?: number;
+      ratio?: number;
     };
-    iucn: { score: number; Ne: number; genetic_status: string; confidence: number };
+    iucn: {
+      score: number;
+      Ne: number;
+      genetic_status: string;
+      confidence: number;
+      /** Ne = round(N0 · ne_nc) 의 ne_nc 와 적용된 구간 상한 (5.1.0~) */
+      ne_nc?: number;
+      band_below?: number | null;
+    };
   };
   // 절대 날짜 (today 기준)
   dates: {
@@ -581,6 +847,37 @@ export interface TippingPointResult {
   confidence: number;
   primary_driver: string;
   rationale: string;
+  /** 계산 추적 (5.1.0~) — 절멸 종 결과에는 없다 */
+  engine_version?: string;
+  inputs?: TippingInputs;
+  aggregation?: AggregationTrace;
+}
+
+export interface TippingInputs {
+  N0: number;
+  N0_source: PopulationSource;
+  trend_iucn: string | null;
+  trend_korean: string | null;
+  r: number;
+  /** iucn · korean · default — trendToLambdaV4 가 어느 추세를 썼는가 */
+  r_source: string;
+  lambda_mean: number;
+  lambda_sd: number;
+  K: number;
+  K_source: KSource;
+  /** Damuth 를 쓰지 못했으면 그 이유 (no_mass · no_habitat_area · no_constant · unverified_constant) */
+  K_damuth_skip: string | null;
+  mass_g_used: number | null;
+  habitat_area_km2: number | null;
+  N_allee: number;
+  N_qext: number;
+  T: number;
+  n_sim: number;
+  seed: number;
+  class_name: string | null;
+  life: { generation_time: number; r_max: number; ne_nc: number };
+  /** class_name 에 맞는 생활사 값이 있으면 true, 없어서 DEFAULT_LIFE 를 썼으면 false */
+  life_from_class: boolean;
 }
 
 const TODAY = new Date("2026-05-04"); // CLAUDE.md currentDate
@@ -606,7 +903,7 @@ export function evaluateTippingPoint(
 
   const life = lifeFor(species.class_name);
   // v4 Phase 1: IUCN 공식 trend 우선(Decreasing/Stable/Increasing), Unknown/null 이면 한글 fallback
-  const { lambda_mean, lambda_sd, r } = trendToLambdaV4(
+  const { lambda_mean, lambda_sd, r, source: r_source } = trendToLambdaV4(
     species.iucn_population_trend ?? null,
     species.population_trend,
     species.category
@@ -618,41 +915,55 @@ export function evaluateTippingPoint(
   }
 
   // N0 추정: 실측 개체수만 (v5). 없으면 데이터 부족 → 점수 산출 안 함.
-  const N0 = inferPopulation(species);
+  const pop = inferPopulationWithSource(species);
+  const N0 = pop.value;
   if (N0 === null) return null;
 
-  // K (환경 수용력) — N0 가 감소 추세면 과거 K 가 더 컸다고 가정
+  // K (환경 수용력)
+  //   결정 7 (2026-10-03): 서식 면적 · 체중 · 검증된 Damuth 상수가 모두 있으면 Damuth K (lib/damuth-k.ts),
+  //   하나라도 없으면 기존 식 — N0 가 감소 추세면 과거 K 가 더 컸다고 가정.
+  //   지금 DB 에는 서식 면적이 있는 종이 없어 전 종이 기존 식을 탄다.
+  //   Damuth K 가 기존 식의 최소값 max(1.2·N0, N0+50) 보다 작으면 쓰지 않는다 — 출발점부터 N > K 이면 음의 r_t 해에
+  //   Ricker 식이 폭주해 무효 궤적이 급증하고 PVA 가 K 에 대해 단조롭지 않게 된다 (2026-10-03 적대적 검토 engine-2,
+  //   결정 대기 항목 10). 기존 식은 늘 K ≥ 1.2·N0 이다.
+  const massG = species.mass_g && species.mass_g > 0 ? species.mass_g : species.mass_g_external ?? null;
+  const damuth = damuthK({ massG, className: species.class_name, habitatAreaKm2: species.habitat_area_km2 ?? null });
+  const damuthUsable = damuth.ok && damuth.K >= Math.max(N0 * 1.2, N0 + 50);
   let K: number;
-  if (r < 0) K = Math.max(N0 * 1.5, N0 + 100);  // 회복 가능한 환경
-  else K = Math.max(N0 * 1.2, N0 + 50);
+  let K_source: KSource;
+  if (damuth.ok && damuthUsable) {
+    K = damuth.K;
+    K_source = "damuth";
+  } else if (r < 0) {
+    K = Math.max(N0 * 1.5, N0 + 100);  // 회복 가능한 환경
+    K_source = "fallback_declining";
+  } else {
+    K = Math.max(N0 * 1.2, N0 + 50);
+    K_source = "fallback";
+  }
   const N_qext = 2;
   const N_allee = Math.max(20, Math.round(N0 * 0.05));
 
   // 종 ID 로 시드를 만들어 결정적이지만 종마다 다른 결과
   const seed = opts.seed ?? hashSeed(species.id);
+
+  // ===== (1) 3레이어 점수 산출 =====
+  // 세 레이어는 서로 독립이다. 같은 N0 를 보지만 보는 각도가 다르다.
+  //   L2 PVA  — 1500회 몬테카를로로 "50/100년 내 멸종확률" → 0~100
+  //   L3 IUCN — Ne 임계값 하나로 "유전적 소멸 위험" → 0~100 (등급 미사용)
+  //   L1 EWS  — 시계열이 없어 추세 r 만 sigmoid 에 통과시킨 약한 신호 → 0~100
   const pva = runPva({ N0, K, r, lambda_mean, lambda_sd, T, n_sim, N_qext, N_allee, seed });
   const iucn = evaluateIucn(N0, species.category, life.ne_nc);
   const ews = evaluateEws(species.population_trend, r);
 
-  // ===== Aggregator (스펙 v3 가중치) =====
-  // score = 0.30·EWS + 0.45·PVA + 0.25·IUCN
-  const w = V5_SPEC.weights;
-  const raw = w.ews * ews.composite_score + w.pva * pva.pva_score + w.iucn * iucn.iucn_score;
-
-  // Consensus filter
-  const at = V5_SPEC.alertThresholds;
-  const highAlerts = [ews.composite_score > at.ews, pva.pva_score > at.pva, iucn.iucn_score > at.iucn].filter(Boolean).length;
-  let consensus = raw;
-  if (highAlerts === 0) consensus = raw * V5_SPEC.consensusMultiplier.zero;
-  else if (highAlerts === 1) consensus = raw * V5_SPEC.consensusMultiplier.one;
-  // ≥2 → 그대로 (다중 신호 신뢰)
-
-  // Confidence-weighted compression
-  const lc = V5_SPEC.lowConfidence;
-  const overall_conf = w.ews * ews.confidence + w.pva * V5_SPEC.pva.confidence + w.iucn * iucn.confidence;
-  if (overall_conf < lc.below) consensus = consensus * lc.scale + lc.add;
-
-  // ===== Bottleneck floor — 절대 개체수 기반 강제 보정 =====
+  // ===== (2)~(5) 종합 점수 — aggregateConsensus (가중합 → 다수결 분기 → 저신뢰 압축 → 개체수 하한 → 추세 보정) =====
+  //
+  // 개체수 하한(floor) 은 합의점수를 "덮어쓴다". Math.max 라서 하한보다 낮으면 무조건 끌어올린다.
+  // 이 한 단계가 소형 개체군에서는 (1)~(4) 전체보다 강하게 작동한다 —
+  // 예: 자바코뿔소 N0=76 → 레이어 EWS 50 · PVA 37.04 · Ne 95 (엔진 5.1.0, 기본 시드), 가중합 55.42,
+  //     m=1 감쇠 후 47.11 — 그러나 floorBands 의 N<100 → 78 이 적용돼 최종 78 이 된다. 47.11 은 버려진다.
+  //     (5.0 의 PVA 37.0 은 무효 궤적 12개가 분모에 섞인 값이었고, 예전 주석의 35.8·46.65 는 seed 42 값이었다
+  //      — seed 42 로 5.0 엔진을 돌리면 PVA 35.843, ×0.85 = 46.648)
   //
   // [근거와 기재 현황 — 2026-09-12 조사, docs/population-floor-audit.md]
   //   도입: 커밋 d5525e0 (2026-05-04). 커밋 메시지에 적힌 근거 3항목:
@@ -660,38 +971,23 @@ export function evaluateTippingPoint(
   //     - Frankham 50/500: Ne<100 단기 위험, Ne<1000 장기
   //     - 단일 멸종사건 취약성: N<100 은 안정 추세여도 취약
   //   특허 명세서 미기재: full_spec v3·v4, 발명신고서 2판, PKA-1551 수정요청서 전수 검색에서
-  //   이 규칙에 대응하는 기재 0건. 명세서는 출원이 끝나 고칠 수 없으므로, 챗봇이 하한 적용
-  //   전 점수를 함께 밝히도록 표시만 추가했다 (lib/floor-transparency.ts).
-  //   이 표를 바꾸면 lib/floor-transparency.ts 의 FLOOR_BANDS 도 같이 바꿀 것
-  //   (__tests__/floor-transparency.test.ts 가 불일치를 잡는다).
+  //   이 규칙에 대응하는 기재 0건. 결정 1 (2026-10-03): 규칙은 유지하고, 챗봇과 계산 근거 페이지가
+  //   "개체수 하한 규칙 적용됨" 과 하한 적용 전 점수를 함께 밝힌다 (lib/floor-transparency.ts).
+  //   표시 쪽은 이 함수의 결과(payload.aggregation)를 그대로 읽으므로 따로 고칠 사본이 없다.
   //
-  // P0-2 fix: mature_individuals=NULL 이라도 카테고리 fallback (N0) 에 floor 적용
-  // 카테고리 fallback 추정치는 confidence_cap=0.4 로 별도 표기 (다음 단계에서)
-  // IUCN Criterion D + Frankham 50/500 + 단일 멸종사건 취약성 반영
-  {
-    // v5: 카테고리(CR/EN/VU) 기반 floor 전부 제거 — 순수 개체수 임계만 (Frankham 50/500·Criterion D 절대수).
-    // 구간: V5_SPEC.floorBands — T4 골든타임 / T3 후반 / T3 중반 (자바코뿔소 76) / T3 진입
-    const N = N0;
-    const floor = V5_SPEC.floorBands.find((b) => N < b.below)?.floor ?? 0;
-    consensus = Math.max(consensus, floor);
-  }
-
-  // 추세 보정 — 급감/감소/증가 모두 반영 (P1-2 fix)
-  if (species.population_trend) {
-    const trend = species.population_trend.toLowerCase();
-    const ta = V5_SPEC.trendAdjust;
-    if (trend.includes("급감")) consensus = Math.min(100, consensus + ta.sharpDecline);
-    else if (trend.includes("증가") || trend.includes("회복") || trend.includes("increas")) {
-      // 회복 중 종은 점수 하향 (반달가슴곰 같은 재도입 성공 사례 보호)
-      consensus = Math.max(0, consensus + ta.recovering);
-    } else if (trend.includes("감소") || trend.includes("decreas")) {
-      consensus = Math.min(100, consensus + ta.decline); // v5: 카테고리 조건 제거
-    }
-  }
+  // v5: 카테고리(CR/EN/VU) 기반 floor 전부 제거 — 순수 개체수 임계만 (Frankham 50/500·Criterion D 절대수).
+  const agg = aggregateConsensus({
+    layers: { ews: ews.composite_score, pva: pva.pva_score, iucn: iucn.iucn_score },
+    confidences: { ews: ews.confidence, iucn: iucn.confidence },
+    N0,
+    populationTrend: species.population_trend,
+  });
+  const consensus = agg.final;
+  const overall_conf = agg.confidence.overall;
 
   // P0-4 fix 보강: 저장될 score 와 동일한 정밀도로 tier 결정
   // (score 1자리 반올림 후 tier 판정 → 사용자에게 표시되는 score 와 tier 일관성)
-  const displayScore = Math.round(consensus * 10) / 10;
+  const displayScore = agg.score;
   const tier = tierForScore(displayScore);
 
   // ===== v2.0 (출원 정합본) §1.3: 4개 시점 분위수 매핑 =====
@@ -704,9 +1000,10 @@ export function evaluateTippingPoint(
   const T_horizon = T;
 
   // 시나리오 B (golden_time_end): trajectory score 시계열에서 80 첫 도달 (p50)
+  // 분모는 유효 궤적 수 (결정 8 — 무효 궤적은 pva.trajectories 에 없다)
   const t4EntryTimes: number[] = [];
-  for (let sIdx = 0; sIdx < n_sim; sIdx++) {
-    const scoreSeries = trajectoryToScore(pva.trajectories[sIdx], K, N_allee, neRatio);
+  for (const trajectory of pva.trajectories) {
+    const scoreSeries = trajectoryToScore(trajectory, K, N_allee, neRatio);
     for (let t = 0; t < scoreSeries.length; t++) {
       if (scoreSeries[t] >= 80) {
         t4EntryTimes.push(t);
@@ -716,7 +1013,7 @@ export function evaluateTippingPoint(
   }
 
   let yearsToGolden: number;
-  if (t4EntryTimes.length >= n_sim * 0.05) {
+  if (t4EntryTimes.length >= pva.n_valid * 0.05) {
     const sorted = [...t4EntryTimes].sort((a, b) => a - b);
     yearsToGolden = percentile(sorted, 0.5);
   } else {
@@ -725,7 +1022,7 @@ export function evaluateTippingPoint(
 
   // 시나리오 A: intervention_deadline = allee_times p10 (v1 p25 → v2 p10)
   let yearsToDeadline: number;
-  if (pva.allee_times.length >= n_sim * 0.05) {
+  if (pva.allee_times.length >= pva.n_valid * 0.05) {
     const sorted = [...pva.allee_times].sort((a, b) => a - b);
     yearsToDeadline = percentile(sorted, 0.10);
   } else {
@@ -734,7 +1031,7 @@ export function evaluateTippingPoint(
 
   // 시나리오 A: no_action_extinction = extinction_times p10 (v1 p50 → v2 p10, 신고서 §8 정합)
   let yearsToExtinction: number;
-  if (pva.extinction_times.length >= n_sim * 0.05) {
+  if (pva.extinction_times.length >= pva.n_valid * 0.05) {
     const sorted = [...pva.extinction_times].sort((a, b) => a - b);
     yearsToExtinction = percentile(sorted, 0.10);
   } else {
@@ -763,20 +1060,39 @@ export function evaluateTippingPoint(
   const rationale = buildRationale(species, N0, pva, iucn, tier);
 
   return {
-    consensus_score: Math.round(consensus * 10) / 10,
+    consensus_score: agg.score,
     intervention_tier: tier.tier,
     tier_label: tier.label,
     tier_color: tier.color,
     layer_scores: {
-      ews: { score: ews.composite_score, confidence: ews.confidence, interpretation: ews.interpretation },
+      ews: {
+        score: ews.composite_score,
+        confidence: ews.confidence,
+        interpretation: ews.interpretation,
+        tau: ews.tau,
+        tau_raw: ews.tau_raw,
+        composite: ews.composite,
+      },
       pva: {
         score: pva.pva_score,
         P_ext_50yr: pva.P_ext_50yr,
         P_ext_100yr: pva.P_ext_100yr,
         median_T_ext: pva.median_T_ext,
         confidence: V5_SPEC.pva.confidence,
+        n_valid: pva.n_valid,
+        n_invalid: pva.n_invalid,
+        n_ext_time_nan: pva.n_ext_time_nan,
+        N_safe: pva.N_safe,
+        ratio: pva.ratio,
       },
-      iucn: { score: iucn.iucn_score, Ne: iucn.Ne, genetic_status: iucn.genetic_status, confidence: iucn.confidence },
+      iucn: {
+        score: iucn.iucn_score,
+        Ne: iucn.Ne,
+        genetic_status: iucn.genetic_status,
+        confidence: iucn.confidence,
+        ne_nc: life.ne_nc,
+        band_below: V5_SPEC.neBands.find((b) => iucn.Ne < b.below)?.below ?? null,
+      },
     },
     dates: {
       intervention_open_date: fmt(interventionOpen),
@@ -792,6 +1108,31 @@ export function evaluateTippingPoint(
     confidence: Math.round(overall_conf * 100) / 100,
     primary_driver: driverScores[0].name,
     rationale,
+    engine_version: ENGINE_VERSION,
+    inputs: {
+      N0,
+      N0_source: pop.source,
+      trend_iucn: species.iucn_population_trend ?? null,
+      trend_korean: species.population_trend ?? null,
+      r,
+      r_source,
+      lambda_mean,
+      lambda_sd,
+      K,
+      K_source,
+      K_damuth_skip: damuth.ok ? (damuthUsable ? null : "below_n0_bound") : damuth.reason,
+      mass_g_used: massG,
+      habitat_area_km2: species.habitat_area_km2 ?? null,
+      N_allee,
+      N_qext,
+      T,
+      n_sim,
+      seed,
+      class_name: species.class_name,
+      life: { generation_time: life.generation_time, r_max: life.r_max, ne_nc: life.ne_nc },
+      life_from_class: hasClassLifeHistory(species.class_name),
+    },
+    aggregation: agg,
   };
 }
 

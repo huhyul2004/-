@@ -181,6 +181,20 @@ export interface SpeciesRow {
   iucn_url?: string | null;
   iucn_sis_id?: number | null;
   iucn_assessment_id?: number | null;
+  /** IUCN 최신 평가의 등급 코드 — 사이트 표시 등급(category)과 다를 수 있다 */
+  iucn_category?: string | null;
+  iucn_class?: string | null;
+  /** 외부 체중(그램) — PHYLACINE 백필·AVONET. mass_g 가 없을 때 쓴다 */
+  mass_g_external?: number | null;
+  mass_g_external_source?: string | null;
+  /** 서식 면적(km²) — Damuth K 입력. scripts/migrate-habitat-area.ts 로 추가, 자료가 없으면 NULL */
+  habitat_area_km2?: number | null;
+  /** IUCN 위협·서식지·보전 활동 조회 시각(UTC ISO). scripts/migrate-iucn-details-synced-at.ts 로 추가, 조회 안 한 종은 NULL */
+  iucn_details_synced_at?: string | null;
+  /** 저장된 IUCN 평가의 범위 ("Global", "Europe" …). scripts/sync-iucn-assessment-scope.ts 로 채움 */
+  iucn_assessment_scope?: string | null;
+  /** 저장된 IUCN 평가의 평가 대상 학명 — 아종이 종 단위 평가에 연결된 경우 이 종의 학명과 다르다 */
+  iucn_assessed_taxon?: string | null;
 }
 
 export interface ThreatRow {

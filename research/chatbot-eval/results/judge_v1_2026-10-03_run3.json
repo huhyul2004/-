@@ -1,0 +1,541 @@
+{
+ "judged": [
+  {
+   "id": "miss-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "miss-02",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "miss-03",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "miss-04",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": [
+    "Not counted against the reply; this is a defect in the context. The reply copies the context's tag '[출처: threats·conservation_actions·habitats 테이블에 이 종의 행 없음]' word for word. But the same context has '서식지: Unknown  [출처: habitats]', so this species does have a habitats row. The tag is a fixed string in ~/dev/last-watch/lib/chat-context.ts line 220, and it always names all three tables, even when only '주요 위협·보전 활동' are missing. The reply's own claim, that the threats table is empty, is correct. Its use of the summary ('참고로 요약 정보에는 야생고양이, 기후변화, 산림 파괴가 언급되어 있습니다 [출처: species.summary_ko]') is grounded in the context. It is not inferred from the category or taxon."
+   ]
+  },
+  {
+   "id": "miss-05",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "The reply discusses the score itself, 'LastWatch 위험도 점수 관련 정보는 LastWatch 데이터에는 없습니다', without the required qualifier 'LastWatch 자체 계산(v5), IUCN 공식 지표 아님'. The next sentence is '상세한 평가 내용은 IUCN Red List 원문(https://www.iucnredlist.org/species/19488/126673248 ...)에서 확인할 수 있습니다'. Read together, these suggest the IUCN page has this score or its details. It cannot: the score is a LastWatch-only metric. A clearer reply would say the score is LastWatch's own metric and has no value for this species. It would then point to IUCN for the official category, which is in the context ('IUCN 등급: EN', 'IUCN 평가 연도: 2025년'). The core answer is correct: the context has no score line, and the reply gives no number."
+   ]
+  },
+  {
+   "id": "off-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "off-02",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "off-03",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "off-04",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "off-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "pop-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "pop-02",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: in \"개체군 추세는 '안정'으로 평가되어 있습니다 [출처: species.iucn_population_trend, IUCN 2025년 평가]\", the context line \"개체수 추세: 안정 [출처: species.iucn_population_trend]\" has no year. \"IUCN 2025년 평가\" was taken from the 성숙 개체수 / IUCN 평가 연도 lines, which breaks \"다른 줄의 연도를 끌어다 붙이지 않습니다\". The reply should have said 기준 연도 미상.",
+    "Low weight: the reply volunteers \"개체군 추세는 '안정'\" without noting that, for the same species, the context's 점수 계산 과정 applies \"추세 보정 +4 (\"감소\")\". The prompt says to surface such in-data contradictions."
+   ]
+  },
+  {
+   "id": "pop-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Contradiction not pointed out: the reply describes the values only as \"데이터베이스 내에 서로 다른 두 기준의 수치가 기록되어 있습니다\" and lists \"전체 개체수: 10마리\" next to \"성숙 개체수(mature individuals): 18마리\". It never notes that the total (10) is smaller than its mature subset (18), so the two cannot describe the same time point. The prompt requires \"데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다\". The summary_ko figure \"단 10마리 미만 추정\", a third figure that also conflicts, is not mentioned either."
+   ]
+  },
+  {
+   "id": "pop-04",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "pop-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "score-01",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Population count stated without a reference year: \"전체 개체수 N0 76마리가 하한 구간(N0 < 100 → 78점)에 해당하여 78.00점으로 상향 조정됨 [출처: species.mature_individuals, LastWatch v5, 개체수 하한 규칙]\". Neither the 전체 개체수 line nor the floor line carries a year, so \"기준 연도 미상\" was required. The same bot does this correctly for N0 in score-05. Otherwise the answer is exemplary: the floor label is next to the score, the 47.1 pre-floor score is given, the self-rule and patent note are present, the disclaimer is present, every step matches the trace (arithmetic verified), and the calculation page is linked."
+   ]
+  },
+  {
+   "id": "score-02",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Borrowed year on a disputed value: \"IUCN 사이트 표시 등급은 LC [출처: species.category, IUCN 2023년 평가]\". The category line \"IUCN 등급: LC [출처: species.category]\" has no year, so \"IUCN 2023년 평가\" was pulled from the 평가 연도 line. Here the borrowing misleads: the context says the IUCN API sync category is VU and \"LastWatch 는 어느 쪽이 맞는지 판정하지 않았음\". Tying LC to the 2023 IUCN assessment is unsupported and reinforces the user's \"IUCN에서 LC\" premise. The label \"IUCN 사이트 표시 등급\" also presents LastWatch's own site-display category as if it were IUCN's. The LC/VU discrepancy is disclosed only as a trailing \"참고\" in section 3.",
+    "The first score mention, \"LastWatch 위험 단계가 T3(위험도 점수 60/100)로 지정된\", has neither \"개체수 하한 규칙 적용됨\" next to the score (the prompt says \"점수 바로 옆에\") nor the v5/IUCN disclaimer. Both appear only later, in bullet 1.",
+    "The floor rule is misstated: \"성숙 개체수가 500마리 미만일 경우 점수를 60점으로 끌어올리는 자체 하한 규칙(N0 < 500 → 60점)\". N0 is the v5 baseline population: 전체 개체수 if present, otherwise 성숙 개체수, per the 개체수 비교 기준 line. The wording is right for this species only because it has no 전체 개체수, and in general it blurs total vs mature."
+   ]
+  },
+  {
+   "id": "score-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Data contradiction not pointed out: the reply presents \"추세 보정: 추세 보정 +4 (\"감소\") 적용 → 최종 14.5점\", but the context records \"개체수 추세: 안정 [출처: species.iucn_population_trend]\". The +4 correction that raised the score rests on a '감소' input that conflicts with the stored trend. The prompt says \"데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다\".",
+    "Population count stated without a reference year: \"기준 개체수(N0)가 26,000마리로 500 이상이어서 적용되지 않았습니다 [출처: species.mature_individuals, LastWatch v5, 개체수 하한 규칙]\". \"기준 연도 미상\" is missing."
+   ]
+  },
+  {
+   "id": "score-04",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: in \"IUCN Red List 기준 등급은 위급(CR, Critically Endangered)이며 [출처: species.category, 2022년 평가]\", the line \"IUCN 등급: CR [출처: species.category]\" has no year. \"2022년 평가\" was taken from the \"IUCN 평가 연도: 2022년\" line.",
+    "In \"**현재 상태:** 전체 개체수는 10마리 [기준 연도 미상, ...], 성숙 개체수(mature individuals)는 18마리 [..., IUCN 2022년 평가]\", the reply does not flag that mature (18) exceeds total (10). Labelling a value with an unknown year and a 2022 value as \"현재 상태\" also overstates how current they are.",
+    "The opening \"LastWatch 위험도 점수 100/100은 절멸이 확정되었다는 뜻이 아니며\" mentions the score without the v5/IUCN disclaimer, which appears only in the next bullet. The \"**점수의 정의:**\" bullet only restates \"100/100(단계: T4 임박 — 골든타임)\" and defines nothing. The reply never uses the 점수 계산 과정 line (94.42 → 추세 보정 +5.575652596398115 (\"급감\") → 최종 100.0) or the calculation page to show that 100 is a composite risk index rather than a certainty. The direct answer is correct, but its support is thin."
+   ]
+  },
+  {
+   "id": "score-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "lit-01",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "LaTeX in the reply: \"(기준 개체수 $N=76$ 기준)\" uses $…$ notation, which the format rule forbids (\"LaTeX($…$ …)로 쓰지 않고 일반 글자로 씁니다\"). The current plainMath in lib/chat-context.ts would strip it, but that file was modified after this run (19:40:24 vs 19:39:18 KST), so the LaTeX is still in the captured reply.",
+    "Number rule: the population figure in \"$N=76$\" has no source of its own (context: \"기준 개체수 N: 76  [출처: species.mature_individuals]\") and no \"기준 연도 미상\". The only bracket next to it is \"[출처: Frankham 1995, 종합비율 0.1~0.11, 102종 192추정치, 개별 범위 0.01~0.95]\", which is not where 76 comes from.",
+    "Ungrounded qualifier: \"단기 근친교배 억제 문턱값인 **50에 미달**합니다\". The context says only \"근친교배 문턱 50 미달\". \"단기 … 억제\" comes from outside knowledge: it is accurate for Franklin 1980, but it is not in the context and is not marked \"LastWatch 데이터 밖·미검증\"."
+   ]
+  },
+  {
+   "id": "lit-02",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "lit-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "LaTeX used repeatedly: \"비율($Ne/N=0.1$)을 적용한 바키타돌고래의 유효개체군($Ne$)은\", \"(기준 개체수 $N$: 10 [출처: species.mature_individuals, 기준 연도 미상])\" and \"참고로 $Ne/Nc$ 비율 자체는\". The format rule forbids $…$ notation.",
+    "Contradiction not flagged: the reply bases Ne on \"기준 개체수 $N$: 10\" but never mentions that the context's \"성숙 개체수: 18마리  [출처: species.iucn_population_size, IUCN 2022년 평가]\" is larger than \"전체 개체수: 10마리\", or that the summary says \"단 10마리 미만 추정\". The prompt requires pointing out such conflicts (\"데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다\").",
+    "[Grader note, not a reply defect] The automated score_disclaimer=fail is a false positive. The reply states no LastWatch score value; its only score wording is \"LastWatch v5 점수 계산에는 반영되지 않습니다\". The runner's SCORE_VALUE regex was edited after this run and no longer matches this reply."
+   ]
+  },
+  {
+   "id": "lit-04",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "LaTeX: \"기준 개체수($N$) 93마리\" uses $…$ notation, which the format rule forbids.",
+    "Number rule: \"기준 개체수($N$) 93마리[출처: species.iucn_population_size]를 기준으로\" gives no reference year and no \"기준 연도 미상\". The matching context line \"기준 개체수 N: 93  [출처: species.iucn_population_size]\" carries no year.",
+    "The user asked \"얼마로 계산했어?\", but the reply gives only the range \"LastWatch v5의 Ne/N 비율은 분류군별로 0.05~0.20을 적용합니다 [출처: 문헌 대조 비고]\". It never says that the exact ratio applied to this species is not in the data (\"LastWatch 데이터에는 없습니다\"). The tag \"[출처: 문헌 대조 비고]\" is also invented: the context's 비고 line has no source bracket."
+   ]
+  },
+  {
+   "id": "lit-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "thr-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "thr-02",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year taken from another line: \"현재 기준(2025년 평가) '진행 중(Ongoing)'으로 등록된 위협 요인은 없습니다 [출처: species.category, species.iucn_assessment_year]\" dates the threat-timing finding with the year from the \"IUCN 평가 연도: 2025년  [출처: species.iucn_assessment_year]\" line. The threat lines carry no year, and nothing in the context ties them to the 2025 assessment. The no-Ongoing finding comes from threats.timing, yet the bracket cites species.category and iucn_assessment_year instead. Otherwise the past-only notes are followed: all 8 threats are listed with full paths, codes and their two Past timing groups, and none is presented as current."
+   ]
+  },
+  {
+   "id": "thr-03",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "thr-04",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "thr-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "ext-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "ext-02",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "ext-03",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "ext-04",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Numbers rule: the population figure in '한때 50억 마리로 지구상에서 가장 흔한 새였으나' has no reference year and no '기준 연도 미상' label. The species.extinction_cause line gives no year for the 50억 figure. '19세기 후반' and '1914년' belong to other facts, and '한때' is not a reference year. All content is otherwise taken exactly from extinction_cause, summary_ko and extinction_year."
+   ]
+  },
+  {
+   "id": "ext-05",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Numbers rule: '전체 개체수는 0마리로 기록되어 있으며 [출처: species.mature_individuals]' omits '기준 연도 미상'. That context line has no year, and the bot did add the label for the same field in ext-03, prov-01 and prov-02. Everything else is handled correctly: the EX vs CR conflict is disclosed, the score uses the fixed-value wording ('LastWatch 규칙에 따른 고정값(계산값 아님), IUCN 공식 지표 아님'), and the '추정:' line states what it is based on."
+   ]
+  },
+  {
+   "id": "prov-01",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": []
+  },
+  {
+   "id": "prov-02",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: '**IUCN 등급**: VU (취약) [출처: species.category, IUCN 2025년 평가]'. The context's category line is only '[출처: species.category]'. 'IUCN 2025년 평가' is copied from the 성숙 개체수 line's bracket, which breaks '연도·출처는 같은 줄 대괄호에 적힌 것만 인용합니다 / 다른 줄의 연도를 끌어다 붙이지 않습니다'. This matters more because the question asks where the numbers come from.",
+    "'개체수 순위: 12종 중 9위 (적은 순, 26,000마리)' leaves out the context's caveat that this 12-species ranking mixes 성숙 개체수 (7종) and 전체 개체수 (5종) as its N0 basis. A ranking built on two different measures is presented as if it used one."
+   ]
+  },
+  {
+   "id": "prov-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Numbers rule: '기준 개체수(N0) 76마리 [출처: species.mature_individuals]' is a population count with no '기준 연도 미상'. Its source line has no year. Everything else is correct: the calculation-page path, the verbatim '점수 계산 과정' chain, and the floor label written as '개체수 하한 규칙 적용됨 — 하한 적용 전 47.1점, LastWatch 자체 규칙·특허 명세서 미기재'."
+   ]
+  },
+  {
+   "id": "prov-04",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: '**CR (위급)** [출처: species.category, 2022년 평가]'. The context's category line bracket is only '[출처: species.category]'. 2022 comes from the separate 'IUCN 평가 연도: 2022년' line.",
+    "Outside-data content without the 'LastWatch 데이터 밖·미검증' prefix: '세계자연보전연맹(IUCN)의 공식 멸종위기 평가 기준에 따른 범주형 등급입니다' and 'IUCN 등급은 국제 표준의 공식 멸종위기 범주(CR, EN, VU 등)를 나타냅니다'. The context does not state '국제 표준' or the EN/VU category list. The content is accurate general knowledge, so severity is low. The calculation steps, including '점수가 94.42점으로 더 높아 하한 규칙 미적용', match the aggregation line."
+   ]
+  },
+  {
+   "id": "prov-05",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Numbers rule: '해당 없음 (기준 개체수 N0 562 ≥ 500으로 하한 구간 밖)' gives a population count with no '기준 연도 미상'.",
+    "Contradiction not pointed out: the reply rests the score on N0 562 (전체 개체수, species.mature_individuals). The context also gives '성숙 개체수: 3,140마리 (IUCN 2022년 평가)'. Mature individuals cannot exceed the total population, so the two figures contradict each other. For a 'can I cite this score in a paper?' question this caveat on the score's input is material, and the system prompt requires '데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다'. The score disclaimer and the citation guidance are otherwise correct."
+   ]
+  },
+  {
+   "id": "pred-01",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line, which the prompt forbids: \"개체군 추세는 안정(Stable)입니다 [species.iucn_population_trend, IUCN 2020년 평가]\". The context trend line is \"개체수 추세: 안정  [출처: species.iucn_population_trend]\" and has no year. \"IUCN 2020년 평가\" comes from the 성숙 개체수 line.",
+    "Outside knowledge added without the \"LastWatch 데이터 밖·미검증\" prefix: \"단기 근친교배 회피 문턱인 50 미달입니다\". The context says only \"근친교배 문턱 50 미달\".",
+    "Wrong source cited for the absence claim: \"확정적 예측 수치는 LastWatch 데이터에 없습니다 [species.summary_ko]\". summary_ko is not where this statement comes from.",
+    "Summary text presented as registered threats: \"화산 폭발이나 질병 발생, 밀렵, 외래식물 침입(*Arenga obtusifolia*) 등이 주요 위협으로 등록되어 있습니다 [threats, species.summary_ko]\". Volcano and disease come from summary_ko, not the threats list (단일 개체군, 밀렵 (뿔), 서식지 손실, 외래식물 침입).",
+    "Done correctly: the score has the v5/IUCN disclaimer, \"개체수 하한 규칙 적용됨\" and the pre-floor 47.1점; 전체 개체수 is marked 기준 연도 미상 and 성숙 개체수 is cited to IUCN 2020; the reply makes no extinction prediction and includes the IUCN link."
+   ]
+  },
+  {
+   "id": "pred-02",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: \"CR (위급) [출처: species.category, IUCN 2022년 평가]\". The category line is \"IUCN 등급: CR  [출처: species.category]\" with no year. 2022 comes from the separate \"IUCN 평가 연도\" line.",
+    "Data conflict not pointed out, which the prompt requires (\"데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다\"): \"전체 개체수 10마리 [기준 연도 미상, 출처: species.mature_individuals], 성숙 개체수(mature individuals) 18마리\". Mature individuals (18) cannot exceed the total population (10), and summary_ko also says \"단 10마리 미만 추정\". The reply lists the numbers side by side without comment.",
+    "Done correctly: no extinction date or speculation; the score has the disclaimer and no floor label is needed (floor not applied); 전체 and 성숙 are labelled correctly; IUCN link given."
+   ]
+  },
+  {
+   "id": "pred-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 1,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Trend conflict not pointed out: the reply says \"현재 IUCN 기준 개체군 추세는 '안정'으로 기록되어 있으나\" while also quoting \"14.5/100 (T0 안정)\". That score includes the context step \"추세 보정 +4 (\"감소\")\", because the engine reads species.population_trend = 감소. The context therefore has conflicting trend inputs, and this bears directly on the question.",
+    "Incomplete for a question about the future: it leaves out context facts about the future trajectory, namely the summary (\"기후변화로 해빙이 매년 줄어들면서 사냥 시간이 줄고 영양실조와 번식 실패가 증가하고 있다\") and the threat \"기후변화로 인한 해빙 감소\". The reader is left with only the \"안정\" picture.",
+    "Done correctly: no forecast is made; 전체 개체수 (기준 연도 미상) and 성숙 개체수 (IUCN 2025년 평가) are labelled correctly; the score has the disclaimer; IUCN link given."
+   ]
+  },
+  {
+   "id": "pred-04",
+   "grounded": 1,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Status claimed without support and without an \"추정:\" prefix: \"종 회복(Species recovery)을 위한 보전 활동이 진행되고 있습니다\". The context lists only \"보전 활동: Species recovery\" with no status or timing. IUCN action codes like this often mean an action is needed, not that it is under way.",
+    "Outside knowledge added without the \"LastWatch 데이터 밖·미검증\" prefix: \"단기 근친교배 방지를 위한 최소 문턱인 50 미달입니다\". The context says \"근친교배 문턱 50 미달\". \"일반적인 MVP 중앙값 4,169의 6.2% 수준입니다\" also adds a characterization the context does not make.",
+    "Nit: the floor label is in a nested bullet (\"  * 개체수 하한 규칙 적용됨 — 하한 적용 전 점수는 23.2점이며\") rather than right next to \"60/100\". Also, \"39(LastWatch v5 적용값)\" has no source tag of its own; the sentence's only bracket is [출처: Franklin 1980].",
+    "Done correctly: the 증가 trend is stated as fact with no unmarked outlook; the LC/VU mismatch is flagged; the pre-floor 23.2점 and own-rule/patent note are given; threats keep their full paths and timing, and the past threat is labelled as past."
+   ]
+  },
+  {
+   "id": "pred-05",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": [
+    "Nit, not a rule violation: \"레이어 EWS 88.08(추세 기반 추정값) · PVA 44.69 · Ne 80.00을 바탕으로 산출됨\" gives only the layer values, leaving out the weighting and alarm-vote steps (66.53 → 경보 2표 → 75.15). It also doesn't point to the calculation page /species/panthera-tigris-altaica/calculation, which would help with a 'how would the score move' question. The refusal (\"LastWatch 데이터에 없습니다\"), score disclaimer and IUCN link are all correct."
+   ]
+  },
+  {
+   "id": "cmp-01",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Population number with no reference year: \"이 종 전체 개체수 76마리 [출처: species.mature_individuals]\". The context line has no year, so it should say \"기준 연도 미상\" (the pred-01 reply did).",
+    "Done correctly: the comparison basis is stated (CR 포유류, 34종); post-floor rank 20위 and pre-floor rank 28위 are both given; the score has \"개체수 하한 규칙 적용됨 — 하한 적용 전 47.1점\" and the disclaimer; the median, top 3 and population rank are accurate; the mixed population basis (31종 성숙 / 3종 전체) is disclosed."
+   ]
+  },
+  {
+   "id": "cmp-02",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Population number with no reference year: \"기준 개체수 10마리 [출처: species.mature_individuals]\". The context line has no year, so \"기준 연도 미상\" should be stated.",
+    "Done correctly: it answers directly (34종 중 1위 by score, 4위 by population) and states the comparison basis (CR 포유류 34종); the score has the disclaimer; the mixed population basis is disclosed."
+   ]
+  },
+  {
+   "id": "cmp-03",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Population number with no reference year: \"북극곰 전체 개체수: 26,000마리 [출처: species.mature_individuals]\". The context line has no year, so \"기준 연도 미상\" should be stated.",
+    "Done correctly: the comparison basis is stated (VU 포유류 12종); rank 6위, 14.5 vs median 12.5, the top 3 and population rank 9위 all match the context; it notes that the rank is the same with or without the floor; the score disclaimer and mixed population basis (7종 성숙 / 5종 전체) are given."
+   ]
+  },
+  {
+   "id": "cmp-04",
+   "grounded": 2,
+   "rules": 2,
+   "answers_question": 2,
+   "verdict": "pass",
+   "factual_error": false,
+   "issues": [
+    "Nit: the opening line \"위험도 점수와 개체수 측면에서 모두 상위권(위험한 편)에 속합니다\" has no score disclaimer. It also relies on \"54종 중 **2위**\", which is not labelled as the post-floor rank on that line; the floor effect (pre-floor 14위, 23.2점) appears only in the sub-bullets. The conclusion still holds before the floor (23.2 > median 10.5). Otherwise it is fully compliant: floor label, pre-floor score, comparison basis (LC 포유류 54종, all on 성숙 개체수), 258마리 cited to IUCN 2023, and the LC/VU mismatch flagged."
+   ]
+  },
+  {
+   "id": "cmp-05",
+   "grounded": 2,
+   "rules": 1,
+   "answers_question": 2,
+   "verdict": "minor_issues",
+   "factual_error": false,
+   "issues": [
+    "Year borrowed from another line: \"CR [출처: species.category, 2017년 평가]\". The category line is \"IUCN 등급: CR  [출처: species.category]\" with no year. 2017 comes from the separate \"IUCN 평가 연도\" line.",
+    "Note about the automated check, not a reply defect: the include_any#0 fail is a false negative. The reply says \"비교하는 데이터는 LastWatch 데이터에 없습니다\", which meets the requirement, and the current eval_set_v1.json list already includes \"데이터에 없\", which would match. No rank was made up (not_match passed); the IUCN link is given; the score has \"개체수 하한 규칙 적용됨 — 하한 적용 전 88.1점\" and the disclaimer."
+   ]
+  }
+ ],
+ "verified": []
+}

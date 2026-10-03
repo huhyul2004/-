@@ -3,6 +3,13 @@
 // search 라우트는 SQLite 쿼리만 하므로 LLM 을 쓰지 않는다.
 // scripts/ 의 일회성 배치(translate-ko, transliterate-* 등)는 아직 lib/anthropic.ts 를 쓴다.
 // SDK 를 따로 붙이지 않고 fetch 로 직접 친다 — 의존성 추가 없이 generateContent 하나만 쓰면 되기 때문.
+//
+// 키 처리 (결정 14, 2026-10-03 확인):
+//   - GEMINI_API_KEY 는 서버에서만 process.env 로 읽는다. NEXT_PUBLIC_ 이 아니라 브라우저 번들에 들어가지 않는다
+//     (next build 산출물 .next 전체에서 키 값·앞뒤 8자 0건 확인).
+//   - 요청 헤더 x-goog-api-key 로만 보낸다. URL 쿼리(?key=)에 넣지 않는다 — URL 은 프록시·로그에 남는다.
+//   - 오류는 friendlyError 가 사용자용 문장으로 바꾼다. 원본 오류·키를 응답 본문에 넣지 않는다.
+//   - 키를 바꿔야 하면 Google AI Studio 에서 폐기·재발급 → .env.local · Vercel 환경 변수 교체 (README "API 키 설정").
 
 export class GeminiConfigError extends Error {
   constructor(message: string) {

@@ -4,6 +4,7 @@ import { V5_SPEC, TIERS, type TippingPointResult } from "@/lib/tipping-point";
 import { traceScore, getMethodologyCoverage, LAYERS } from "@/lib/methodology";
 import { floorBreakdown, floorStatusLine } from "@/lib/floor-transparency";
 import { TippingHero } from "@/components/tipping-hero";
+import { EXPORT_COLUMNS } from "@/lib/species-export";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,7 @@ export default function MethodologyPage() {
   const W = V5_SPEC.weights;
   const AT = V5_SPEC.alertThresholds;
   const CM = V5_SPEC.consensusMultiplier;
+  const MB = V5_SPEC.majorityBlend;
   const LC = V5_SPEC.lowConfidence;
   const TA = V5_SPEC.trendAdjust;
   const E = V5_SPEC.ews;
@@ -120,6 +122,17 @@ export default function MethodologyPage() {
             <li>
               4. 개체수 자료가 있는 종에만 계산합니다 — 지금 <b>{n(cov.computed)}종</b>. 절멸·야생절멸 {n(cov.extinctScored)}종은 계산 없이 {extinctScore}점입니다.
             </li>
+            <li>
+              5. 종마다 모든 중간값과 그 출처는 계산 근거 페이지(예:{" "}
+              <Link href={`/species/${EXAMPLE_ID}/calculation`} className="font-bold text-[#D81E05] underline underline-offset-2">
+                {exName}
+              </Link>
+              ), 전 종의 값은{" "}
+              <a href="#export" className="font-bold text-[#D81E05] underline underline-offset-2">
+                CSV
+              </a>
+              로 볼 수 있습니다.
+            </li>
           </ol>
         </Card>
       </Section>
@@ -155,8 +168,19 @@ EWS = σ(${E.gain} × (${E.tauWeights.ar1}τ + ${E.tauWeights.variance}τ + ${E.
             </p>
             <Formula>{`N_safe = max(${P.safeKFraction} × K, ${P.safeMinN})
 PVA = 100 × (${P.weights.pExtShort}·P${P.horizons.short} + ${P.weights.pExtLong}·P${P.horizons.long}
-             + ${P.weights.deficit}·(1 − min(1, N0 ÷ N_safe)))`}</Formula>
-            <p className="mt-2 text-[11px] text-zinc-500">범위 0 ~ 100점 · 신뢰도 {P.confidence} · K 는 N0 보다 크게 가정(감소 추세면 더 크게)</p>
+             + ${P.weights.deficit}·(1 − min(1, N0 ÷ N_safe)))
+
+K = d · W^−0.75 · A        (서식 면적 A · 체중 W · 검증된 Damuth 상수 d 가 모두 있을 때)
+K = max(1.5·N0, N0 + 100)  (그 밖, 감소 추세 r < 0)
+K = max(1.2·N0, N0 + 50)   (그 밖)`}</Formula>
+            <p className="mt-2 text-[11px] text-zinc-500">
+              범위 0 ~ 100점 · 신뢰도 {P.confidence} · K 를 Damuth 식으로 정한 종 {n(cov.kSource.damuth ?? 0)}종 (서식 면적 자료가 아직 없음)
+            </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-zinc-600">
+              개체수가 K 를 크게 넘은 뒤 그해 성장률이 음수이면 Ricker 식이 폭주해 Infinity·NaN 이 되는 궤적이 생깁니다. 그런 궤적은
+              확률·분위수 계산에서 뺍니다 — 지금 {n(cov.pvaInvalid.species)}종에서 {n(cov.pvaInvalid.trajectories)}개
+              (2026-10-03 반영. 폭주 자체는 모형의 문제라 결정 대기 항목으로 남김).
+            </p>
           </Card>
           <Card>
             <p className="text-[10px] font-black tracking-wider text-[#FC7F3F]">가중치 {W.iucn}</p>
@@ -270,12 +294,16 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
             <Formula>{`점수₀ = ${W.ews}·EWS + ${W.pva}·PVA + ${W.iucn}·Ne점수`}</Formula>
           </Card>
           <Card>
-            <h3 className="text-sm font-bold text-zinc-900">② 다수결 — 여러 레이어가 함께 경보를 내야 점수를 그대로 둔다</h3>
+            <h3 className="text-sm font-bold text-zinc-900">② 다수결 — 경보가 하나뿐이면 깎고, 둘 이상이면 가장 높은 레이어 쪽으로 당긴다</h3>
             <Formula>{`경보 = [EWS > ${AT.ews}] + [PVA > ${AT.pva}] + [Ne점수 > ${AT.iucn}]
 경보 0표 → 점수₀ × ${CM.zero}
 경보 1표 → 점수₀ × ${CM.one}
-경보 2표 이상 → 점수₀ 그대로`}</Formula>
-            <p className="mt-2 text-xs text-zinc-600">한 레이어만 높을 때 점수가 과하게 오르지 않게 깎는 단계입니다.</p>
+경보 2표 이상 → ${MB.alpha}·점수₀ + ${f1(1 - MB.alpha)}·max(EWS, PVA, Ne점수)`}</Formula>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+              한 레이어만 높을 때는 점수가 과하게 오르지 않게 깎고, 두 레이어 이상이 함께 경보를 내면 특허 명세서의 다수결 블렌딩대로
+              가장 높은 레이어 점수를 {f1(1 - MB.alpha)} 만큼 섞습니다. 최댓값은 가중합보다 작을 수 없어 이 분기는 점수를 올리기만 합니다.
+              2026-10-03 에 반영했습니다 — 그 전에는 2표 이상이면 점수₀ 를 그대로 썼습니다 (영향: 2표 이상 종의 점수 상승, 티어 이동은 모두 T3 → T4).
+            </p>
           </Card>
           <Card>
             <h3 className="text-sm font-bold text-zinc-900">③ 신뢰도 압축</h3>
@@ -498,7 +526,11 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
                     <tr className="border-b border-zinc-100">
                       <td className="py-1.5 pr-3 font-bold">② 다수결</td>
                       <td className="py-1.5 font-mono">
-                        경보 {ex.alerts}표 → {ex.alerts >= 2 ? "그대로" : `× ${ex.multiplier}`} = {f2(ex.afterConsensus)}
+                        경보 {ex.alerts}표 →{" "}
+                        {ex.branch === "blend"
+                          ? `${ex.blendAlpha}×${f2(ex.raw)} + ${f1(1 - (ex.blendAlpha ?? 0))}×${f2(ex.maxLayer)}`
+                          : `× ${ex.multiplier}`}{" "}
+                        = {f2(ex.afterConsensus)}
                       </td>
                     </tr>
                     <tr className="border-b border-zinc-100">
@@ -547,6 +579,12 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
                 className="mt-3 inline-block text-xs font-bold text-[#D81E05] underline"
               >
                 {exName} 상세 페이지 →
+              </Link>{" "}
+              <Link
+                href={`/species/${EXAMPLE_ID}/calculation`}
+                className="mt-3 ml-3 inline-block text-xs font-bold text-[#D81E05] underline"
+              >
+                입력값·PVA 세부값까지 전부 보기 →
               </Link>
             </Card>
             <div className="mt-4">
@@ -630,7 +668,8 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
           </dl>
           <p className="mt-3 text-[11px] text-zinc-500">
             EWS 레이어에는 개체수 시계열이 한 종도 들어가 있지 않습니다 — 모든 종이 추세로 추정한 값입니다.
-            이 페이지가 저장값을 되짚은 결과, 계산 {n(cov.computed)}종 중 저장값과 다른 종은 {n(cov.traceMismatches)}종입니다.{" "}
+            저장된 레이어 점수를 지금 코드의 집계식으로 다시 집계한 결과, 계산 {n(cov.computed)}종 중 저장 점수와 다른 종은{" "}
+            {n(cov.traceMismatches)}종, 계산 뒤 개체수·추세 입력이 바뀐 종은 {n(cov.inputDrift)}종입니다 (0 이 아니면 재계산이 필요).{" "}
             <Link href="/stats" className="font-bold text-zinc-700 underline">
               통계 페이지
             </Link>
@@ -658,9 +697,11 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
               </thead>
               <tbody className="text-zinc-800">
                 {[
-                  { name: "개체수 하한", spec: "기재 없음", code: `N0 구간별 하한 — ${n(cov.floor.bound)}종의 점수를 정함`, doc: "결정 대기 항목 1", to: "floor" },
+                  { name: "개체수 하한", spec: "기재 없음", code: `N0 구간별 하한 — ${n(cov.floor.bound)}종의 점수를 정함. 유지하고, 챗봇·계산 근거 페이지에 '개체수 하한 규칙 적용됨'과 하한 적용 전 점수를 표시`, doc: "결정 대기 항목 1", to: "floor" },
                   { name: "Ne/Nc 비율", spec: "분류군별 명세서 값", code: "명세서와 다른 분류군별 값", doc: "결정 대기 항목 3", to: "layers" },
-                  { name: "수용력 K", spec: "Damuth 식", code: "N0 에서 가정", doc: "결정 대기 항목 2", to: "layers" },
+                  { name: "수용력 K", spec: "Damuth 식", code: `Damuth 식 분기 구현(포유류 상수만 검증) — 서식 면적 자료가 없어 Damuth 로 정한 종 ${n(cov.kSource.damuth ?? 0)}종, 나머지는 N0 에서 가정`, doc: "결정 대기 항목 2", to: "layers" },
+                  { name: "다수결 2표 이상", spec: `${MB.alpha}·가중합 + ${f1(1 - MB.alpha)}·최댓값`, code: "같음 (2026-10-03 반영, 그 전에는 가중합 그대로)", doc: "docs/max-blending-impact-2026-10-03.md", to: "combine" },
+                  { name: "다수결 0표", spec: "× 0.70", code: `× ${CM.zero}`, doc: "docs/pka-1551-discrepancies.md", to: "combine" },
                   { name: "EWS", spec: "개체수 시계열 기반", code: "추세 기반 추정값", doc: "docs/ews-layer-audit.md", to: "ews" },
                   { name: "신뢰도", spec: "신뢰도로 레이어 가중치 조정", code: `고정 가중치 + 신뢰도 압축(적용 ${n(cov.compressed)}종)`, doc: "docs/confidence-audit.md", to: "confidence" },
                   { name: "다수결 문턱", spec: "모든 레이어에 한 문턱", code: `레이어별 문턱 (EWS ${AT.ews} · PVA ${AT.pva} · Ne ${AT.iucn})`, doc: "docs/layer-score-spec-vs-code.md §4", to: "combine" },
@@ -684,8 +725,42 @@ ${V5_SPEC.neBands.map((b) => `Ne < ${n(b.below)} → ${b.score}`).join("\n")}
             </table>
           </div>
           <p className="mt-2 text-[11px] text-zinc-500">
-            결정 대기 목록에는 개체수 하한·수용력 K·Ne/Nc 를 포함한 항목이 올라 있습니다. EWS·신뢰도·다수결 문턱의 차이는 조사 문서에
-            기록되어 있고, 결정 대기 목록에는 아직 올라 있지 않습니다.
+            결정 대기 목록에는 개체수 하한(1, 유지 + 표시로 결정)·수용력 K(2)·Ne/Nc(3, 코드 값 유지로 결정)·하한의 LC/VU 예외(4)·
+            EWS(7)·신뢰도(8)·다수결 문턱(9)·Ricker 폭주(10)·다수결 0표 배율(11)·IUCN 기록 범위(12)가 올라 있습니다.
+            2026-10-03 에 다수결 2표 이상 블렌딩과 Damuth K 분기를 명세서대로 코드에 반영했습니다.
+          </p>
+        </Card>
+      </Section>
+
+      <Section id="export" label="CSV" title="데이터 내려받기">
+        <Card>
+          <p className="text-xs leading-relaxed text-zinc-700">
+            종별 값을 CSV(UTF-8)로 받을 수 있습니다. 점수 관련 값은 위 계산이 남긴 기록을 그대로 옮긴 것이고, 날짜는 한국 시간입니다.
+          </p>
+          <ul className="mt-2 space-y-1 text-xs text-zinc-700">
+            <li>
+              <a href="/species/export" download className="font-bold text-[#D81E05] underline">
+                사이트 목록의 종 ({n(cov.curated)}종)
+              </a>{" "}
+              · <code className="font-mono">/species/export</code>
+            </li>
+            <li>
+              <a href="/species/export?scope=scored" download className="font-bold text-[#D81E05] underline">
+                점수가 있는 종 ({n(cov.scored)}종)
+              </a>{" "}
+              · <code className="font-mono">?scope=scored</code>
+            </li>
+            <li>
+              <a href="/species/export?scope=all" download className="font-bold text-[#D81E05] underline">
+                DB 의 모든 종 ({n(cov.species)}종)
+              </a>{" "}
+              · <code className="font-mono">?scope=all</code> (압축해서 보냄)
+            </li>
+          </ul>
+          <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
+            열 {EXPORT_COLUMNS.length}개: {EXPORT_COLUMNS.join(", ")}. population_total 은 DB 의 mature_individuals 칸(이름과 달리 전체
+            개체수), population_mature 는 iucn_population_size 칸(IUCN 평가의 성숙 개체수)입니다. score_status 는 computed(계산) ·
+            fixed_100_extinct(절멸·야생절멸 100 고정) · not_computed(개체수 자료 없음).
           </p>
         </Card>
       </Section>

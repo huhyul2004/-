@@ -476,7 +476,14 @@ export default function HomePage({ searchParams = {} }: { searchParams?: SearchP
         {curatedOnly ? " (이 목록 기준)" : " (전체 기준)"}.{" "}
         <Link href="/methodology" className="font-bold text-[#D81E05] underline">
           계산식 보기 →
-        </Link>
+        </Link>{" "}
+        <a
+          href={curatedOnly ? "/species/export" : "/species/export?scope=all"}
+          download
+          className="font-bold text-[#D81E05] underline"
+        >
+          CSV 내려받기 ↓
+        </a>
       </p>
 
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">

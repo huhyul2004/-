@@ -1,5 +1,7 @@
-// /methodology 페이지용 — 저장된 점수를 V5_SPEC 로 한 단계씩 되짚고, 커버리지를 DB 에서 센다.
+// /methodology 페이지용 — 저장된 점수를 한 단계씩 되짚고, 커버리지를 DB 에서 센다.
 // 표시 전용. 점수 계산(lib/tipping-point.ts)에는 관여하지 않는다.
+// 종합 단계 값은 엔진이 남긴 집계 추적(payload.aggregation)을 읽는다 — 추적이 없는 예전 payload 는
+// 같은 집계 함수(aggregateConsensus)로 다시 계산한다 (lib/floor-transparency.ts aggregationOf).
 import { getDb, type SpeciesRow } from "./db";
 import {
   V5_SPEC,
@@ -7,8 +9,10 @@ import {
   inferPopulationWithSource,
   trendToLambdaV4,
   hasClassLifeHistory,
+  type MajorityBranch,
   type PopulationSource,
 } from "./tipping-point";
+import { aggregationOf, reaggregate } from "./floor-transparency";
 
 type Layer = "ews" | "pva" | "iucn";
 export const LAYERS: Layer[] = ["ews", "pva", "iucn"];
@@ -16,9 +20,10 @@ export const LAYERS: Layer[] = ["ews", "pva", "iucn"];
 interface LayerPayload {
   layer_scores?: {
     ews?: { score?: number; confidence?: number };
-    pva?: { score?: number; confidence?: number; P_ext_50yr?: number; P_ext_100yr?: number };
+    pva?: { score?: number; confidence?: number; P_ext_50yr?: number; P_ext_100yr?: number; n_invalid?: number };
     iucn?: { score?: number; confidence?: number; Ne?: number; genetic_status?: string };
   };
+  inputs?: { K_source?: string };
 }
 
 export interface ScoreTrace {
@@ -31,7 +36,14 @@ export interface ScoreTrace {
   /** 가중합 */
   raw: number;
   alerts: number;
-  multiplier: number;
+  /** blend: 2표 이상(α 블렌딩) · single: 1표 · none: 0표 */
+  branch: MajorityBranch;
+  /** 0표·1표 배율. 2표 이상이면 null */
+  multiplier: number | null;
+  /** 2표 이상일 때 α. 아니면 null */
+  blendAlpha: number | null;
+  /** 세 레이어 점수 중 최댓값 — 2표 이상 블렌딩 입력 */
+  maxLayer: number;
   afterConsensus: number;
   overallConfidence: number;
   compressed: boolean;
@@ -47,21 +59,14 @@ export interface ScoreTrace {
   display: number;
   tier: (typeof TIERS)[number] | undefined;
   stored: { score: number; tier: string };
+  /** 저장된 레이어 점수를 지금 코드의 집계식으로 다시 집계한 점수·티어가 저장값과 같은가 */
   matches: boolean;
+  /** 다시 집계한 점수 */
+  recomputed: number | null;
+  /** 계산 뒤 species 행의 개체수·한글 추세가 바뀌었는가 (재계산 필요) */
+  inputDrift: boolean;
 }
 
-function trendDeltaFor(trend: string | null): number {
-  if (!trend) return 0;
-  const t = trend.toLowerCase();
-  const ta = V5_SPEC.trendAdjust;
-  // lib/tipping-point.ts 추세 보정과 같은 문자열 규칙
-  if (t.includes("급감")) return ta.sharpDecline;
-  if (t.includes("증가") || t.includes("회복") || t.includes("increas")) return ta.recovering;
-  if (t.includes("감소") || t.includes("decreas")) return ta.decline;
-  return 0;
-}
-
-const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
 
 /** 저장된 payload 의 레이어 점수로 종합 단계를 되짚는다. EX/EW·개체수 없음·payload 불완전이면 null. */
 export function traceScore(
@@ -70,7 +75,10 @@ export function traceScore(
   stored: { consensus_score: number; intervention_tier: string }
 ): ScoreTrace | null {
   if (species.category === "EX" || species.category === "EW") return null;
-  const pop = inferPopulationWithSource(species);
+  const live = inferPopulationWithSource(species);
+  // 표시는 계산 당시 입력(payload.inputs)을 쓴다 — 그 뒤 species 행이 바뀌면 inputDrift 로 따로 알린다
+  const inputs = (payload as { inputs?: { N0?: number; N0_source?: PopulationSource } } | null)?.inputs;
+  const pop = { value: inputs?.N0 ?? live.value, source: inputs?.N0_source ?? live.source };
   if (pop.value == null) return null;
   const ls = (payload as LayerPayload | null)?.layer_scores;
   const layers = {} as ScoreTrace["layers"];
@@ -80,24 +88,14 @@ export function traceScore(
     if (typeof score !== "number" || typeof confidence !== "number") return null;
     layers[k] = { score, confidence, alert: score > V5_SPEC.alertThresholds[k] };
   }
-  const w = V5_SPEC.weights;
-  const raw = w.ews * layers.ews.score + w.pva * layers.pva.score + w.iucn * layers.iucn.score;
-  const alerts = LAYERS.filter((k) => layers[k].alert).length;
-  const cm = V5_SPEC.consensusMultiplier;
-  const multiplier = alerts === 0 ? cm.zero : alerts === 1 ? cm.one : 1;
-  const afterConsensus = alerts >= 2 ? raw : raw * multiplier;
-  const lc = V5_SPEC.lowConfidence;
-  const overallConfidence = w.ews * layers.ews.confidence + w.pva * V5_SPEC.pva.confidence + w.iucn * layers.iucn.confidence;
-  const compressed = overallConfidence < lc.below;
-  const afterConfidence = compressed ? afterConsensus * lc.scale + lc.add : afterConsensus;
-  const band = V5_SPEC.floorBands.find((b) => pop.value! < b.below);
-  const floor = band?.floor ?? 0;
-  const afterFloor = Math.max(afterConfidence, floor);
-  const trendDelta = trendDeltaFor(species.population_trend);
-  const afterTrend = trendDelta === 0 ? afterFloor : clamp(afterFloor + trendDelta, 0, 100);
-  const display = Math.round(afterTrend * 10) / 10;
-  const s2 = Math.round(display * 100) / 100;
-  const tier = TIERS.find((t) => s2 >= t.min && s2 < t.max);
+  const agg = aggregationOf(species, pop.value, payload);
+  if (!agg) return null;
+  const display = agg.score;
+  const tierOf = (x: number) => TIERS.find((t) => Math.round(x * 100) / 100 >= t.min && Math.round(x * 100) / 100 < t.max);
+  const tier = tierOf(display);
+  // 검사는 저장된 추적이 아니라 "지금 코드로 다시 집계한 값" 과 저장값을 비교한다 (같은 값끼리 비교하지 않게).
+  const re = reaggregate(species, pop.value, payload);
+  const inputDrift = live.value !== pop.value || agg.trend.input !== species.population_trend;
   return {
     N0: pop.value,
     popSource: pop.source,
@@ -105,24 +103,29 @@ export function traceScore(
     Ne: ls?.iucn?.Ne ?? null,
     pExtShort: ls?.pva?.P_ext_50yr ?? null,
     pExtLong: ls?.pva?.P_ext_100yr ?? null,
-    raw,
-    alerts,
-    multiplier,
-    afterConsensus,
-    overallConfidence,
-    compressed,
-    afterConfidence,
-    floor,
-    floorBand: band?.below ?? null,
-    afterFloor,
-    floorBound: floor > afterConfidence,
-    trendText: species.population_trend,
-    trendDelta,
-    afterTrend,
+    raw: agg.weighted,
+    alerts: agg.m,
+    branch: agg.branch,
+    multiplier: agg.majorityFactor,
+    blendAlpha: agg.blendAlpha,
+    maxLayer: agg.maxLayer,
+    afterConsensus: agg.afterMajority,
+    overallConfidence: agg.confidence.overall,
+    compressed: agg.compressionApplied,
+    afterConfidence: agg.afterCompression,
+    floor: agg.floor.value,
+    floorBand: agg.floor.below,
+    afterFloor: agg.afterFloor,
+    floorBound: agg.floor.applied,
+    trendText: agg.trend.input,
+    trendDelta: Math.round(agg.trend.delta * 10) / 10,
+    afterTrend: agg.final,
     display,
     tier,
     stored: { score: stored.consensus_score, tier: stored.intervention_tier },
-    matches: display === stored.consensus_score && tier?.tier === stored.intervention_tier,
+    matches: re != null && re.score === stored.consensus_score && tierOf(re.score)?.tier === stored.intervention_tier,
+    recomputed: re?.score ?? null,
+    inputDrift,
   };
 }
 
@@ -151,9 +154,16 @@ export interface MethodologyCoverage {
   floor: { bound: number; inBandNotBound: number; outside: number };
   trendAdjusted: number;
   tiers: Record<string, number>;
+  /** 저장된 레이어 점수를 지금 코드로 다시 집계한 점수가 저장값과 다른 종 */
   traceMismatches: number;
+  /** 계산 뒤 species 행의 개체수·한글 추세가 바뀐 종 (재계산하면 점수가 바뀔 수 있다) */
+  inputDrift: number;
   /** 계산 종의 EWS 점수 고유값 — 값마다 종 수와 그 값을 만든 추세 입력 */
   ewsValues: { score: number; count: number; inputs: Record<string, number> }[];
+  /** PVA 에서 Infinity·NaN 이 되어 집계에서 뺀 궤적 (결정 8) — 종 수 · 궤적 수 */
+  pvaInvalid: { species: number; trajectories: number };
+  /** 수용력 K 를 정한 식별 종 수 — damuth · fallback · fallback_declining (payload.inputs.K_source) */
+  kSource: Record<string, number>;
 }
 
 // EWS 의 r 을 정한 추세 입력 — trendToLambdaV4 의 우선순위(IUCN → 한글 칸 → 기본값)
@@ -215,12 +225,22 @@ export function getMethodologyCoverage(): MethodologyCoverage {
   let compressed = 0;
   let trendAdjusted = 0;
   let traceMismatches = 0;
+  let inputDrift = 0;
+  const pvaInvalid = { species: 0, trajectories: 0 };
+  const kSource: Record<string, number> = {};
   const ews = new Map<number, { score: number; count: number; inputs: Record<string, number> }>();
   for (const r of rows) {
+    const parsed = JSON.parse(r.payload_json) as LayerPayload;
+    const nInvalid = parsed.layer_scores?.pva?.n_invalid ?? 0;
+    if (nInvalid > 0) {
+      pvaInvalid.species++;
+      pvaInvalid.trajectories += nInvalid;
+    }
+    inc(kSource, parsed.inputs?.K_source ?? "unrecorded");
     inc(popSource, inferPopulationWithSource(r).source);
     const trendSrc = trendToLambdaV4(r.iucn_population_trend ?? null, r.population_trend, r.category).source;
     inc(trendSource, trendSrc);
-    const ewsScore = (JSON.parse(r.payload_json) as LayerPayload).layer_scores?.ews?.score;
+    const ewsScore = parsed.layer_scores?.ews?.score;
     if (typeof ewsScore === "number") {
       const key = Math.round(ewsScore * 1e6) / 1e6;
       const g = ews.get(key) ?? { score: ewsScore, count: 0, inputs: {} };
@@ -231,12 +251,13 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     if (hasClassLifeHistory(r.class_name)) classLife.own++;
     else classLife.fallback++;
     inc(tiers, r.intervention_tier);
-    const tr = traceScore(r, JSON.parse(r.payload_json), r);
+    const tr = traceScore(r, parsed, r);
     if (!tr) {
       traceMismatches++;
       continue;
     }
     if (!tr.matches) traceMismatches++;
+    if (tr.inputDrift) inputDrift++;
     inc(alerts, String(Math.min(tr.alerts, 2)));
     confs.add(Math.round(tr.overallConfidence * 10000) / 10000);
     if (tr.compressed) compressed++;
@@ -270,6 +291,9 @@ export function getMethodologyCoverage(): MethodologyCoverage {
     trendAdjusted,
     tiers,
     traceMismatches,
+    inputDrift,
     ewsValues: Array.from(ews.values()).sort((a, b) => b.score - a.score),
+    pvaInvalid,
+    kSource,
   };
 }
