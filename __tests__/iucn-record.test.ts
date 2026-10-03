@@ -23,7 +23,7 @@ describe("챗봇 컨텍스트 표시", () => {
   it("북극고래 — 유럽 지역 평가의 개체수를 N0 로 쓴다고 밝히고, 등급 줄에 평가 연도를 붙이지 않는다", () => {
     const c = buildChatContext("phy-balaena-mysticetus")!.context;
     expect(c).toContain("IUCN 기록 범위: 이 종에 연결된 IUCN 평가는 Europe 지역 평가");
-    expect(c).toContain("LastWatch 점수(v5)도 이 지역 개체수를 기준 개체수 N0 로 씀");
+    expect(c).toContain("LastWatch v5 계산도 이 지역 개체수를 기준 개체수 N0 로 씀");
     expect(c).toContain("성숙 개체수: 258마리  [출처: species.iucn_population_size, IUCN 2023년 평가, Europe 지역 평가]");
     expect(c).toContain("IUCN 등급: LC  [출처: species.category]");
   });

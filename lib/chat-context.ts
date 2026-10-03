@@ -80,7 +80,7 @@ export function trendAdjustText(t: AggregationTrace["trend"]): string {
 export function aggregationLine(a: AggregationTrace, engineVersion: string | null): string {
   const L = a.layers;
   const steps = [
-    `레이어 EWS ${L.ews.toFixed(2)}(추세 기반 추정값) · PVA ${L.pva.toFixed(2)} · Ne 점수 ${L.iucn.toFixed(2)}`,
+    `레이어 EWS(조기경보신호, 추세 기반 추정값) ${L.ews.toFixed(2)} · PVA(개체군 생존분석) ${L.pva.toFixed(2)} · Ne 점수(유효개체군 레이어 점수 — Ne 값 아님) ${L.iucn.toFixed(2)}`,
     `가중합(${a.weights.ews.toFixed(2)}·${a.weights.pva.toFixed(2)}·${a.weights.iucn.toFixed(2)}) ${a.weighted.toFixed(2)}`,
     BRANCH_TEXT[a.branch](a),
   ];
@@ -119,7 +119,7 @@ export function contradictionLines(
   if (total != null && total > 0 && mature != null && mature > total)
     out.push(
       `데이터 모순: 성숙 개체수(${mature.toLocaleString()})가 전체 개체수(${total.toLocaleString()})보다 많음 — 성숙 개체는 전체의 ` +
-        `일부라 같은 시점·같은 기준의 값일 수 없음. LastWatch 점수(v5)는 기준 개체수 N0 로 전체 개체수(${total.toLocaleString()})를 씀  ` +
+        `일부라 같은 시점·같은 기준의 값일 수 없음. LastWatch v5 계산의 기준 개체수 N0 는 전체 개체수(${total.toLocaleString()})  ` +
         `[출처: species.mature_individuals, species.iucn_population_size]`
     );
   const iucnDir = species.iucn_population_trend ? TREND_DIR_IUCN[species.iucn_population_trend] : undefined;
@@ -129,8 +129,8 @@ export function contradictionLines(
     const delta = Math.round(raw * 10) / 10;
     out.push(
       `데이터 모순: IUCN 개체수 추세('${TREND_KO[species.iucn_population_trend!] ?? species.iucn_population_trend}')와 ` +
-        `한글 추세 칸('${species.population_trend}')의 방향이 다름. 성장률 r 은 IUCN 추세를 쓰고, ` +
-        `점수의 추세 보정${delta !== 0 ? `(${delta > 0 ? "+" : ""}${delta})` : ""}은 한글 추세 칸을 씀  ` +
+        `한글 추세 칸('${species.population_trend}')의 방향이 다름. v5 계산에서 성장률 r 은 IUCN 추세를 쓰고, ` +
+        `마지막 추세 보정${delta !== 0 ? `(${delta > 0 ? "+" : ""}${delta})` : ""}은 한글 추세 칸을 씀  ` +
         `[출처: species.iucn_population_trend, species.population_trend]`
     );
   }
@@ -173,14 +173,14 @@ export function buildChatContext(speciesId: string): ChatContext | null {
       `IUCN 기록 범위: 이 종에 연결된 IUCN 평가는 ` +
         (rec.scope ? `${rec.scope} 지역 평가` : `지역 평가 (등급 ${species.iucn_category} 은 지역 평가에만 쓰는 등급)`) +
         ` — 전 지구 평가가 아님. 아래 IUCN 동기화 등급·성숙 개체수·추세는 그 지역의 값` +
-        (n0FromIucn ? `이고, LastWatch 점수(v5)도 이 지역 개체수를 기준 개체수 N0 로 씀` : "") +
+        (n0FromIucn ? `이고, LastWatch v5 계산도 이 지역 개체수를 기준 개체수 N0 로 씀` : "") +
         `  [출처: species.iucn_assessment_scope, species.iucn_category]`
     );
   if (rec.parentTaxon)
     lines.push(
       `IUCN 평가 대상: ${rec.parentTaxon} (종 전체) — 이 아종(${species.scientific_name})은 종 단위 평가에 연결됨. ` +
         `아래 IUCN 동기화 등급·성숙 개체수·추세는 ${rec.parentTaxon} 종 전체의 값` +
-        (n0FromIucn ? `이고, LastWatch 점수(v5)도 이 종 전체 개체수를 기준 개체수 N0 로 씀 — 이 아종의 개체수가 아님` : "") +
+        (n0FromIucn ? `이고, LastWatch v5 계산도 이 종 전체 개체수를 기준 개체수 N0 로 씀 — 이 아종의 개체수가 아님` : "") +
         `  [출처: species.iucn_assessed_taxon]`
     );
   if (rec.synonym)
@@ -249,9 +249,15 @@ export function buildChatContext(speciesId: string): ChatContext | null {
     lines.push(
       `LastWatch 위험도 점수: ${tipping.consensus_score}/100 — ${tipping.intervention_tier} ` +
         `${payload?.tier_label ?? ""}  ` +
-        `[LastWatch 자체 계산 (IUCN 공식 지표 아님), 출처: tipping_points.consensus_score]`
+        `[LastWatch 자체 계산(v5), IUCN 공식 지표 아님, 출처: tipping_points.consensus_score]`
     );
   }
+  if (tipping && !isExtinct)
+    lines.push(
+      `점수의 뜻: LastWatch 위험도 점수는 개체수 자료로 그 종에 보전 조치가 얼마나 급한지를 매긴 0~100 점 — 멸종 확률 그 자체도, ` +
+        `IUCN 등급을 대신하는 값도 아님. 티어 구간: T0 안정 20 미만 · T1 주의 20 이상 40 미만 · T2 경계 40 이상 60 미만 · ` +
+        `T3 위급 60 이상 80 미만 · T4 임박 80 이상  [출처: LastWatch 계산식 페이지 /methodology]`
+    );
 
   // 개체수 하한 적용 여부 (결정 1) — 하한에 묶인 종은 "개체수 하한 규칙 적용됨" 과 하한 적용 전 점수를 함께 싣는다.
   const floor = tipping && !isExtinct ? floorBreakdown(species, tipping.payload) : null;
@@ -371,7 +377,7 @@ export function buildSystemPrompt(name: string, context: string): string {
 컨텍스트의 값을 임의로 반올림·환산·합산하지 않고 그대로 인용합니다.
 연도·출처는 같은 줄 대괄호에 적힌 것만 인용합니다. 다른 줄의 연도를 끌어다 붙이지 않습니다.
 숫자를 인용할 때는 그 숫자가 적힌 줄의 대괄호를 그대로 옮겨 적습니다 — 연도나 "기준 연도 미상"까지 포함합니다.
-LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), IUCN 공식 지표 아님"을 함께 밝힙니다.
+LastWatch 위험도 점수의 값(예: 78/100)을 말할 때마다 "LastWatch 자체 계산(v5), IUCN 공식 지표 아님"을 함께 밝힙니다.
 단, 절멸·야생절멸 종의 점수 100 은 계산값이 아닙니다 — "LastWatch 규칙에 따른 고정값(계산값 아님), IUCN 공식 지표 아님"으로 밝히고 "자체 계산"이라고 부르지 않습니다.
 전체 개체수와 성숙 개체수는 서로 다른 값입니다. 섞어 쓰거나 한쪽을 다른 쪽으로 대신하지 않습니다.
 문헌 기준값을 인용할 때는 출처 논문과 그 값에 논쟁이 있는지를 함께 밝힙니다.
@@ -389,6 +395,7 @@ LastWatch 위험도 점수는 언급할 때마다 "LastWatch 자체 계산(v5), 
 데이터 밖의 내용을 참고로 덧붙일 때는 문장 앞에 "LastWatch 데이터 밖·미검증"이라고 먼저 표시합니다.
 추정·해석·추론은 "추정:"으로 시작해 사실과 분리하고, 어느 데이터에서 어떻게 추정했는지 한 줄로 밝힙니다.
 데이터끼리 어긋나면 감추지 말고 모순 자체를 지적합니다. 컨텍스트에 "데이터 모순" 줄이 있으면 관련된 값(개체수·추세·점수)을 말할 때 그 모순도 함께 밝힙니다.
+숫자의 출처·근거를 묻는 질문에는 "데이터 모순" 줄, IUCN 기록 범위·평가 대상 줄, 비교 기준 단서(서로 다른 개체수 기준이 섞인 순위 등)를 빠짐없이 함께 밝힙니다.
 
 [위협]
 IUCN 위협은 "대분류 > 중분류 > 항목 (코드)" 경로로 적혀 있습니다. 항목 이름만 떼어 쓰지 말고 상위 분류와 함께 씁니다.

@@ -6,6 +6,7 @@
 //   tsx --env-file=.env.local research/chatbot-eval/run_eval.ts            # 50문항 실행 (Gemini 호출)
 //   tsx --env-file=.env.local research/chatbot-eval/run_eval.ts --only pop-01,score-02
 //   tsx research/chatbot-eval/run_eval.ts --context-only                   # LLM 없이 기대값이 컨텍스트에 있는지만
+//   tsx research/chatbot-eval/run_eval.ts --rescore <결과.json>            # 저장된 답을 지금 검사기로 다시 채점 (LLM 호출 없음)
 //   옵션: --out <파일>  (기본 research/chatbot-eval/results/eval_v1_<날짜>.json)
 //
 // DB 는 읽기만 한다 (챗 라우트는 쓰지 않는다). API 키 값은 출력하지 않는다.
@@ -44,6 +45,7 @@ const opt = (name: string) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 const CONTEXT_ONLY = args.includes("--context-only");
+const RESCORE = opt("--rescore");
 const ONLY = opt("--only")?.split(",").map((s) => s.trim());
 const today = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 const OUT = opt("--out") ?? path.join("research/chatbot-eval/results", `eval_v1_${today}.json`);
@@ -55,10 +57,11 @@ const PROVENANCE_RE =
   /^데이터 출처: LastWatch DB v\d{4}\.\d{2}\.\d{2}, IUCN API 조회일 .+, 계산일 (\d{4}-\d{2}-\d{2}|없음 \(점수 미산출\))$/;
 
 const NOT_IN_DATA =
-  /(LastWatch\s*)?데이터(베이스)?(에는|에)\s*(이 항목[이은]\s*)?없|기록(이|은)?\s*없|정보(가|는)?\s*없|포함되어 있지 않|확인되지 않/;
+  /(LastWatch\s*)?데이터(베이스)?(\([^)\n]*\))?(에는|에)\s*(이 항목[이은]\s*)?없|기록(이|은)?\s*없|정보(가|는)?\s*없|(포함|등록|수록)되어 있지 않|들어 있지 않|확인되지 않/;
 /** 이 답이 점수 값을 말하는가 — "점수 … 78", "78/100", "78점" */
-// "v5 점수" 의 "5 점" 처럼 영문자·숫자에 붙은 숫자와 "점수" 는 점수 값이 아니다
-const SCORE_VALUE = /(위험도|LastWatch)[^\n]{0,12}점수[^\n]{0,30}?(?<![A-Za-z])\d|(?<![A-Za-z\d.])\d+(\.\d+)?\s*\/\s*100|(?<![A-Za-z\d.])\d+(\.\d+)?\s*점(?!수)/;
+// 점수 값: "78점" · "78/100" · "위험도 점수는 78" — "v5 점수" 의 "5 점", "100/1000" 의 "100/100", "점수 산출 시 …(+4)" 는 아니다
+const SCORE_VALUE =
+  /(?<![A-Za-z\d.])\d+(\.\d+)?\s*\/\s*100(?![\d.])|(?<![A-Za-z\d.])\d+(\.\d+)?\s*점(?!수)|(위험도|LastWatch)[^\n]{0,8}점수\s*(?:는|은|가|:)?\s*\**\s*\d+(\.\d+)?(?![\d.]|\s*(?:마리|종|위|%|년))/;
 
 const REQUIRES: Record<string, (reply: string, item: Item) => boolean> = {
   not_in_data: (r) => NOT_IN_DATA.test(r),
@@ -143,7 +146,50 @@ async function ask(item: Item): Promise<{ reply?: string; error?: string; status
   return { error: "retries exhausted", status: 0, ms: Date.now() - t0 };
 }
 
+function summarize(results: { reply?: string | null; checks?: CheckResult[] }[]) {
+  const answered = results.filter((r) => r.reply);
+  const allChecks = answered.flatMap((r) => r.checks ?? []);
+  const key = (c: CheckResult) => c.name.split(":")[0];
+  return {
+    run_at: new Date().toISOString(),
+    items: results.length,
+    answered: answered.length,
+    items_all_pass: answered.filter((r) => (r.checks ?? []).every((c) => c.verdict !== "fail")).length,
+    checks: {
+      pass: allChecks.filter((c) => c.verdict === "pass").length,
+      fail: allChecks.filter((c) => c.verdict === "fail").length,
+      warn: allChecks.filter((c) => c.verdict === "warn").length,
+    },
+    by_check: Object.fromEntries(
+      Array.from(new Set(allChecks.map(key))).map((k) => [
+        k,
+        {
+          pass: allChecks.filter((c) => key(c) === k && c.verdict === "pass").length,
+          fail: allChecks.filter((c) => key(c) === k && c.verdict === "fail").length,
+          warn: allChecks.filter((c) => key(c) === k && c.verdict === "warn").length,
+        },
+      ])
+    ),
+  };
+}
+
 async function main() {
+  if (RESCORE) {
+    const saved = JSON.parse(fs.readFileSync(RESCORE, "utf-8")) as { results: (Item & { reply?: string | null; checks?: CheckResult[] })[] };
+    for (const r of saved.results) {
+      const ctx = buildChatContext(r.species_id);
+      if (!ctx || !r.reply) continue;
+      const item = set.items.find((i) => i.id === r.id) ?? r;
+      r.checks = runChecks(item, r.reply, `${ctx.context}\n${ctx.system}\n${r.question}\n${ctx.provenance}`);
+      const fails = r.checks.filter((c) => c.verdict === "fail");
+      if (fails.length) console.log(`✗ ${r.id} 실패: ${fails.map((f) => f.name).join(", ")}`);
+    }
+    const summary = summarize(saved.results);
+    fs.writeFileSync(OUT, JSON.stringify({ summary, results: saved.results }, null, 1));
+    console.log(JSON.stringify({ items: summary.items, items_all_pass: summary.items_all_pass, checks: summary.checks }));
+    console.log(`→ ${OUT}`);
+    return;
+  }
   const results = [];
   for (const item of items) {
     const ctx = buildChatContext(item.species_id);
@@ -180,29 +226,7 @@ async function main() {
   }
   if (CONTEXT_ONLY) return;
 
-  const answered = results.filter((r) => "reply" in r && r.reply);
-  const allChecks = answered.flatMap((r) => (r as { checks: CheckResult[] }).checks);
-  const summary = {
-    run_at: new Date().toISOString(),
-    items: results.length,
-    answered: answered.length,
-    items_all_pass: answered.filter((r) => (r as { checks: CheckResult[] }).checks.every((c) => c.verdict !== "fail")).length,
-    checks: {
-      pass: allChecks.filter((c) => c.verdict === "pass").length,
-      fail: allChecks.filter((c) => c.verdict === "fail").length,
-      warn: allChecks.filter((c) => c.verdict === "warn").length,
-    },
-    by_check: Object.fromEntries(
-      Array.from(new Set(allChecks.map((c) => c.name.split(":")[0]))).map((k) => [
-        k,
-        {
-          pass: allChecks.filter((c) => c.name.split(":")[0] === k && c.verdict === "pass").length,
-          fail: allChecks.filter((c) => c.name.split(":")[0] === k && c.verdict === "fail").length,
-          warn: allChecks.filter((c) => c.name.split(":")[0] === k && c.verdict === "warn").length,
-        },
-      ])
-    ),
-  };
+  const summary = summarize(results as { reply?: string | null; checks?: CheckResult[] }[]);
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify({ summary, results }, null, 1));
   console.log(JSON.stringify(summary, null, 1));
