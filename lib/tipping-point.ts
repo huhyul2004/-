@@ -263,9 +263,16 @@ interface PvaResult {
   T_to_qext_p10: number | null;
   T_to_qext_median: number | null;
   // v2.0 명세 추가:
-  extinction_times: number[]; // 각 sim 의 멸종 연도 (분수년) — 멸종 안하면 미포함
-  allee_times: number[];      // 각 sim 의 Allee threshold 도달 연도 — 도달 안하면 미포함
-  trajectories: number[][];   // (n_sim, T+1) 모든 trajectory 보존 — score 시계열 변환용
+  extinction_times: number[]; // 각 유효 sim 의 멸종 연도 (분수년) — 멸종 안하면 미포함
+  allee_times: number[];      // 각 유효 sim 의 Allee threshold 도달 연도 — 도달 안하면 미포함
+  trajectories: number[][];   // (n_valid, T+1) 유효 trajectory 만 — score 시계열 변환용
+  /** 집계에 쓴 유효 궤적 수 (결정 8 — NaN·Infinity 궤적 제외) */
+  n_valid: number;
+  /** 값이 유한하지 않게 된 궤적 수 — 집계에서 뺐다 */
+  n_invalid: number;
+  /** PVA 점수의 결손항 입력 — N_safe = max(K·safeKFraction, safeMinN), ratio = min(1, N0/N_safe) */
+  N_safe: number;
+  ratio: number;
 }
 
 function runPva(p: PvaParams): PvaResult {
@@ -284,21 +291,26 @@ function runPva(p: PvaParams): PvaResult {
   const finalNs: number[] = [];
   const extTimes: number[] = [];
   const alleeTimes: number[] = [];
-  const traj: number[][] = Array.from({ length: T + 1 }, () => new Array(n_sim).fill(0));
   // sim 별 trajectory (n_sim × T+1)
   const simTraj: number[][] = Array.from({ length: n_sim }, () => new Array(T + 1).fill(0));
+  // 결정 8 (2026-10-03) — 값이 유한하지 않게 된 궤적은 집계에서 뺀다.
+  //   Math.exp 는 손대지 않는다 (JS 의 exp 넘침 → Infinity 동작을 그대로 재현한다). 대신 그 결과를 검사한다:
+  //   N 이 K 보다 수백 배 커지면 exp(r_t·(1−N/K)) 가 Infinity 로 넘치고, poissonSample 의 정규 근사에서
+  //   Infinity − Infinity = NaN 이 된다. 그 궤적의 멸종 판정 frac = (prevN−2)/(prevN−N) 는 Inf/Inf = NaN 이고
+  //   Math.min(1, NaN) = NaN 이 멸종 시각을 NaN 으로 만든다 — NaN 시각은 t <= 50 비교에서 빠져 P_ext 를 낮추고
+  //   중앙값 정렬을 흐트러뜨린다. 그래서 그런 궤적을 "무효" 로 표시하고 확률·분위수·평균의 분모에서 뺀다.
+  const validSims: number[] = [];
 
   for (let s = 0; s < n_sim; s++) {
     let N = N0;
     let prevN = N;
-    traj[0][s] = N;
     simTraj[s][0] = N;
     let extinctAt: number | null = null;
     let alleeAt: number | null = null;
+    let invalid = false;
 
     for (let t = 1; t <= T; t++) {
       if (N <= 0) {
-        traj[t][s] = 0;
         simTraj[s][t] = 0;
         continue;
       }
@@ -322,36 +334,49 @@ function runPva(p: PvaParams): PvaResult {
       // 인구 확률성 Poisson
       N = poissonSample(Math.max(expectedN, 0), rand);
       N = Math.max(0, Math.round(N));
-      traj[t][s] = N;
       simTraj[s][t] = N;
+
+      // Infinity·NaN 궤적 — 이후 값은 의미가 없으므로 이 sim 을 끝내고 무효로 둔다
+      if (!Number.isFinite(N)) {
+        invalid = true;
+        break;
+      }
 
       // 준멸종 (N<2)
       if (N < N_qext && extinctAt === null) {
         if (prevN > N) {
           const frac = (prevN - N_qext) / (prevN - N);
+          // Math.min(1, NaN) = NaN — 명시적으로 막는다 (prevN 이 Infinity 이던 궤적)
+          if (Number.isNaN(frac)) {
+            invalid = true;
+            break;
+          }
           extinctAt = (t - 1) + Math.max(0, Math.min(1, frac));
         } else {
           extinctAt = t;
         }
         // 멸종 후 0 유지
         for (let tt = t; tt <= T; tt++) {
-          traj[tt][s] = 0;
           simTraj[s][tt] = 0;
         }
         break;
       }
     }
+    if (invalid) continue;
+    validSims.push(s);
     finalNs.push(N);
     if (extinctAt !== null) extTimes.push(extinctAt);
     if (alleeAt !== null) alleeTimes.push(alleeAt);
   }
 
+  const nValid = validSims.length;
+  const nDenom = Math.max(nValid, 1); // 전부 무효면 확률 0 으로 둔다 (n_valid = 0 이 함께 기록된다)
   const extCount50 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.short).length;
   const extCount100 = extTimes.filter((t) => t <= V5_SPEC.pva.horizons.long).length;
   const extCountT = extTimes.filter((t) => t <= T).length;
-  const P_ext_50 = extCount50 / n_sim;
-  const P_ext_100 = extCount100 / n_sim;
-  const P_ext_T = extCountT / n_sim;
+  const P_ext_50 = extCount50 / nDenom;
+  const P_ext_100 = extCount100 / nDenom;
+  const P_ext_T = extCountT / nDenom;
 
   let median_T: number | null = null;
   if (extTimes.length > 0) {
@@ -367,15 +392,16 @@ function runPva(p: PvaParams): PvaResult {
   const survFinal = finalNs.filter((n) => n >= N_qext);
   const meanFinal = survFinal.length > 0 ? survFinal.reduce((a, b) => a + b, 0) / survFinal.length : 0;
 
-  // Trajectory percentiles per year
+  // Trajectory percentiles per year — 유효 궤적만, sim 순서 그대로 (무효가 없으면 예전과 같은 합산 순서)
   const trajMean: number[] = [];
   const trajP10: number[] = [];
   const trajP90: number[] = [];
   for (let t = 0; t <= T; t++) {
-    const sorted = [...traj[t]].sort((a, b) => a - b);
-    trajMean.push(traj[t].reduce((a, b) => a + b, 0) / n_sim);
-    trajP10.push(sorted[Math.floor(0.1 * n_sim)]);
-    trajP90.push(sorted[Math.floor(0.9 * n_sim)]);
+    const col = validSims.map((s) => simTraj[s][t]);
+    const sorted = [...col].sort((a, b) => a - b);
+    trajMean.push(col.reduce((a, b) => a + b, 0) / nDenom);
+    trajP10.push(sorted[Math.floor(0.1 * nValid)] ?? 0);
+    trajP90.push(sorted[Math.floor(0.9 * nValid)] ?? 0);
   }
 
   // Year when p10 trajectory hits N_qext — pessimistic 멸종 연도 (선형 보간)
@@ -415,7 +441,11 @@ function runPva(p: PvaParams): PvaResult {
     T_to_qext_median: median_T,
     extinction_times: extTimes,
     allee_times: alleeTimes,
-    trajectories: simTraj,
+    trajectories: validSims.map((s) => simTraj[s]),
+    n_valid: nValid,
+    n_invalid: n_sim - nValid,
+    N_safe,
+    ratio,
   };
 }
 
@@ -575,6 +605,9 @@ export interface TippingPointResult {
       P_ext_100yr: number;
       median_T_ext: number | null;
       confidence: number;
+      /** 집계에 쓴 유효 궤적 수 / 제외한 궤적 수 (결정 8). 절멸 종 결과에는 없다 */
+      n_valid?: number;
+      n_invalid?: number;
     };
     iucn: { score: number; Ne: number; genetic_status: string; confidence: number };
   };
@@ -750,9 +783,10 @@ export function evaluateTippingPoint(
   const T_horizon = T;
 
   // 시나리오 B (golden_time_end): trajectory score 시계열에서 80 첫 도달 (p50)
+  // 분모는 유효 궤적 수 (결정 8 — 무효 궤적은 pva.trajectories 에 없다)
   const t4EntryTimes: number[] = [];
-  for (let sIdx = 0; sIdx < n_sim; sIdx++) {
-    const scoreSeries = trajectoryToScore(pva.trajectories[sIdx], K, N_allee, neRatio);
+  for (const trajectory of pva.trajectories) {
+    const scoreSeries = trajectoryToScore(trajectory, K, N_allee, neRatio);
     for (let t = 0; t < scoreSeries.length; t++) {
       if (scoreSeries[t] >= 80) {
         t4EntryTimes.push(t);
@@ -762,7 +796,7 @@ export function evaluateTippingPoint(
   }
 
   let yearsToGolden: number;
-  if (t4EntryTimes.length >= n_sim * 0.05) {
+  if (t4EntryTimes.length >= pva.n_valid * 0.05) {
     const sorted = [...t4EntryTimes].sort((a, b) => a - b);
     yearsToGolden = percentile(sorted, 0.5);
   } else {
@@ -771,7 +805,7 @@ export function evaluateTippingPoint(
 
   // 시나리오 A: intervention_deadline = allee_times p10 (v1 p25 → v2 p10)
   let yearsToDeadline: number;
-  if (pva.allee_times.length >= n_sim * 0.05) {
+  if (pva.allee_times.length >= pva.n_valid * 0.05) {
     const sorted = [...pva.allee_times].sort((a, b) => a - b);
     yearsToDeadline = percentile(sorted, 0.10);
   } else {
@@ -780,7 +814,7 @@ export function evaluateTippingPoint(
 
   // 시나리오 A: no_action_extinction = extinction_times p10 (v1 p50 → v2 p10, 신고서 §8 정합)
   let yearsToExtinction: number;
-  if (pva.extinction_times.length >= n_sim * 0.05) {
+  if (pva.extinction_times.length >= pva.n_valid * 0.05) {
     const sorted = [...pva.extinction_times].sort((a, b) => a - b);
     yearsToExtinction = percentile(sorted, 0.10);
   } else {
@@ -821,6 +855,8 @@ export function evaluateTippingPoint(
         P_ext_100yr: pva.P_ext_100yr,
         median_T_ext: pva.median_T_ext,
         confidence: V5_SPEC.pva.confidence,
+        n_valid: pva.n_valid,
+        n_invalid: pva.n_invalid,
       },
       iucn: { score: iucn.iucn_score, Ne: iucn.Ne, genetic_status: iucn.genetic_status, confidence: iucn.confidence },
     },
