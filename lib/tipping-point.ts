@@ -287,6 +287,8 @@ interface PvaResult {
   n_valid: number;
   /** 값이 유한하지 않게 된 궤적 수 — 집계에서 뺐다 */
   n_invalid: number;
+  /** 무효 궤적 중 멸종 판정에서 Math.min(1, NaN) = NaN 이 나온 궤적 수 */
+  n_ext_time_nan: number;
   /** PVA 점수의 결손항 입력 — N_safe = max(K·safeKFraction, safeMinN), ratio = min(1, N0/N_safe) */
   N_safe: number;
   ratio: number;
@@ -316,7 +318,14 @@ function runPva(p: PvaParams): PvaResult {
   //   Infinity − Infinity = NaN 이 된다. 그 궤적의 멸종 판정 frac = (prevN−2)/(prevN−N) 는 Inf/Inf = NaN 이고
   //   Math.min(1, NaN) = NaN 이 멸종 시각을 NaN 으로 만든다 — NaN 시각은 t <= 50 비교에서 빠져 P_ext 를 낮추고
   //   중앙값 정렬을 흐트러뜨린다. 그래서 그런 궤적을 "무효" 로 표시하고 확률·분위수·평균의 분모에서 뺀다.
+  //
+  //   무효로 표시해도 시뮬레이션은 끝까지 예전과 똑같이 돌린다 (중간에 break 하지 않는다).
+  //   중간에 멈추면 그 sim 이 남은 해에 쓰던 난수를 건너뛰어 다음 sim 부터 난수열이 밀린다 —
+  //   그러면 "무효 궤적을 뺀 효과" 에 "다른 표본을 뽑은 효과" 가 섞인다 (2026-10-03 첫 구현 6e41d4e 의 결함 —
+  //   점수 변동 45종 중 하락 14종이 이 재추출 잡음이었다. 고친 뒤에는 26종, 전부 상승).
+  //   그래서 유효 궤적은 결정 8 이전 엔진과 난수까지 같고, 바뀌는 것은 무효 궤적이 빠진 집계뿐이다.
   const validSims: number[] = [];
+  let nExtTimeNaN = 0; // 멸종 판정에서 Math.min(1, NaN) = NaN 이 나온 궤적 수 (무효 궤적의 일부)
 
   for (let s = 0; s < n_sim; s++) {
     let N = N0;
@@ -353,22 +362,21 @@ function runPva(p: PvaParams): PvaResult {
       N = Math.max(0, Math.round(N));
       simTraj[s][t] = N;
 
-      // Infinity·NaN 궤적 — 이후 값은 의미가 없으므로 이 sim 을 끝내고 무효로 둔다
-      if (!Number.isFinite(N)) {
-        invalid = true;
-        break;
-      }
+      // Infinity·NaN 궤적 — 이 궤적은 무효. 난수 소비를 예전과 같게 두려고 루프는 그대로 계속한다
+      if (!Number.isFinite(N)) invalid = true;
 
       // 준멸종 (N<2)
       if (N < N_qext && extinctAt === null) {
         if (prevN > N) {
           const frac = (prevN - N_qext) / (prevN - N);
-          // Math.min(1, NaN) = NaN — 명시적으로 막는다 (prevN 이 Infinity 이던 궤적)
-          if (Number.isNaN(frac)) {
+          const within = Math.max(0, Math.min(1, frac));
+          // Math.min(1, NaN) = NaN 을 명시적으로 검사한다 — prevN 이 Infinity 이던 궤적 (Inf/Inf = NaN).
+          // 이 궤적의 멸종 시각은 NaN 이라 P_ext·중앙값에 넣을 수 없다 → 무효
+          if (Number.isNaN(within)) {
             invalid = true;
-            break;
+            nExtTimeNaN++;
           }
-          extinctAt = (t - 1) + Math.max(0, Math.min(1, frac));
+          extinctAt = (t - 1) + within;
         } else {
           extinctAt = t;
         }
@@ -461,6 +469,7 @@ function runPva(p: PvaParams): PvaResult {
     trajectories: validSims.map((s) => simTraj[s]),
     n_valid: nValid,
     n_invalid: n_sim - nValid,
+    n_ext_time_nan: nExtTimeNaN,
     N_safe,
     ratio,
   };
@@ -796,6 +805,7 @@ export interface TippingPointResult {
       /** 집계에 쓴 유효 궤적 수 / 제외한 궤적 수 (결정 8). 절멸 종 결과에는 없다 */
       n_valid?: number;
       n_invalid?: number;
+      n_ext_time_nan?: number;
       /** 결손항 입력 — N_safe = max(K·safeKFraction, safeMinN), ratio = min(1, N0/N_safe) */
       N_safe?: number;
       ratio?: number;
@@ -934,9 +944,10 @@ export function evaluateTippingPoint(
   //
   // 개체수 하한(floor) 은 합의점수를 "덮어쓴다". Math.max 라서 하한보다 낮으면 무조건 끌어올린다.
   // 이 한 단계가 소형 개체군에서는 (1)~(4) 전체보다 강하게 작동한다 —
-  // 예: 자바코뿔소 N0=76 → 레이어 EWS 50 · PVA 37.33 · Ne 95 (엔진 5.1.0, 기본 시드), 가중합 55.55,
-  //     m=1 감쇠 후 47.22 — 그러나 floorBands 의 N<100 → 78 이 적용돼 최종 78 이 된다. 47.22 는 버려진다.
-  //     (5.0 의 PVA 37.0 은 NaN 궤적 11개가 분모에 섞인 값이었고, 예전 주석의 35.8·46.65 는 seed 42 값이었다)
+  // 예: 자바코뿔소 N0=76 → 레이어 EWS 50 · PVA 37.04 · Ne 95 (엔진 5.1.0, 기본 시드), 가중합 55.42,
+  //     m=1 감쇠 후 47.11 — 그러나 floorBands 의 N<100 → 78 이 적용돼 최종 78 이 된다. 47.11 은 버려진다.
+  //     (5.0 의 PVA 37.0 은 무효 궤적 12개가 분모에 섞인 값이었고, 예전 주석의 35.8·46.65 는 seed 42 값이었다
+  //      — seed 42 로 5.0 엔진을 돌리면 PVA 35.843, ×0.85 = 46.648)
   //
   // [근거와 기재 현황 — 2026-09-12 조사, docs/population-floor-audit.md]
   //   도입: 커밋 d5525e0 (2026-05-04). 커밋 메시지에 적힌 근거 3항목:
@@ -1054,6 +1065,7 @@ export function evaluateTippingPoint(
         confidence: V5_SPEC.pva.confidence,
         n_valid: pva.n_valid,
         n_invalid: pva.n_invalid,
+        n_ext_time_nan: pva.n_ext_time_nan,
         N_safe: pva.N_safe,
         ratio: pva.ratio,
       },

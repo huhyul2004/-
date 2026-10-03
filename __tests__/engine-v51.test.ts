@@ -91,7 +91,7 @@ describe("결정 7 — Damuth K 분기", () => {
 
 describe("결정 8 — NaN·Infinity 궤적 제외", () => {
   it("무효 궤적이 생기는 종: 유효+무효 = n_sim, 확률·점수가 유한", () => {
-    const r = evaluateTippingPoint(row("wd-q300964"), OPTS)!; // 강토끼 — 무효 궤적 22개
+    const r = evaluateTippingPoint(row("wd-q300964"), OPTS)!; // 강토끼 — 무효 궤적 17개
     const pva = r.layer_scores.pva;
     expect(pva.n_invalid).toBeGreaterThan(0);
     expect(pva.n_valid! + pva.n_invalid!).toBe(OPTS.n_sim);
@@ -100,9 +100,25 @@ describe("결정 8 — NaN·Infinity 궤적 제외", () => {
   });
 
   it("무효 궤적이 없는 종: 유효 궤적 = n_sim", () => {
-    // 북극곰 — N0 26,000, 무효 궤적 0 (자바코뿔소는 N 이 K 를 넘은 뒤 음의 r_t 해에 폭주해 11개가 무효)
+    // 북극곰 — N0 26,000, 무효 궤적 0 (자바코뿔소는 N 이 K 를 넘은 뒤 음의 r_t 해에 폭주해 12개가 무효)
     const r = evaluateTippingPoint(row("ursus-maritimus"), OPTS)!;
     expect(r.layer_scores.pva.n_invalid).toBe(0);
     expect(r.layer_scores.pva.n_valid).toBe(OPTS.n_sim);
+  });
+
+  it("멸종 판정의 Math.min(1, NaN) 검사가 실제로 실행된다 (자바코뿔소 1개)", () => {
+    const pva = evaluateTippingPoint(row("rhinoceros-sondaicus"), OPTS)!.layer_scores.pva;
+    expect(pva.n_ext_time_nan).toBe(1);
+    expect(pva.n_ext_time_nan!).toBeLessThanOrEqual(pva.n_invalid!);
+  });
+
+  it("무효 궤적이 생겨도 난수열은 그대로 — 고정값 (중간 break 로 난수를 건너뛰면 바뀐다)", () => {
+    // 2026-10-03 첫 구현은 무효가 되는 순간 break 해 다음 sim 부터 난수열이 밀렸다 (자바코뿔소 무효 11개, PVA 37.33).
+    // 난수 소비를 예전과 같게 둔 지금 값: 무효 12개, P_ext_50 = 538/1488. 결정 8 전 엔진의 유효 궤적과 같은 표본이다.
+    const pva = evaluateTippingPoint(row("rhinoceros-sondaicus"), OPTS)!.layer_scores.pva;
+    expect(pva.n_invalid).toBe(12);
+    expect(pva.P_ext_50yr).toBeCloseTo(0.36155913978494625, 12);
+    expect(pva.P_ext_100yr).toBeCloseTo(0.5934139784946236, 12);
+    expect(pva.score).toBeCloseTo(37.03965053763441, 9);
   });
 });

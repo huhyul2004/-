@@ -6,19 +6,26 @@
 //
 // 결정 6 영향 = 새 점수 − α=1 , 결정 8 영향 = α=1 − 저장값.
 // 기본 시드·{ n_sim: 1500, T: 100 } (DB 를 채운 scripts/compute-tipping-points.ts 와 같음).
-// 실행: tsx research/max_blending_impact.ts [출력 JSON]
+// 실행: tsx research/max_blending_impact.ts [출력 JSON] [기준 DB]
+//   기준 DB 기본값은 data/species.db. 2026-10-03 재계산 뒤에는 변경 전 DB 를 꺼내 넘긴다:
+//   git show 374fdae:data/species.db > /tmp/species.pre.db
 import fs from "node:fs";
 import Database from "better-sqlite3";
 import { evaluateTippingPoint, aggregateConsensus, TIERS } from "../lib/tipping-point";
 import type { SpeciesRow } from "../lib/db";
 
 const out = process.argv[2] ?? "/tmp/max_blending_impact.json";
-const db = new Database("data/species.db", { readonly: true });
+const db = new Database(process.argv[3] ?? "data/species.db", { readonly: true });
 const stored = new Map(
-  (db.prepare("SELECT species_id, consensus_score, intervention_tier FROM tipping_points").all() as {
-    species_id: string; consensus_score: number; intervention_tier: string;
+  (db.prepare("SELECT species_id, consensus_score, intervention_tier, extinction_days, payload_json FROM tipping_points").all() as {
+    species_id: string; consensus_score: number; intervention_tier: string; extinction_days: number | null; payload_json: string;
   }[]).map((r) => [r.species_id, r])
 );
+// 멸종 추정일 비교용 — 날짜 문자열(YYYY-MM-DD)만 비교한다 (기준일 차이와 무관)
+const extDateOf = (payload: string) =>
+  ((JSON.parse(payload) as { dates?: { extinction_estimate_date?: string | null } }).dates?.extinction_estimate_date ?? null)?.slice(0, 10) ?? null;
+const medianOf = (payload: string) =>
+  (JSON.parse(payload) as { layer_scores?: { pva?: { median_T_ext?: number | null } } }).layer_scores?.pva?.median_T_ext ?? null;
 const rows = db.prepare("SELECT * FROM species WHERE category NOT IN ('EX','EW')").all() as SpeciesRow[];
 
 const tierOf = (score: number) => {
@@ -31,7 +38,8 @@ type Rec = {
   layers: { ews: number; pva: number; iucn: number }; m: number;
   weighted: number; blended: number; floor: number; floorBoundNoBlend: boolean; floorBoundBlend: boolean;
   stored: number; storedTier: string; alpha1: number; alpha1Tier: string; now: number; nowTier: string;
-  effect6: number; effect8: number; nInvalid: number;
+  effect6: number; effect8: number; nInvalid: number; nExtTimeNaN: number;
+  storedExtDate: string | null; nowExtDate: string | null; storedMedianT: number | null; nowMedianT: number | null;
 };
 const recs: Rec[] = [];
 
@@ -66,6 +74,11 @@ for (const s of rows) {
     effect6: Math.round((agg.score - noBlend.score) * 10) / 10,
     effect8: Math.round((noBlend.score - old.consensus_score) * 10) / 10,
     nInvalid: r.layer_scores.pva.n_invalid ?? 0,
+    nExtTimeNaN: r.layer_scores.pva.n_ext_time_nan ?? 0,
+    storedExtDate: extDateOf(old.payload_json),
+    nowExtDate: r.dates.extinction_estimate_date?.slice(0, 10) ?? null,
+    storedMedianT: medianOf(old.payload_json),
+    nowMedianT: r.layer_scores.pva.median_T_ext,
   });
 }
 
@@ -103,6 +116,13 @@ const summary = {
     down: changed8.filter((r) => r.effect8 < 0).length,
     maxAbs: Math.max(0, ...changed8.map((r) => Math.abs(r.effect8))),
     tierChanged: tier8.length,
+    tierMoves: by(tier8, (r) => `${r.storedTier}→${r.alpha1Tier}`),
+    extTimeNaNSpecies: recs.filter((r) => r.nExtTimeNaN > 0).length,
+    extTimeNaNTrajectories: recs.reduce((a, r) => a + r.nExtTimeNaN, 0),
+    // 날짜 — 블렌딩은 날짜에 관여하지 않으므로(점수 집계 뒤 단계) 날짜 변화는 모두 결정 8 몫이다
+    extDateChanged: recs.filter((r) => r.storedExtDate !== r.nowExtDate).length,
+    extDateChangedInvalidSpecies: recs.filter((r) => r.storedExtDate !== r.nowExtDate && r.nInvalid > 0).length,
+    medianTChanged: recs.filter((r) => r.storedMedianT !== r.nowMedianT).length,
   },
   combined: {
     scoreChanged: recs.filter((r) => r.now !== r.stored).length,
@@ -112,5 +132,8 @@ const summary = {
 };
 console.log(JSON.stringify(summary, null, 1));
 changed6.sort((a, b) => b.effect6 - a.effect6);
-fs.writeFileSync(out, JSON.stringify({ summary, changed6, changed8, records: recs }, null, 1));
+const dateChanged = recs
+  .filter((r) => r.storedExtDate !== r.nowExtDate)
+  .map((r) => ({ id: r.id, ko: r.ko, nInvalid: r.nInvalid, storedExtDate: r.storedExtDate, nowExtDate: r.nowExtDate, storedMedianT: r.storedMedianT, nowMedianT: r.nowMedianT }));
+fs.writeFileSync(out, JSON.stringify({ summary, changed6, changed8, dateChanged, records: recs }, null, 1));
 console.log(`→ ${out}`);
