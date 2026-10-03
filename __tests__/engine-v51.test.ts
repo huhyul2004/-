@@ -47,6 +47,16 @@ describe("결정 6 — 경보 2표 이상 max 블렌딩", () => {
     expect(a.afterMajority).toBeCloseTo(a.weighted, 10);
   });
 
+  it("반사실 옵션 — 문턱·배율을 바꿔 집계할 수 있고, 기본값은 V5_SPEC", () => {
+    const zero = aggregateConsensus({ ...base, layers: { ews: 50, pva: 10, iucn: 30 } }, { majorityFactors: { zero: 0.7 } });
+    expect(zero.afterMajority).toBeCloseTo(zero.weighted * 0.7, 10);
+    // EWS 66.08 은 코드 문턱(70)에선 경보가 아니고 명세서 H = 60 에선 경보
+    const layers = { ews: 66.08, pva: 55, iucn: 30 };
+    expect(aggregateConsensus({ ...base, layers }).m).toBe(1);
+    expect(aggregateConsensus({ ...base, layers }, { alertThresholds: { ews: 60, pva: 60, iucn: 60 } }).m).toBe(1);
+    expect(aggregateConsensus({ ...base, layers: { ...layers, pva: 65 } }, { alertThresholds: { ews: 60, pva: 60, iucn: 60 } }).m).toBe(2);
+  });
+
   it("개체수 하한은 블렌딩 뒤에 적용되고, 하한 전 점수를 함께 남긴다", () => {
     const a = aggregateConsensus({ ...base, N0: 76, layers: { ews: 50, pva: 37, iucn: 95 } });
     expect(a.floor.value).toBe(78);

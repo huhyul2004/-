@@ -691,10 +691,20 @@ function applyTrend(consensus: number, kind: TrendAdjustKind | null): number {
 
 const round1 = (x: number) => Math.round(x * 10) / 10;
 
+/** 반사실 비교용 옵션 — 엔진(evaluateTippingPoint)은 넘기지 않는다. docs/decisions-pending.md 의 선택지 영향 집계에 쓴다 */
+export interface AggregationOptions {
+  /** m ≥ 2 분기의 α (블렌딩 전 점수 = 1) */
+  blendAlpha?: number;
+  /** m = 0 · m = 1 배율 (명세서 γ = 0.70 등) */
+  majorityFactors?: { zero?: number; one?: number };
+  /** 경보 문턱 (명세서 H = 60 한 값 등) */
+  alertThresholds?: { ews: number; pva: number; iucn: number };
+}
+
 /**
- * @param opts.blendAlpha m ≥ 2 분기의 α 를 바꿔 계산한다 — 반사실 비교용(블렌딩 전 점수 등). 엔진은 넘기지 않는다.
+ * @param opts 반사실 비교용 (AggregationOptions). 엔진은 넘기지 않는다.
  */
-export function aggregateConsensus(input: AggregationInput, opts: { blendAlpha?: number } = {}): AggregationTrace {
+export function aggregateConsensus(input: AggregationInput, opts: AggregationOptions = {}): AggregationTrace {
   // ===== (2) 가중치 계산 — S_weighted =====
   // 고정 가중치다. 명세서가 말하는 "신뢰도 동적 가중치"는 구현돼 있지 않다.
   //   레이어 신뢰도(0.25 / 0.7 / 0.85)는 가중치에 안 들어가고,
@@ -708,7 +718,7 @@ export function aggregateConsensus(input: AggregationInput, opts: { blendAlpha?:
   // (3-a) 다수결 투표 — 각 레이어가 자기 임계값을 넘으면 경보 1표.
   //   임계값이 레이어마다 다르다: EWS>70, PVA>50, IUCN>60.
   //   명세서(full_spec §5.3 / PKA-1551 B-2)는 공통 H=60 으로 m 을 세라고 한다 → 코드와 불일치.
-  const at = V5_SPEC.alertThresholds;
+  const at = opts.alertThresholds ?? V5_SPEC.alertThresholds;
   const alerts = { ews: ews > at.ews, pva: pva > at.pva, iucn: iucn > at.iucn };
   const m = [alerts.ews, alerts.pva, alerts.iucn].filter(Boolean).length;
   const maxLayer = Math.max(ews, pva, iucn);
@@ -726,11 +736,11 @@ export function aggregateConsensus(input: AggregationInput, opts: { blendAlpha?:
   let afterMajority: number;
   if (m === 0) {
     branch = "none";
-    majorityFactor = V5_SPEC.consensusMultiplier.zero;
+    majorityFactor = opts.majorityFactors?.zero ?? V5_SPEC.consensusMultiplier.zero;
     afterMajority = weighted * majorityFactor;
   } else if (m === 1) {
     branch = "single";
-    majorityFactor = V5_SPEC.consensusMultiplier.one;
+    majorityFactor = opts.majorityFactors?.one ?? V5_SPEC.consensusMultiplier.one;
     afterMajority = weighted * majorityFactor;
   } else {
     branch = "blend";
