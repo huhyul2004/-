@@ -9,7 +9,7 @@
 |---|---|
 | 변수 이름 | **`IUCN_API_TOKEN`** (`.env.local`, 36자). 예전 `.env.local.example` 의 `IUCN_TOKEN` 은 어디서도 읽지 않는 이름이었다 — 2026-10-03 정정 |
 | 유효성 | `GET https://api.iucnredlist.org/api/v4/information/api_version` → **HTTP 200** `{"api_version":"v4"}` (2026-10-03, 토큰 값은 출력하지 않음) |
-| 읽는 코드 | 루트의 Python 수집 스크립트만 — `sync_iucn_all.py` · `fetch_iucn_generation.py` · `fetch_iucn_taxonomy.py` · `migrate_threat_hierarchy.py` 등. 웹 런타임은 읽지 않는다 (Vercel 에 넣을 필요 없음) |
+| 읽는 코드 | 수집 스크립트만 — `sync_iucn_all.py`(+ 같은 TOKEN 을 쓰는 `migrate_threat_hierarchy.py`) · `fetch_iucn_population.py` · `synonym_relookup.py` · `fetch_iucn_generation.py` · `fetch_iucn_taxonomy.py` · `scripts/sync-iucn-assessment-scope.ts`. 웹 런타임은 읽지 않는다 (Vercel 에 넣을 필요 없음). 2026-10-03 전까지 네 스크립트(population·synonym·generation·taxonomy)는 `.env` 만 열어 `.env.local` 의 토큰을 못 읽었다 — 이제 환경 변수 → `.env` → `.env.local` 순으로 `IUCN_API_TOKEN` 줄만 읽는다 |
 | 지금까지 쓴 곳 | 평가 동기화 2026-07-26~29 (`species.iucn_synced_at`, 4,048종) · 위협·서식지·보전 활동 수집 2026-09-12 (`species.iucn_details_synced_at`, 4,026종) |
 | 화면 반영 | 챗봇 답변 끝 "IUCN API 조회일", 계산 근거 페이지, CSV 의 `iucn_synced_kst` · `iucn_details_synced_kst` 가 위 두 컬럼을 읽는다 |
 
@@ -21,6 +21,9 @@
 - [ ] **사이트 표시 등급과 IUCN API 등급이 다른 종** — 점수 행이 있는 941종 중 38종 (예: 북극고래 사이트 LC / API VU, 바이지 사이트 EX / API CR).
       재동기화 뒤 다시 세고, 어느 쪽을 표시할지 결정 대기에 올린다 (챗봇은 지금 두 값을 함께 싣는다)
 - [ ] **위협·서식지 미수집 종** — 수기 시드 22종(예: 자바코뿔소)은 `iucn_details_synced_at` 이 비어 있다. IUCN 행을 더할지(수기 행과의 중복 처리) 정한다
+- [ ] **평가 범위 바로잡기 (결정 대기 항목 12)** — 점수 종 중 지역(유럽) 평가가 저장된 16종(14종은 그 개체수를 N0 로 씀)과
+      종 단위 평가에 연결된 아종 14종(3종은 종 전체 개체수를 N0 로 씀). `sync_iucn_all.py` 의 `pick_latest()` 가 범위(scopes 에 Global)와
+      평가 대상(taxon)을 확인하도록 고친 뒤 재동기화 → `tsx --env-file=.env.local scripts/sync-iucn-assessment-scope.ts --all` 로 다시 확인
 - [ ] 세대시간 단위 확인 — 스코트나무타기캥거루 `iucn_generation_length` 3650 (일 단위로 보임, `docs/data-quality-suspects-2026-08-27.md` §2). 값은 고치지 말고 API 원문 단위를 먼저 확인
 
 ## 2. Damuth K 선행조건 ① — 서식 면적 (결정 대기 항목 2)

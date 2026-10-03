@@ -3,7 +3,9 @@
 멸종위기종의 IUCN 등급·개체수·위협 자료와 LastWatch 자체 위험 점수(v5)를 보여주는 사이트.
 운영: https://lastwatch-safe.vercel.app (`main` 브랜치가 Vercel 로 자동 배포된다)
 
-- Next.js 14 App Router + better-sqlite3. 데이터는 `data/species.db` 하나이고 git 으로 함께 배포된다 (런타임은 읽기만 한다).
+- Next.js 14 App Router + better-sqlite3. 데이터는 `data/species.db` 하나이고 git 으로 함께 배포된다. 종 데이터는 런타임에 읽기만 하지만,
+  `/api/recommend`·`/api/retrospective` 는 AI 응답 캐시 행을 같은 DB 에 쓴다 — 로컬에서는 추적 파일 `data/species.db` 자체가 바뀐다
+  (Vercel 에서는 `/tmp` 사본). 커밋 전에 `git status data/` 를 확인한다.
 - 위험 점수는 LastWatch 자체 계산이며 IUCN 공식 지표가 아니다. 계산식: `/methodology`, 종별 계산 근거: `/species/<id>/calculation`.
 - 종 데이터 CSV: `/species/export` (`?scope=curated` 기본 · `scored` · `all`).
 
@@ -19,7 +21,7 @@ npm run dev                        # http://localhost:3000
 |---|---|
 | `npm run build` | 프로덕션 빌드 |
 | `npx tsc --noEmit` | 타입 검사 |
-| `npx vitest run` | 테스트 (`__tests__/`, DB 를 읽기 전용으로 연다) |
+| `npx vitest run` | 테스트 (`__tests__/`). 일부 테스트는 앱의 `getDb()` 로 DB 를 열어 WAL 설정을 건다 — 데이터는 바꾸지 않는다 |
 | `npx tsx scripts/compute-tipping-points.ts` | 위험 점수 재계산 → `data/species.db` 의 `tipping_points` 갱신, `PRAGMA user_version` = 계산일 |
 | `npx tsx --env-file=.env.local research/chatbot-eval/run_eval.ts` | 챗봇 평가셋 50문항 실행 (Gemini 호출) |
 
@@ -31,8 +33,9 @@ npm run dev                        # http://localhost:3000
 |---|---|---|---|
 | `GEMINI_API_KEY` | 챗봇 `/api/chat`, 보전 전략 `/api/recommend`, 회고 `/api/retrospective` (`lib/gemini.ts`) | [Google AI Studio](https://aistudio.google.com/apikey) | 세 기능이 "점검 중" 안내(503)를 낸다. 나머지 사이트는 동작 |
 | `ANTHROPIC_API_KEY` | `scripts/` 의 일회성 배치만 (`lib/anthropic.ts`). 웹 런타임은 읽지 않는다 | [Anthropic Console](https://console.anthropic.com/settings/keys) | 배치 스크립트만 멈춘다 |
-| `IUCN_API_TOKEN` | IUCN 수집 스크립트만 (`sync_iucn_all.py` 등). 웹 런타임은 읽지 않는다 | [IUCN Red List API](https://api.iucnredlist.org) | 수집 스크립트만 멈춘다 |
-| `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD` | 댓글 관리 (서버 전용) | Supabase 대시보드 | 댓글 관리 기능만 멈춘다 |
+| `IUCN_API_TOKEN` | IUCN 수집 스크립트만 — `sync_iucn_all.py` · `fetch_iucn_population.py` · `synonym_relookup.py` · `fetch_iucn_generation.py` · `fetch_iucn_taxonomy.py` · `scripts/sync-iucn-assessment-scope.ts`. 웹 런타임은 읽지 않는다 | [IUCN Red List API](https://api.iucnredlist.org) | 수집 스크립트만 멈춘다 |
+| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | 댓글 기능 전체 — 보기·쓰기·좋아요·신고·관리 (`lib/supabase`, 서버 전용 비밀값은 SERVICE_ROLE_KEY) | Supabase 대시보드 → Project Settings → API | 댓글 기능 전체가 멈추고 댓글 영역이 숨겨진다 |
+| `ADMIN_PASSWORD` | 댓글 관리 화면 `/admin/comments` | 운영자가 정하는 값 | 관리 화면만 멈춘다 |
 
 **로컬** — `.env.local` 에 적는다. `.gitignore` 의 `.env*.local` 규칙으로 커밋되지 않는다.
 

@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getDb } from "@/lib/db";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"; // 빈 문자열(KEY=)도 기본값으로
   const db = getDb();
   const rows = db
     .prepare("SELECT id, category, updated_at FROM species")

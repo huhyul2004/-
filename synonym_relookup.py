@@ -23,7 +23,25 @@ FAIL = os.path.join(ROOT, "data", "iucn-sync-failures.json")
 LOG = os.path.join(ROOT, "docs", "synonym-mapping-log.json")
 IUCN = "https://api.iucnredlist.org/api/v4"
 GBIF = "https://api.gbif.org/v1/species/match"
-TOK = open(os.path.join(ROOT, ".env")).read().split("=", 1)[1].strip()
+def _load_iucn_token():
+    """IUCN_API_TOKEN — 환경 변수 → .env → .env.local 순 (2026-10-03: 예전에는 .env 만 열어 .env.local 에 둔 토큰을 못 읽었다)."""
+    tok = os.environ.get("IUCN_API_TOKEN", "").strip()
+    if tok:
+        return tok
+    for name in (".env", ".env.local"):
+        path = os.path.join(ROOT, name)
+        if not os.path.exists(path):
+            continue
+        for line in open(path, encoding="utf-8"):
+            line = line.strip()
+            if line.startswith("export "):
+                line = line[len("export "):].strip()
+            if line.startswith("IUCN_API_TOKEN="):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    sys.exit("✗ IUCN_API_TOKEN 없음 — .env.local (또는 .env) 에 IUCN_API_TOKEN=… 을 넣거나 환경 변수로 지정")
+
+
+TOK = _load_iucn_token()
 H = {"Authorization": f"Bearer {TOK}", "accept": "application/json"}
 
 
